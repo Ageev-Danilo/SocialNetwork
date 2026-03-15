@@ -32,3 +32,6 @@ export type ImgProps = {
     size?: number;
     style?: StyleProp<ImageStyle>;
 };
+export type NavsProps = {
+    route: any;
+}

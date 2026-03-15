@@ -1,3 +1,3 @@
-export const IMAGES = {
-    logo: require('../../assets/logo.png')
-};
+// export const IMAGES = {
+//     logo: require('../../assets/logo.png')
+// };

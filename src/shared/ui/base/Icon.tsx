@@ -2,7 +2,7 @@ import { Image } from 'react-native';
 import { icons, IconProps, ImgProps } from '../../types/types';
 
 
-export function Icon({ name, size = 24, style }: IconProps) {
+export function Icon({ name, size = 24, styles }: IconProps) {
     const Svg = icons[name];
     return <Svg width={size} height={size} />;
 }
