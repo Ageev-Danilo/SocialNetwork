@@ -1,23 +1,24 @@
 import { View, Text, Image } from 'react-native';
-import Button from '../Button';
+import { usePathname } from 'expo-router';
+
+import { Button, TabBtn } from '../Button';
 import { Icon } from './Icon';
+
 import { BASE } from '@/shared/consts';
 import { NavsProps } from '@/shared/types/types';
 
 
-export function Nav({ route }: NavsProps) {
+export function Nav() {
     return (
         <View style={[BASE.nav, BASE.yc]}>
             <Image source={require('../../../assets/logo.png')} style={{ width: 145, height: 18 }} />
-            <Navigations route={route} style={[BASE.yc, { gap: 10 }]} />
+            <Navigations style={[BASE.yc, { gap: 10 }]} />
         </View>
     )
 }
 
-export function Navigations({ route, style }: NavsProps) {
-    const isAuth = route?.name?.includes('(auth)');
-
-    //if (isAuth) return null;
+export function Navigations({ style }: NavsProps) {
+    const pathname = usePathname();
 
     return (
         <View style={style}>
@@ -27,7 +28,7 @@ export function Navigations({ route, style }: NavsProps) {
             <Button type='outline'>
                 <Icon name='settings' />
             </Button>
-            <Button type='outline' text='OK'>
+            <Button type='outline'>
                 <Icon name='logout' />
             </Button>
         </View>
@@ -36,19 +37,11 @@ export function Navigations({ route, style }: NavsProps) {
 
 export function BottomBar() {
     return (
-        <View>
-            <Button type='icon'>
-                
-            </Button>
-            <Button type='icon'>
-                
-            </Button>
-            <Button type='icon'>
-                
-            </Button>
-            <Button type='icon'>
-                
-            </Button>
+        <View style={[BASE.center, {justifyContent: 'space-between', paddingHorizontal: 16}]}>
+            <TabBtn icon="home" label="Головна" href="/home" />
+            <TabBtn icon="img" label="Мої публікації" href="/posts" />
+            <TabBtn icon="group" label="Друзі" href="/friends" />
+            <TabBtn icon="chat" label="Чати" href="/chat" />
         </View>
     )
 }

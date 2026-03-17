@@ -3,6 +3,7 @@
         "name": "messenger",
         "slug": "messenger",
         "version": "1.0.0",
+        "scheme": "app",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",

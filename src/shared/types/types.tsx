@@ -1,4 +1,5 @@
-import { StyleProp, ViewStyle, ImageStyle } from "react-native";
+import { ReactNode } from 'react';
+import { StyleProp, ViewStyle, ImageStyle } from 'react-native';
 
 import AddSvg from '../../assets/add.svg';
 import LogoutSvg from '../../assets/logout.svg';
@@ -7,7 +8,6 @@ import HomeSvg from '../../assets/home.svg';
 import ImgSvg from '../../assets/img.svg';
 import ChatSvg from '../../assets/chat.svg';
 import GroupSvg from '../../assets/group.svg';
-
 
 export const icons = {
     add: AddSvg,
@@ -34,6 +34,20 @@ export type ImgProps = {
 };
 
 export type NavsProps = {
-    route: any;
     style?: StyleProp<ViewStyle>;
-}
+};
+
+export type BtnProps = {
+    type?: 'fill' | 'icon' | 'outline' | 'borderless';
+    text?: string;
+    onPress?: () => void;
+    children?: ReactNode;
+    style?: StyleProp<ViewStyle>;
+};
+
+export type TabBtnProps = {
+    icon: IconName;
+    label?: string;
+    href?: string;
+    onPress?: () => void;
+};

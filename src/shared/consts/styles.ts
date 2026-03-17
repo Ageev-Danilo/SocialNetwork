@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 export const BASE = StyleSheet.create({
     center: {
         display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -28,6 +29,20 @@ export const BASE = StyleSheet.create({
         height: 56,
         paddingHorizontal: 16,
         paddingVertical: 8,
+    },
+    tab: {
+        padding: 8, 
+        paddingBottom: 4, 
+        gap: 6
+    },
+    tabActive: {
+        borderTopWidth: 2,
+        borderTopColor: '#543C52'
+    },
+    tabText: {
+        fontFamily: 'Arial',
+        color: '#070A1C',
+        fontWeight: 500,
     },
 
     btn: { 
@@ -60,4 +75,9 @@ export const BASE = StyleSheet.create({
     outlineText: {
         color: '#543C52',
     },
+    borderless: {
+        minWidth: 68,
+        height: 60,
+        borderRadius: 0
+    }
 });
