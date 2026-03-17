@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { StyleProp, ViewStyle, ImageStyle } from 'react-native';
+import { StyleProp, ViewStyle, ImageStyle, TextInputProps } from 'react-native';
 
 import AddSvg from '../../assets/add.svg';
 import LogoutSvg from '../../assets/logout.svg';
@@ -51,3 +51,10 @@ export type TabBtnProps = {
     href?: string;
     onPress?: () => void;
 };
+
+export interface InputProps extends TextInputProps {
+    type?: 'pwd' | 'text' | 'email';
+    holder?: string;
+    onChangeText?: (text: string) => void;
+    value?: string;
+}

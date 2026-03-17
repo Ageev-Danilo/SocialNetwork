@@ -30,6 +30,10 @@ export const BASE = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
     },
+    bottomBar: {
+        justifyContent: 'space-between', 
+        paddingHorizontal: 16
+    },
     tab: {
         padding: 8, 
         paddingBottom: 4, 
@@ -79,5 +83,13 @@ export const BASE = StyleSheet.create({
         minWidth: 68,
         height: 60,
         borderRadius: 0
+    },
+    input: {
+        fontSize: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderWidth: 1,
+        borderColor: '#CDCED2',
+        borderRadius: 10,
     }
 });

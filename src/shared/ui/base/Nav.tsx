@@ -1,5 +1,5 @@
 import { View, Text, Image } from 'react-native';
-import { usePathname } from 'expo-router';
+import { usePathname, router } from 'expo-router';
 
 import { Button, TabBtn } from '../Button';
 import { Icon } from './Icon';
@@ -20,6 +20,10 @@ export function Nav() {
 export function Navigations({ style }: NavsProps) {
     const pathname = usePathname();
 
+    const handleLogout = () => {
+        router.push('(auth)/login');
+    }
+
     return (
         <View style={style}>
             <Button type='outline'>
@@ -28,7 +32,7 @@ export function Navigations({ style }: NavsProps) {
             <Button type='outline'>
                 <Icon name='settings' />
             </Button>
-            <Button type='outline'>
+            <Button type='outline' onPress={handleLogout}>
                 <Icon name='logout' />
             </Button>
         </View>
@@ -37,7 +41,7 @@ export function Navigations({ style }: NavsProps) {
 
 export function BottomBar() {
     return (
-        <View style={[BASE.center, {justifyContent: 'space-between', paddingHorizontal: 16}]}>
+        <View style={[BASE.center, BASE.bottomBar]}>
             <TabBtn icon="home" label="Головна" href="/home" />
             <TabBtn icon="img" label="Мої публікації" href="/posts" />
             <TabBtn icon="group" label="Друзі" href="/friends" />
