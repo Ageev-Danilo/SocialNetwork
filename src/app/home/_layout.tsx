@@ -1,10 +1,12 @@
-import { Stack } from 'expo-router';
-
+import { View } from 'react-native';
+import { Slot } from 'expo-router';
+import { TabMenu } from '@/components';
 
 export default function HomeLayout() {
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="home" />
-        </Stack>
+        <View style={{ flex: 1 }}>
+            <TabMenu />
+            <Slot />
+        </View>
     );
 }
