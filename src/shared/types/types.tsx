@@ -58,3 +58,8 @@ export interface InputProps extends TextInputProps {
     onChangeText?: (text: string) => void;
     value?: string;
 }
+
+export type BodyProps = {
+    children: ReactNode;
+    contentStyle?: StyleProp<ViewStyle>;
+};
