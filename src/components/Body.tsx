@@ -1,11 +1,7 @@
 import { ScrollView } from 'react-native';
-import { ReactNode } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
 
-type BodyProps = {
-    children: ReactNode;
-    contentStyle?: StyleProp<ViewStyle>;
-};
+import { BodyProps } from '@/shared/types/types';
+
 
 export function Body({ children, contentStyle }: BodyProps) {
     return (
