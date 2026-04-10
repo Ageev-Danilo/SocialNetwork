@@ -1,21 +1,35 @@
-import { View, Text } from 'react-native';
-import { Button, Input } from '@/shared/ui';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LoginForm } from '@/modules/auth';
 
-import { BASE } from '@/shared/consts';
-
-
-export default function Login() {
+export default function LoginScreen() {
+    const router = useRouter();
     return (
-        <View style={[BASE.column, {backgroundColor: 'white', paddingVertical: 44, paddingHorizontal: 16, borderRadius: 20, gap: 24}]}>
-            <View></View>
-            <Text>Раді тебе знову бачити!</Text>
-            <View>
-                <Text>Електронна пошта</Text>
-                <Input type='email' holder='you@example.com' />
-                <Text>Пароль</Text>
-                <Input type='pwd' holder='Введи пароль' />
+        <SafeAreaView style={styles.safe}>
+            <View style={styles.card}>
+                <LoginForm />
+                <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+                    <Text style={styles.link}>
+                        Немає акаунту?{' '}
+                        <Text style={styles.linkBold}>Зареєструватись</Text>
+                    </Text>
+                </TouchableOpacity>
             </View>
-            <Button type='fill' text='Увійти' />
-        </View>
+        </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    safe: { flex: 1, backgroundColor: '#F3F4F6' },
+    card: {
+        flex: 1,
+        backgroundColor: 'white',
+        margin: 16,
+        borderRadius: 20,
+        padding: 24,
+        gap: 16,
+    },
+    link: { textAlign: 'center', color: '#6B7280', fontSize: 14 },
+    linkBold: { color: '#543C52', fontWeight: '600' },
+});
