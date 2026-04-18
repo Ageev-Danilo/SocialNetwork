@@ -88,7 +88,7 @@ export function RegisterForm() {
                 <Button
                     type="fill"
                     text="Продовжити"
-                    onPress={handleSubmit(onSubmit)}
+                    onPress={() => handleSubmit(onSubmit)()}
                 />
             </View>
         </View>
