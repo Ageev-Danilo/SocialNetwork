@@ -1,9 +1,8 @@
-import emailjs from '@emailjs/browser';
+import emailjs from '@emailjs/react-native';
 
-//туть
-const SERVICE_ID = 'your_service_id';
-const TEMPLATE_ID = 'your_template_id';
-const PUBLIC_KEY = 'your_public_key';
+const SERVICE_ID  = 'service_bwc7w3l';
+const TEMPLATE_ID = 'template_nkzhzgh';
+const PUBLIC_KEY  = 'oo2vhpTMpp57OA9Tn';
 
 export function generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -11,15 +10,12 @@ export function generateCode(): string {
 
 export async function sendVerificationEmail(
     toEmail: string,
-    code: string
+    code: string,
 ): Promise<void> {
     await emailjs.send(
         SERVICE_ID,
         TEMPLATE_ID,
-        {
-            to_email: toEmail,
-            verification_code: code,
-        },
-        PUBLIC_KEY
+        { to_email: toEmail, verification_code: code },
+        { publicKey: PUBLIC_KEY },
     );
 }
