@@ -86,7 +86,7 @@ export function LoginForm() {
                 <Button
                     type="fill"
                     text={isLoading ? 'Завантаження...' : 'Увійти'}
-                    onPress={handleSubmit(onSubmit)}
+                    onPress={() => handleSubmit(onSubmit)()}
                 />
             </View>
         </View>
