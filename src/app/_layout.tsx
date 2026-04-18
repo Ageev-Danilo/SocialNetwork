@@ -1,4 +1,4 @@
-import { Slot } from 'expo-router';
+import { Slot, useRootNavigation } from 'expo-router';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -10,8 +10,11 @@ import { store } from '@/shared/store';
 import { UserContextProvider } from '@/modules/auth';
 
 import { AuthGate } from '@/modules/auth/ui/auth-gate'; 
+  
 
 export default function RootLayout() {
+    const rootNavigation = useRootNavigation();
+    if (rootNavigation?.isReady){
     return (
         <SafeAreaProvider>
             <Provider store={store}>
@@ -31,5 +34,5 @@ export default function RootLayout() {
                 </UserContextProvider>
             </Provider>
         </SafeAreaProvider>
-    );
+    );}
 }

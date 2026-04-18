@@ -1,25 +1,33 @@
 import emailjs from '@emailjs/browser';
 
 //туть
-const SERVICE_ID = 'your_service_id';
-const TEMPLATE_ID = 'your_template_id';
-const PUBLIC_KEY = 'your_public_key';
+const SERVICE_ID = 'service_bwc7w3l';
+const TEMPLATE_ID = 'template_nkzhzgh';
+const PUBLIC_KEY = 'oo2vhpTMpp57OA9Tn';
 
-export function generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
+// export function generateCode(): string {
+//    const code =  Math.floor(100000 + Math.random() * 900000).toString();
+// }
+//  const templateParams = {
+//             to_email: email,
+//             reset_link: `/home`, 
+//             message: "Ви запитали зміну пароля. Натисніть на посилання нижче, щоб встановити новий."
+//         };
+
+
 
 export async function sendVerificationEmail(
-    toEmail: string,
-    code: string
-): Promise<void> {
-    await emailjs.send(
+    email: string
+){
+    return await emailjs.send(
         SERVICE_ID,
         TEMPLATE_ID,
         {
-            to_email: toEmail,
-            verification_code: code,
-        },
-        PUBLIC_KEY
+            to_email: email,
+            reset_link: `/`,
+            message: "asdkajsdkaksd"
+            
+        },{
+        publicKey:'oo2vhpTMpp57OA9Tn',}
     );
 }
