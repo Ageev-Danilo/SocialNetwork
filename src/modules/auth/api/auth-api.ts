@@ -7,16 +7,16 @@ import type {
     MeResponse,
 } from './api.types';
 
-const authApi = baseApi.injectEndpoints({
+const  authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        login: builder.mutation<LoginResponse, LoginPayload>({
+        login:  builder.mutation<LoginResponse, LoginPayload>({
             query: (body) => ({
                 url: 'users/login',
                 method: 'POST',
                 body,
             }),
         }),
-        register: builder.mutation<RegisterResponse, RegisterPayload>({
+        register:  builder.mutation<RegisterResponse, RegisterPayload>({
             query: (body) => ({
                 url: 'users/register',
                 method: 'POST',
