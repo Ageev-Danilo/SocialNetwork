@@ -1,19 +1,19 @@
-import emailjs from '@emailjs/react-native';
+import Constants from 'expo-constants';
 
-const SERVICE_ID  = 'service_bwc7w3l';
-const TEMPLATE_ID = 'template_nkzhzgh';
-const PUBLIC_KEY  = 'oo2vhpTMpp57OA9Tn';
+const BASE_URL =
+    Constants.expoConfig?.extra?.apiUrl ?? 'http://10.0.2.2:3000';
 
+export async function sendVerificationEmail(toEmail: string): Promise<string> {
+    const response = await fetch(`${BASE_URL}/mail/send-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: toEmail }),
+    });
 
+    if (!response.ok) {
+        throw new Error('Не вдалося надіслати код');
+    }
 
-export async function sendVerificationEmail(
-    toEmail: string,
-    code: string,
-){
-    await emailjs.send(
-        SERVICE_ID,
-        TEMPLATE_ID,
-        { to_email: toEmail, code: code },
-        { publicKey: PUBLIC_KEY },
-    );
+    const data = await response.json() as { code: string };
+    return data.code;
 }

@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { Button, Input } from '@/shared/ui';
 import { registerSchema } from '../../model/schemas';
-import { generateCode, sendVerificationEmail } from '../../services/email.service';
+import { sendVerificationEmail } from '../../services/email.service';
 import type { RegisterSchema } from '../../model';
 import { styles } from './register-form.styles';
 
@@ -26,15 +26,14 @@ export function RegisterForm() {
 
     async function onSubmit(data: RegisterSchema) {
         try {
-            const code = generateCode();
-            await sendVerificationEmail(data.email, code);
+            const code = await sendVerificationEmail(data.email);
             router.push({
                 pathname: '/(auth)/verify',
                 params: {
-                    email: data.email,
+                    email:    data.email,
                     username: data.username,
-                    name: data.name,
-                    surname: data.surname,
+                    name:     data.name,
+                    surname:  data.surname,
                     password: data.password,
                     code,
                 },
