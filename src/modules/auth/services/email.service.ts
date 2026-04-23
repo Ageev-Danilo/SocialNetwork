@@ -1,10 +1,10 @@
 import Constants from 'expo-constants';
 
 const BASE_URL =
-    Constants.expoConfig?.extra?.apiUrl ?? 'http://10.0.2.2:3000';
+    Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.178.22:3000';
 
 export async function sendVerificationEmail(toEmail: string): Promise<string> {
-    const response = await fetch(`${BASE_URL}/mail/send-verification`, {
+    const response = await fetch(`${BASE_URL}/send-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: toEmail }),

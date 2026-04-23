@@ -15,13 +15,13 @@ interface UserContextContract {
 
 const UserContext = createContext<UserContextContract | null>(null);
 
-export async function useUserContext() {
+export  function useUserContext() {
     const ctx = useContext(UserContext);
     if (!ctx) throw new Error('useUserContext must be inside UserContextProvider');
     return ctx;
 }
 
-export async function UserContextProvider({ children }: PropsWithChildren) {
+export function UserContextProvider({ children }: PropsWithChildren) {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
 

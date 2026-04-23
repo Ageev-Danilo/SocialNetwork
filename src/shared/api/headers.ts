@@ -6,8 +6,10 @@ export async function queryBaseHeaders(
     _api: Pick<BaseQueryApi, 'getState' | 'extra' | 'endpoint' | 'type' | 'forced'>
 ) {
     const token = await AsyncStorage.getItem('token');
+    console.log(token)
     if (token) {
         headers.set('Authorization', `Bearer ${token}`);
     }
+    console.log(headers)
     return headers;
 }
