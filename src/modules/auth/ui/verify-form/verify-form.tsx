@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from '@/shared/ui';
 import { useRegisterMutation } from '../../api';
 import { useUserContext } from '../../context';
-import { generateCode, sendVerificationEmail } from '../../services/email.service';
+import { sendVerificationEmail } from '../../services/email.service';
 import { styles } from './verify-form.styles';
 
 const CODE_LENGTH = 6;
@@ -14,18 +14,18 @@ const CODE_LENGTH = 6;
 export function VerifyForm() {
     const router = useRouter();
     const params = useLocalSearchParams<{
-        email: string;
+        email:    string;
         username: string;
-        name: string;
-        surname: string;
+        name:     string;
+        surname:  string;
         password: string;
-        code: string;
+        code:     string;
     }>();
     const { setToken } = useUserContext();
     const [register, { isLoading }] = useRegisterMutation();
 
     const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError]   = useState<string | null>(null);
     const inputs = useRef<(TextInput | null)[]>([]);
 
     function handleChange(text: string, index: number) {
@@ -59,10 +59,10 @@ export function VerifyForm() {
         }
         try {
             const result = await register({
-                email: params.email,
+                email:    params.email,
                 username: params.username,
-                name: params.name,
-                surname: params.surname,
+                name:     params.name,
+                surname:  params.surname,
                 password: params.password,
             }).unwrap();
             await AsyncStorage.setItem('token', result.token);
@@ -75,9 +75,8 @@ export function VerifyForm() {
     }
 
     async function onResend() {
-        const newCode = generateCode();
         try {
-            await sendVerificationEmail(params.email, newCode);
+            const newCode = await sendVerificationEmail(params.email);
             router.setParams({ code: newCode });
             setDigits(Array(CODE_LENGTH).fill(''));
             inputs.current[0]?.focus();
