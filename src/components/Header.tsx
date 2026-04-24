@@ -4,10 +4,6 @@ import { BASE } from '@/shared/consts';
 import { router } from 'expo-router';
 
 export function Header() {
-    const handleLogout = () => {
-        router.push('/(auth)/login');
-    };
-
     return (
         <View style={[BASE.nav, BASE.yc]}>
             <Image
@@ -16,8 +12,18 @@ export function Header() {
             />
             <View style={[BASE.yc, { gap: 10 }]}>
                 <Button type="outline"><Icon name="add" /></Button>
-                <Button type="outline"><Icon name="settings" /></Button>
-                <Button type="outline" onPress={handleLogout}><Icon name="logout" /></Button>
+                <Button
+                    type="outline"
+                    onPress={() => router.push('/settings')}
+                >
+                    <Icon name="settings" />
+                </Button>
+                <Button
+                    type="outline"
+                    onPress={() => router.push('/(auth)/login')}
+                >
+                    <Icon name="logout" />
+                </Button>
             </View>
         </View>
     );
