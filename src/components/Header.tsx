@@ -14,7 +14,7 @@ export function Header() {
                 <Button type="outline"><Icon name="add" /></Button>
                 <Button
                     type="outline"
-                    onPress={() => router.push('/settings')}
+                    onPress={() => router.push('/(settings)/settings')}
                 >
                     <Icon name="settings" />
                 </Button>
