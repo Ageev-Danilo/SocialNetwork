@@ -15,5 +15,5 @@ const settingsApi = baseApi.injectEndpoints({
         }),
     }),
 });
-
+// 1 
 export const { useGetSettingsQuery, useUpdateSettingsMutation } = settingsApi;
