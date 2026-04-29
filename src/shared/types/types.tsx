@@ -8,6 +8,7 @@ import HomeSvg from '../../assets/home.svg';
 import ImgSvg from '../../assets/img.svg';
 import ChatSvg from '../../assets/chat.svg';
 import GroupSvg from '../../assets/group.svg';
+import CloseSvg from '../../assets/close.svg';
 
 export const icons = {
     add: AddSvg,
@@ -17,6 +18,7 @@ export const icons = {
     img: ImgSvg,
     chat: ChatSvg,
     group: GroupSvg,
+    close: CloseSvg,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -40,6 +42,8 @@ export type NavsProps = {
 export type BtnProps = {
     type?: 'fill' | 'icon' | 'outline' | 'borderless';
     text?: string;
+    icon?: IconName;
+    iconSize?: number;
     onPress?: () => void;
     children?: ReactNode;
     style?: StyleProp<ViewStyle>;

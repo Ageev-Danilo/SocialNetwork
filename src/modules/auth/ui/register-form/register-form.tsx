@@ -30,10 +30,10 @@ export function RegisterForm() {
             router.push({
                 pathname: '/(auth)/verify',
                 params: {
-                    email:    data.email,
+                    email: data.email,
                     username: data.username,
-                    name:     data.name,
-                    surname:  data.surname,
+                    name: data.name,
+                    surname: data.surname,
                     password: data.password,
                     code,
                 },
@@ -50,12 +50,32 @@ export function RegisterForm() {
             <View style={styles.fields}>
                 {(
                     [
-                        { name: 'email', label: 'Електронна пошта', type: 'email', holder: 'you@example.com' },
-                        { name: 'username', label: "Ім'я користувача", type: 'text', holder: 'username' },
+                        {
+                            name: 'email',
+                            label: 'Електронна пошта',
+                            type: 'email',
+                            holder: 'you@example.com',
+                        },
+                        {
+                            name: 'username',
+                            label: "Ім'я користувача",
+                            type: 'text',
+                            holder: 'username',
+                        },
                         { name: 'name', label: "Ім'я", type: 'text', holder: "Введи ім'я" },
-                        { name: 'surname', label: 'Прізвище', type: 'text', holder: 'Введи прізвище' },
+                        {
+                            name: 'surname',
+                            label: 'Прізвище',
+                            type: 'text',
+                            holder: 'Введи прізвище',
+                        },
                         { name: 'password', label: 'Пароль', type: 'pwd', holder: 'Введи пароль' },
-                        { name: 'confirmPassword', label: 'Підтверди пароль', type: 'pwd', holder: 'Повтори пароль' },
+                        {
+                            name: 'confirmPassword',
+                            label: 'Підтверди пароль',
+                            type: 'pwd',
+                            holder: 'Повтори пароль',
+                        },
                     ] as const
                 ).map(({ name, label, type, holder }) => (
                     <Controller
@@ -73,9 +93,7 @@ export function RegisterForm() {
                                     onBlur={field.onBlur}
                                 />
                                 {fieldState.error && (
-                                    <Text style={styles.error}>
-                                        {fieldState.error.message}
-                                    </Text>
+                                    <Text style={styles.error}>{fieldState.error.message}</Text>
                                 )}
                             </View>
                         )}
@@ -84,11 +102,7 @@ export function RegisterForm() {
             </View>
 
             <View style={styles.footer}>
-                <Button
-                    type="fill"
-                    text="Продовжити"
-                    onPress={() => handleSubmit(onSubmit)()}
-                />
+                <Button type="fill" text="Продовжити" onPress={() => handleSubmit(onSubmit)()} />
             </View>
         </View>
     );

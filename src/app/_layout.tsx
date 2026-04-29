@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 
-import { Header, Footer, Bottom } from '@/components'; 
+import { Header, Bottom } from '@/components'; 
 
 import { store } from '@/shared/store';
 import { UserContextProvider } from '@/modules/auth';
