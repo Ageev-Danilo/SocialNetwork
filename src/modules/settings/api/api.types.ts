@@ -10,12 +10,4 @@ export interface SettingsResponse {
     userId:       number;
 }
 
-export interface SettingsPayload {
-    pseudonym:    string;
-    firstName:    string;
-    lastName:     string;
-    date:         string;
-    username:     string;
-    signature:    string;
-    profileImage: string;
-}
+export type SettingsPayload = FormData;
