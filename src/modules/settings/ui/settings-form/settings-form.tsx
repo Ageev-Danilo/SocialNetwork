@@ -35,6 +35,8 @@ export function SettingsForm() {
 
     useEffect(() => {
         if (data) {
+            console.log('profileImage:', data.profileImage);
+            console.log('full url:', `${BASE_URL}/media/thumbnail/${data.profileImage}`);
             reset({
                 firstName: data.firstName,
                 lastName:  data.lastName,
