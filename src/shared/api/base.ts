@@ -3,7 +3,7 @@ import { queryBaseHeaders } from './headers';
 
 export const baseApi = createApi({
     reducerPath: 'api',
-    tagTypes: ['Settings'], 
+    tagTypes: ['Settings', 'Posts', 'MyPosts'], 
     baseQuery: fetchBaseQuery({
         baseUrl: 'http://192.168.1.100:3000',
         prepareHeaders: queryBaseHeaders,

@@ -1,0 +1,1 @@
+export { useGetAllPostsQuery, useGetPostByIdQuery, useCreatePostMutation } from './posts-api';
