@@ -1,2 +1,2 @@
-export { loginSchema, registerSchema } from './schemas';
-export type { User, LoginSchema, RegisterSchema } from './types';
+export { loginSchema, registerSchema, updateProfileSchema } from './schemas';
+export type { User, LoginSchema, RegisterSchema, UpdateProfileSchema } from './types';

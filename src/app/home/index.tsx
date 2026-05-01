@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import { Body } from '@/components';
 
+
 export default function HomeScreen() {
     return (
         <Body>
