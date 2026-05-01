@@ -13,7 +13,7 @@ export function Header() {
             <View style={[BASE.yc, { gap: 10 }]}>
                 <Button 
                     type="outline" 
-                    onPress={() => router.push('/(posts)/posts')}
+                    onPress={() => router.push('/(posts)/create-post')}
                 >
                     <Icon name="add" />
                 </Button>
