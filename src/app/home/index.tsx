@@ -1,6 +1,6 @@
 import { View, Text, FlatList, ActivityIndicator, Image } from 'react-native';
 import { Body } from '@/components';
-import { useGetAllPostsQuery } from '@/modules/posts/api'; // Шлях до твого API
+import { useGetAllPostsQuery } from '@/modules/posts/api'; 
 import { COLORS } from '@/shared/consts';
 
 export default function HomeScreen() {

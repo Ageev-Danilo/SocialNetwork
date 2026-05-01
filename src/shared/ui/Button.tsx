@@ -1,11 +1,16 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { Icon } from './base/Icon';
 import { BASE } from '../consts';
 import { BtnProps, TabBtnProps } from '@/shared/types/types';
 import { router, usePathname } from 'expo-router';
 
-export function Button({ type = 'fill', text, onPress, children, style }: BtnProps) {
+
+export function Button({ type = 'fill', text, icon, iconSize = 20, onPress, children, style }: BtnProps) {
+    if (icon) {
+        type = 'icon';
+    }
+
     const buttonStyle = [
         type === 'fill'       && BASE.fill,
         type === 'icon'       && BASE.icon,
@@ -27,6 +32,8 @@ export function Button({ type = 'fill', text, onPress, children, style }: BtnPro
     return (
         <Ripple onPress={onPress} style={finalStyles}>
             <View>
+                {icon && <Icon name={icon} size={iconSize} />}
+
                 {children
                     ? children
                     : <Text style={[BASE.btnText, ...textStyle]}>{text}</Text>}
@@ -50,9 +57,8 @@ export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
     };
 
     return (
-        <Pressable
+        <Ripple
             onPress={handlePress}
-            android_ripple={{ color: '#54 3C5220', borderless: false }}
             style={{ flex: 1, overflow: 'hidden' }}
         >
             {isActive && (
@@ -74,6 +80,6 @@ export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
                     </Text>
                 )}
             </View>
-        </Pressable>
+        </Ripple>
     );
 }

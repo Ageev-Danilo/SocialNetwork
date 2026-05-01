@@ -20,7 +20,7 @@ export function Header() {
                 </Button>
                 <Button
                     type="outline"
-                    onPress={() => router.push('/(auth)/login')}
+                    onPress={() => router.push('/(auth)/logout')}
                 >
                     <Icon name="logout" />
                 </Button>

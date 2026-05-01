@@ -29,7 +29,7 @@ export function Navigations({ style }: NavsProps) {
     const isVisible = !isChat && !isFriends;
 
     const handleLogout = () => {
-        router.push('(auth)/login');
+        router.push('/(modal)/about');
     };
 
     return (
