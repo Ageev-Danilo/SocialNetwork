@@ -13,7 +13,7 @@ import { AuthGate } from '@/modules/auth/ui/auth-gate';
   
 
 export default function RootLayout() {
-    const rootNavigation = useRootNavigation();
+    const rootNavigation = useRootNavigation(); 
     if (rootNavigation?.isReady){
     return (
         <SafeAreaProvider>

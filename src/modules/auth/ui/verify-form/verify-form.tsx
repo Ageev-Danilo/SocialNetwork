@@ -9,7 +9,7 @@ import { useUserContext } from '../../context';
 import { sendVerificationEmail } from '../../services/email.service';
 import { styles } from './verify-form.styles';
 
-const CODE_LENGTH = 6;
+const CODE_LENGTH = 6;  
 
 export function VerifyForm() {
     const router = useRouter();

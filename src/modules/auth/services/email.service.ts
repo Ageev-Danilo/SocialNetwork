@@ -7,7 +7,7 @@ export async function sendVerificationEmail(toEmail: string): Promise<string> {
     const response = await fetch(`${BASE_URL}/mail/send-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: toEmail }),3
+        body: JSON.stringify({ email: toEmail }),
     });
 
     if (!response.ok) {
@@ -15,5 +15,5 @@ export async function sendVerificationEmail(toEmail: string): Promise<string> {
     }
 
     const data = await response.json() as { code: string };
-    return data.code;
+    return data.code; 
 }

@@ -12,7 +12,7 @@ export default function VerifyScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({  
     safe: { flex: 1, backgroundColor: '#F3F4F6' },
     card: {
         flex: 1,
