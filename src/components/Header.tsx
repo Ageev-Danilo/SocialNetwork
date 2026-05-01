@@ -11,13 +11,20 @@ export function Header() {
                 style={{ width: 145, height: 18 }}
             />
             <View style={[BASE.yc, { gap: 10 }]}>
-                <Button type="outline"><Icon name="add" /></Button>
+                <Button 
+                    type="outline" 
+                    onPress={() => router.push('/(posts)/posts')}
+                >
+                    <Icon name="add" />
+                </Button>
+
                 <Button
                     type="outline"
                     onPress={() => router.push('/(settings)/settings')}
                 >
                     <Icon name="settings" />
                 </Button>
+                
                 <Button
                     type="outline"
                     onPress={() => router.push('/(auth)/logout')}

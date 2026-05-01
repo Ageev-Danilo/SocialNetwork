@@ -14,7 +14,7 @@ export default function PostDetailScreen() {
     );
 
     const post = data?.[0];
-    if (!post) return <Text>Пост не знайдено</Text>;
+    if (!post) return <Text>у вас ще немає публікаций!</Text>;
 
     return (
         <View style={{ padding: 16 }}>
