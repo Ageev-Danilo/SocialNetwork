@@ -10,9 +10,9 @@ export default function SignupScreen() {
         <SafeAreaView style={styles.safe}>
             <AuthHeader />
             <View style={styles.body}>
-                <AuthTabs active="signup" />
                 <ScrollView contentContainerStyle={styles.scroll}>
                     <View style={styles.card}>
+                        <AuthTabs active="signup" /> 
                         <RegisterForm />
                     </View>
                 </ScrollView>
@@ -24,7 +24,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
     safe:   { flex: 1, backgroundColor: 'white' },
     body:   { flex: 1, backgroundColor: '#F3F4F6' },
-    scroll: { flexGrow: 1, padding: 16 },
+    scroll: { flexGrow: 1, padding: 16, justifyContent: 'center' },
     card:   {
         backgroundColor: 'white',
         borderRadius:    20,

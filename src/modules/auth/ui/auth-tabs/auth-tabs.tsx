@@ -36,29 +36,28 @@ export function AuthTabs({ active }: Props) {
 const styles = StyleSheet.create({
     container: {
         alignItems:      'center',
-        paddingTop:      16,
-        paddingBottom:   8,
-        backgroundColor: '#F3F4F6',
+        paddingTop:      8,
+        paddingBottom:   16,
     },
     tabs: {
         flexDirection: 'row',
-        gap:           24,
+        gap:           32, 
     },
     tab: {
         paddingVertical:   8,
         paddingHorizontal: 4,
     },
     tabActive: {
-        borderBottomWidth: 2,
-        borderBottomColor: '#543C52',
+        borderBottomWidth: 3, 
+        borderBottomColor: '#070A1C', 
     },
     tabText: {
-        fontSize:   16,
+        fontSize:   24, 
         color:      '#9CA3AF',
         fontWeight: '500',
     },
     tabTextActive: {
-        color:      '#543C52',
+        color:      '#070A1C', 
         fontWeight: '700',
     },
 });

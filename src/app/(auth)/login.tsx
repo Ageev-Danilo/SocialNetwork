@@ -10,9 +10,9 @@ export default function LoginScreen() {
         <SafeAreaView style={styles.safe}>
             <AuthHeader />
             <View style={styles.body}>
-                <AuthTabs active="login" />
                 <ScrollView contentContainerStyle={styles.scroll}>
                     <View style={styles.card}>
+                        <AuthTabs active="login" /> 
                         <LoginForm />
                     </View>
                 </ScrollView>
@@ -20,11 +20,10 @@ export default function LoginScreen() {
         </SafeAreaView>
     );
 }
-
 const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: 'white' }, 
     body: { flex: 1, backgroundColor: '#F3F4F6' }, 
-    scroll: { flexGrow: 1, padding: 16 },
+    scroll: { flexGrow: 1, padding: 16, justifyContent: 'center' },
     card: {
         backgroundColor: 'white',
         borderRadius:    20,
