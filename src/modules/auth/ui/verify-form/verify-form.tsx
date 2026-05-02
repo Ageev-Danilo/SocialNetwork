@@ -76,17 +76,20 @@ export function VerifyForm() {
             <Text style={styles.codeLabel}>Код підтвердження</Text>
             <View style={styles.codeContainer}>
                 {digits.map((digit, i) => (
-                    <TextInput
-                        key={i}
-                        ref={(r) => { inputs.current[i] = r; }}
-                        style={[styles.codeInput, digit ? styles.codeInputFilled : null]}
-                        value={digit}
-                        onChangeText={(t) => handleChange(t, i)}
-                        onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
-                        keyboardType="number-pad"
-                        maxLength={1}
-                        selectTextOnFocus
-                    />
+                    <View key={i} style={[styles.codeBox, digit ? styles.codeBoxFilled : null]}>
+                        <Text style={[styles.underscore, digit ? styles.underscoreActive : null]}>_</Text>
+                        
+                        <TextInput
+                            ref={(r) => { inputs.current[i] = r; }}
+                            style={styles.codeInput}
+                            value={digit}
+                            onChangeText={(t) => handleChange(t, i)}
+                            onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
+                            keyboardType="number-pad"
+                            maxLength={1}
+                            selectTextOnFocus
+                        />
+                    </View>
                 ))}
             </View>
 
