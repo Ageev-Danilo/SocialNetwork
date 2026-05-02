@@ -2,30 +2,24 @@ import { useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Button } from '@/shared/ui';
 import { useRegisterMutation } from '../../api';
 import { useUserContext } from '../../context';
-import { sendVerificationEmail } from '../../services/email.service';
 import { styles } from './verify-form.styles';
 
 const CODE_LENGTH = 6;
 
 export function VerifyForm() {
-    const router = useRouter();
-    const params = useLocalSearchParams<{
+    const router  = useRouter();
+    const params  = useLocalSearchParams<{
         email:    string;
-        username: string;
-        name:     string;
-        surname:  string;
         password: string;
         code:     string;
     }>();
-    const { setToken } = useUserContext();
+    const { setToken }              = useUserContext();
     const [register, { isLoading }] = useRegisterMutation();
-
-    const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
-    const [error, setError]   = useState<string | null>(null);
+    const [digits, setDigits]       = useState<string[]>(Array(CODE_LENGTH).fill(''));
+    const [error, setError]         = useState<string | null>(null);
     const inputs = useRef<(TextInput | null)[]>([]);
 
     function handleChange(text: string, index: number) {
@@ -46,12 +40,9 @@ export function VerifyForm() {
     }
 
     async function onConfirm() {
-        const enteredCode = digits.join('');
-        if (enteredCode.length < CODE_LENGTH) {
-            setError('Введи всі 6 цифр');
-            return;
-        }
-        if (enteredCode !== params.code) {
+        const entered = digits.join('');
+        if (entered.length < CODE_LENGTH) { setError('Введи всі 6 цифр'); return; }
+        if (entered !== params.code) {
             setError('Невірний код. Спробуй ще раз');
             setDigits(Array(CODE_LENGTH).fill(''));
             inputs.current[0]?.focus();
@@ -60,29 +51,16 @@ export function VerifyForm() {
         try {
             const result = await register({
                 email:    params.email,
-                username: params.username,
-                name:     params.name,
-                surname:  params.surname,
                 password: params.password,
+                username: params.email.split('@')[0], 
+                name:     '',
+                surname:  '',
             }).unwrap();
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
             router.replace('/');
-        } catch (e) {
-            console.error('Register error:', e);
-            Alert.alert('Помилка', 'Не вдалося зареєструватись');
-        }
-    }
-
-    async function onResend() {
-        try {
-            const newCode = await sendVerificationEmail(params.email);
-            router.setParams({ code: newCode });
-            setDigits(Array(CODE_LENGTH).fill(''));
-            inputs.current[0]?.focus();
-            Alert.alert('Готово', 'Новий код надіслано');
         } catch {
-            Alert.alert('Помилка', 'Не вдалося надіслати код');
+            Alert.alert('Помилка', 'Не вдалося зареєструватись');
         }
     }
 
@@ -90,26 +68,21 @@ export function VerifyForm() {
         <View style={styles.container}>
             <Text style={styles.title}>Підтвердження пошти</Text>
             <Text style={styles.subtitle}>
-                Ми надіслали 6-значний код на{'\n'}
-                <Text style={{ fontWeight: '600', color: '#070A1C' }}>
-                    {params.email}
-                </Text>
+                Ми надіслали 6-значний код на вашу пошту{'\n'}
+                <Text style={{ fontWeight: '600', color: '#070A1C' }}>{params.email}</Text>
+                {'\n'}Введіть його нижче, щоб підтвердити акаунт
             </Text>
 
+            <Text style={styles.codeLabel}>Код підтвердження</Text>
             <View style={styles.codeContainer}>
                 {digits.map((digit, i) => (
                     <TextInput
                         key={i}
-                        ref={(el) => { inputs.current[i] = el; }}
-                        style={[
-                            styles.codeInput,
-                            digit ? styles.codeInputFilled : null,
-                        ]}
+                        ref={(r) => { inputs.current[i] = r; }}
+                        style={[styles.codeInput, digit ? styles.codeInputFilled : null]}
                         value={digit}
-                        onChangeText={(text) => handleChange(text, i)}
-                        onKeyPress={({ nativeEvent }) =>
-                            handleKeyPress(nativeEvent.key, i)
-                        }
+                        onChangeText={(t) => handleChange(t, i)}
+                        onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
                         keyboardType="number-pad"
                         maxLength={1}
                         selectTextOnFocus
@@ -124,9 +97,10 @@ export function VerifyForm() {
                     type="fill"
                     text={isLoading ? 'Реєстрація...' : 'Підтвердити'}
                     onPress={onConfirm}
+                    style={{ width: '100%', borderRadius: 14 }}
                 />
-                <TouchableOpacity onPress={onResend}>
-                    <Text style={styles.resend}>Надіслати код знову</Text>
+                <TouchableOpacity onPress={() => router.back()}>
+                    <Text style={styles.resend}>Назад</Text>
                 </TouchableOpacity>
             </View>
         </View>
