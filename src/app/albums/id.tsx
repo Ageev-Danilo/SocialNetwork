@@ -1,10 +1,15 @@
+import React, { useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/shared/ui';
-import { router } from 'expo-router';
+import { router } from 'expo-router'
+import EditAlbumModal from './modal/edit'; 
 
 export default function AlbumScreen() {
     const hasPhotos = true;
+    
+
+    const [isEditVisible, setIsEditVisible] = useState(false);
 
     return (
         <SafeAreaView style={styles.safe}>
@@ -32,8 +37,13 @@ export default function AlbumScreen() {
                             />
 
                             <View style={styles.actions}>
-                                <Button text="Редагувати" type="outlined" />
-                                <Button text="Видалити" type="outlined" />
+                                <Button 
+                                    text="Редагувати" 
+                                    type="outlined" 
+                                    style={styles.actionButton} 
+                                    onPress={() => setIsEditVisible(true)} 
+                                />
+                                <Button text="Видалити" type="outlined" style={styles.actionButton} />
                             </View>
                         </View>
 
@@ -54,8 +64,13 @@ export default function AlbumScreen() {
                                 <Image source={{ uri: 'https://placehold.co/120x120?2' }} style={styles.photo} />
                                 <Image source={{ uri: 'https://placehold.co/120x120?3' }} style={styles.photo} />
 
-                                <TouchableOpacity style={styles.addBox}>
-                                    <Text style={styles.plus}>+</Text>
+                                <TouchableOpacity 
+                                    style={styles.addBox}
+                                    onPress={() => router.push('/albums/modal/create')}
+                                >
+                                    <View style={styles.plusCircle}>
+                                        <Text style={styles.plusText}>+</Text>
+                                    </View>
                                 </TouchableOpacity>
                             </View>
                         ) : (
@@ -65,9 +80,13 @@ export default function AlbumScreen() {
                             </View>
                         )}
                     </View>
-
                 </View>
             </ScrollView>
+
+            <EditAlbumModal 
+                visible={isEditVisible} 
+                onClose={() => setIsEditVisible(false)} 
+            />
         </SafeAreaView>
     );
 }
@@ -92,7 +111,7 @@ const styles = StyleSheet.create({
     label: { fontSize: 18, fontWeight: '600' },
     sub: { color: '#6B7280' },
     row: { flexDirection: 'row', gap: 16, alignItems: 'center' },
-    avatar: { width: 96, height: 96, borderRadius: 16 },
+    avatar: {width: 96, height: 96, borderRadius: 16 },
     actions: { gap: 8, flex: 1 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
     photo: {
@@ -102,15 +121,32 @@ const styles = StyleSheet.create({
         backgroundColor: '#E5E7EB',
     },
     addBox: {
-        width: '30%',
-        aspectRatio: 1,
+        width: '30%', 
+        aspectRatio: 0.8,
         borderRadius: 12,
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: '#E5E7EB',
+        borderStyle: 'dashed',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F9FAFB',
+    },
+    plusCircle: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#9CA3AF',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    plus: { fontSize: 28, color: '#9CA3AF' },
+    plusText: {
+        fontSize: 20,
+        color: '#9CA3AF',
+    },
     empty: { alignItems: 'center', gap: 12 },
     emptyText: { color: '#6B7280' },
+    actionButton: {
+        borderRadius: 8,
+    },
 });
