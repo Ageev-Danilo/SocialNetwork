@@ -3,7 +3,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Button, Input } from '@/shared/ui';
 import { loginSchema } from '../../model/schemas';
 import { useLoginMutation } from '../../api';
@@ -12,13 +11,13 @@ import type { LoginSchema } from '../../model';
 import { styles } from './login-form.styles';
 
 export function LoginForm() {
-    const router = useRouter();
+    const router   = useRouter();
     const { setToken } = useUserContext();
     const [login, { isLoading }] = useLoginMutation();
 
     const { control, handleSubmit } = useForm<LoginSchema>({
         defaultValues: { email: '', password: '' },
-        resolver: yupResolver(loginSchema),
+        resolver:      yupResolver(loginSchema),
     });
 
     async function onSubmit(data: LoginSchema) {
@@ -51,14 +50,11 @@ export function LoginForm() {
                                 onBlur={field.onBlur}
                             />
                             {fieldState.error && (
-                                <Text style={styles.error}>
-                                    {fieldState.error.message}
-                                </Text>
+                                <Text style={styles.error}>{fieldState.error.message}</Text>
                             )}
                         </View>
                     )}
                 />
-
                 <Controller
                     control={control}
                     name="password"
@@ -73,9 +69,7 @@ export function LoginForm() {
                                 onBlur={field.onBlur}
                             />
                             {fieldState.error && (
-                                <Text style={styles.error}>
-                                    {fieldState.error.message}
-                                </Text>
+                                <Text style={styles.error}>{fieldState.error.message}</Text>
                             )}
                         </View>
                     )}
@@ -87,6 +81,7 @@ export function LoginForm() {
                     type="fill"
                     text={isLoading ? 'Завантаження...' : 'Увійти'}
                     onPress={() => handleSubmit(onSubmit)()}
+                    style={{ width: '100%', borderRadius: 14 }}
                 />
             </View>
         </View>
