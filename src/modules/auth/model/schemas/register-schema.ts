@@ -5,9 +5,6 @@ export const registerSchema = yup.object({
         .string()
         .email('Введи коректний email')
         .required("Поле обов'язкове"),
-    username: yup.string().required("Поле обов'язкове"),
-    name: yup.string().required("Поле обов'язкове"),
-    surname: yup.string().required("Поле обов'язкове"),
     password: yup
         .string()
         .min(8, 'Мінімум 8 символів')

@@ -22,3 +22,20 @@ export interface LoginResponse {
 }
 
 export type MeResponse = User;
+
+export type UpdateProfilePayload = {
+    pseudonym?: string;
+    username?: string;
+    avatar?: string;
+};
+
+export type UserResponse = {
+    id: number;
+    email: string;
+    username: string;
+    pseudonym: string;
+};
+
+export type UsernameSuggestionsResponse = {
+    suggestions: string[];
+};

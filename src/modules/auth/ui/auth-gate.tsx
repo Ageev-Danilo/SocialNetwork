@@ -29,8 +29,9 @@ export function AuthGate() {
         if (!isReady) return;
 
         const inAuth = segments[0] === '(auth)';
+        const inModal = segments[0] === '(modal)';
 
-        if (!token && !inAuth) {
+        if (!token && !inAuth && !inModal) {
             router.replace('/(auth)/login');
         } else if (token && inAuth) {
             router.replace('/home');
