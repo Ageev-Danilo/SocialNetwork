@@ -8,6 +8,9 @@
             "@assets/*": ["assets/*"],
             "@shared/*": ["src/shared/*"],
             "@types/*": ["src/shared/types/*"],
-        }
+        },
+        "ignoreDeprecations": "6.0"
     }
 }
+
+// ..

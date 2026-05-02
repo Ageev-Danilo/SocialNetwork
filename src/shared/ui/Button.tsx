@@ -20,10 +20,12 @@ export default function Button({ type = 'filled', text, onPress, children, style
     ].filter(Boolean);
     
     return (
-        <Ripple onPress={onPress} style={[buttonStyle, BASE.center, style]}>
+        <Ripple onPress={onPress} style={[...buttonStyle, BASE.center, style]}>
             <View>
-                {children ? children : <Text style={[BASE.btnText, textStyle]}>{text}</Text>}
+                {children ? children : <Text style={[BASE.btnText, ...textStyle]}>{text}</Text>}
             </View>
         </Ripple>
     );
 }
+
+//t
