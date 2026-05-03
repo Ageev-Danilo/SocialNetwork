@@ -12,6 +12,7 @@ import { COLORS } from '@/shared/consts';
 import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
 import { settingsSchema } from '../../model';
 import type { SettingsSchema } from '../../model';
+import { Card } from '@/components/Settings/Card';
 
 const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.100:3000';
 
@@ -116,8 +117,7 @@ export function SettingsForm() {
     return (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
 
-            {/* Аватар */}
-            <View style={{
+            <Card title='Картка профілю' style={{
                 backgroundColor: 'white',
                 borderRadius: 16,
                 padding: 16,
@@ -152,10 +152,10 @@ export function SettingsForm() {
                 <Text style={{ fontSize: 13, color: COLORS.primary, fontWeight: '600' }}>
                     {localImageUri ? 'Фото вибрано' : 'Змінити фото'}
                 </Text>
-            </View>
+            </Card>
 
 
-            <View style={{
+            <Card title='Особиста інформація' style={{
                 backgroundColor: 'white',
                 borderRadius: 16,
                 padding: 16,
@@ -191,7 +191,7 @@ export function SettingsForm() {
                         )}
                     />
                 ))}
-            </View>
+            </Card>
 
             <View style={{ alignItems: 'center', paddingBottom: 32 }}>
                 <Button

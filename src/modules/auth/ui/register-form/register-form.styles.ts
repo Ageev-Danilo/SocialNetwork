@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: '600',
         color: '#070A1C',
         textAlign: 'center',

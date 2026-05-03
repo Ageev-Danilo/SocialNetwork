@@ -7,7 +7,7 @@ import { router, usePathname } from 'expo-router';
 
 
 export function Button({ type = 'fill', text, icon, iconSize = 20, onPress, children, style }: BtnProps) {
-    if (icon) {
+    if (icon || !text) {
         type = 'icon';
     }
 
