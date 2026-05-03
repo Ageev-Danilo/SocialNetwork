@@ -65,6 +65,7 @@ export function PostsList({ posts, isLoading, emptyText = 'Немає публі
 }
 
 function PostCard({ post }: { post: PostResponse }) {
+    console.log('post.user:', post.user);
     const initials = post.user?.email?.charAt(0).toUpperCase() ?? '?';
 
     return (
