@@ -60,39 +60,20 @@ export const BASE = StyleSheet.create({
     fill: {
         backgroundColor: '#543C52',
         paddingHorizontal: 16,
-<<<<<<< HEAD
-        paddingVertical: 10
-    },
-    fillText: {
-        color: 'white'
-=======
         paddingVertical: 10,
     },
     fillText: {
         color: 'white',
->>>>>>> kryvoruchko
     },
     icon: {
         padding: 10,
     },
     iconText: {
-<<<<<<< HEAD
-        color: '#543C52'
-=======
         color: '#543C52',
->>>>>>> kryvoruchko
     },
     outline: {
         borderWidth: 1,
         borderColor: '#543C52',
-<<<<<<< HEAD
-        padding: 10
-    },
-    outlineText: {
-        color: '#543C52'
-    }
-});
-=======
         padding: 10,
     },
     outlineText: {
@@ -112,4 +93,3 @@ export const BASE = StyleSheet.create({
         borderRadius: 10,
     }
 });
->>>>>>> kryvoruchko
