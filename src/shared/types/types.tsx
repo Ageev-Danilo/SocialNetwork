@@ -1,4 +1,5 @@
-import { StyleProp, ImageStyle } from "react-native";
+import { ReactNode } from 'react';
+import { StyleProp, ViewStyle, ImageStyle, TextInputProps } from 'react-native';
 
 import AddSvg from '../../assets/add.svg';
 import LogoutSvg from '../../assets/logout.svg';
@@ -7,16 +8,17 @@ import HomeSvg from '../../assets/home.svg';
 import ImgSvg from '../../assets/img.svg';
 import ChatSvg from '../../assets/chat.svg';
 import GroupSvg from '../../assets/group.svg';
-
+import CloseSvg from '../../assets/close.svg';
 
 export const icons = {
     add: AddSvg,
     logout: LogoutSvg,
-    setting: SettingsSvg,
+    settings: SettingsSvg,
     home: HomeSvg,
     img: ImgSvg,
-    chats: ChatSvg,
+    chat: ChatSvg,
     group: GroupSvg,
+    close: CloseSvg,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -32,6 +34,36 @@ export type ImgProps = {
     size?: number;
     style?: StyleProp<ImageStyle>;
 };
+
 export type NavsProps = {
-    route: any;
+    style?: StyleProp<ViewStyle>;
+};
+
+export type BtnProps = {
+    type?: 'fill' | 'icon' | 'outline' | 'borderless';
+    text?: string;
+    icon?: IconName;
+    iconSize?: number;
+    onPress?: () => void;
+    children?: ReactNode;
+    style?: StyleProp<ViewStyle>;
+};
+
+export type TabBtnProps = {
+    icon: IconName;
+    label?: string;
+    href?: string;
+    onPress?: () => void;
+};
+
+export interface InputProps extends TextInputProps {
+    type?: 'pwd' | 'text' | 'email';
+    holder?: string;
+    onChangeText?: (text: string) => void;
+    value?: string;
 }
+
+export type BodyProps = {
+    children: ReactNode;
+    contentStyle?: StyleProp<ViewStyle>;
+};

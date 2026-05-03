@@ -1,0 +1,1 @@
+export { PostsForm } from './posts-form';

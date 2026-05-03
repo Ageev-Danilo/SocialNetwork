@@ -1,17 +1,49 @@
-import { Stack } from 'expo-router';
+import { useSegments, useRootNavigation } from 'expo-router';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Nav } from '@shared/ui';
+import { View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Provider } from 'react-redux';
+import { Header, Bottom } from '@/components'; 
+import { store } from '@/shared/store';
+import { UserContextProvider } from '@/modules/auth';
+import { AuthGate } from '@/modules/auth/ui/auth-gate'; 
 
+function AppContent() {
+    const segments = useSegments();
+    
+    const inAuth = segments[0] === '(auth)';
+
+    return (
+        <SafeAreaView style={{ flex: 1 }}>
+            {!inAuth && <Header />}
+            
+            <View style={{ 
+                flex: 1, 
+                backgroundColor: inAuth ? '#F3F4F6' : '#f7f4ff' 
+            }}>
+                <AuthGate />
+            </View>
+
+            {!inAuth && <Bottom />}
+        </SafeAreaView>
+    );
+}
 
 export default function RootLayout() {
+    const rootNavigation = useRootNavigation();
+
+    if (!rootNavigation?.isReady) {
+        return null; 
+    }
+
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1 }}>
-                <Stack screenOptions={{ header: props => ( <Nav route={props.route} /> ) }}>
-                    <Stack.Screen name="index" />
-                    <Stack.Screen name="(auth)" />
-                </Stack>
-            </SafeAreaView>
+            <Provider store={store}>
+                <UserContextProvider>
+                    <StatusBar style="auto" />
+                    <AppContent />
+                </UserContextProvider>
+            </Provider>
         </SafeAreaProvider>
     );
 }
