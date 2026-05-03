@@ -60,6 +60,7 @@ export type TabBtnProps = {
 
 export interface InputProps extends TextInputProps {
     type?: 'pwd' | 'text' | 'email';
+    label?: string;
     holder?: string;
     onChangeText?: (text: string) => void;
     value?: string;

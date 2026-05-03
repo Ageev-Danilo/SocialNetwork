@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import { COLORS } from '@/shared/consts';
 import { SettingsForm } from '@/modules/settings';
+import { TabMenu } from '@/components/TabMenu';
 
 export default function SettingsScreen() {
     return (
@@ -8,14 +9,7 @@ export default function SettingsScreen() {
             flex: 1, 
             backgroundColor: '#f7f4ff' 
             }}>
-            <View style={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                backgroundColor: 'white',
-                borderBottomWidth: 1,
-                borderBottomColor: '#EBEBEB',
-            }}>
-            </View>
+            <TabMenu type='transparent' />
             <SettingsForm />
         </View>
     );
