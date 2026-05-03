@@ -1,3 +1,8 @@
+export interface PostUser {
+    id:    number;
+    email: string;
+}
+
 export interface PostMedia {
     id:     number;
     url:    string;
@@ -13,9 +18,9 @@ export interface PostResponse {
     id:      number;
     title:   string;
     content: string;
-    date:    string;
     link:    string | null;
     userId:  number;
+    user:    PostUser;
     media:   PostMedia[];
     tags:    PostTag[];
     likes:   number;
@@ -25,7 +30,7 @@ export interface PostResponse {
 export interface CreatePostPayload {
     title:   string;
     content: string;
-    date:    string;
+    link?:   string;
     media:   { url: string }[];
     tags:    { name: string }[];
 }
