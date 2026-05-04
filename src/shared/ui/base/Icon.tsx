@@ -1,6 +1,5 @@
 import { Image } from 'react-native';
-import { icons, IconProps, ImgProps } from '../../types/types';
-
+import { icons, IconProps, ImgProps } from '../../types/shared.types';
 
 export function Icon({ name, size = 24, style }: IconProps) {
     const Svg = icons[name];
@@ -8,10 +7,5 @@ export function Icon({ name, size = 24, style }: IconProps) {
 }
 
 export function Img({ src, size = 24, style }: ImgProps) {
-    return (
-        <Image
-            source={src}
-            style={[{ width: size, height: size }, style]}
-        />
-    );
+    return <Image source={src} style={[{ width: size, height: size }, style]} />;
 }

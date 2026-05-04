@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
-    View, Text, ScrollView, Alert,
-    ActivityIndicator, Image, TouchableOpacity,
+    View,
+    Text,
+    ScrollView,
+    Alert,
+    ActivityIndicator,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -25,10 +31,10 @@ export function SettingsForm() {
     const { control, handleSubmit, reset } = useForm<SettingsSchema>({
         defaultValues: {
             firstName: '',
-            lastName:  '',
-            username:  '',
+            lastName: '',
+            username: '',
             pseudonym: '',
-            date:      '',
+            date: '',
             signature: '',
         },
         resolver: yupResolver(settingsSchema),
@@ -40,10 +46,10 @@ export function SettingsForm() {
             console.log('full url:', `${BASE_URL}/media/thumbnail/${data.profileImage}`);
             reset({
                 firstName: data.firstName,
-                lastName:  data.lastName,
-                username:  data.username,
+                lastName: data.lastName,
+                username: data.username,
                 pseudonym: data.pseudonym,
-                date:      data.date,
+                date: data.date,
                 signature: data.signature ?? '',
             });
         }
@@ -65,15 +71,15 @@ export function SettingsForm() {
             const form = new FormData();
 
             form.append('firstName', values.firstName);
-            form.append('lastName',  values.lastName);
-            form.append('username',  values.username);
+            form.append('lastName', values.lastName);
+            form.append('username', values.username);
             form.append('pseudonym', values.pseudonym);
-            form.append('date',      values.date);
+            form.append('date', values.date);
             form.append('signature', values.signature ?? '');
 
             if (localImageUri) {
                 form.append('profileImage', {
-                    uri:  localImageUri,
+                    uri: localImageUri,
                     type: 'image/jpeg',
                     name: `${Date.now()}.jpeg`,
                 } as any);
@@ -97,8 +103,8 @@ export function SettingsForm() {
     const imageSource = localImageUri
         ? { uri: localImageUri }
         : data?.profileImage
-            ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
-            : null;
+          ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
+          : null;
 
     const fields: {
         name: keyof SettingsSchema;
@@ -106,65 +112,50 @@ export function SettingsForm() {
         holder: string;
         type?: 'text' | 'email' | 'pwd';
     }[] = [
-        { name: 'firstName', label: "Ім'я",            holder: "Введи ім'я" },
-        { name: 'lastName',  label: 'Прізвище',        holder: 'Введи прізвище' },
-        { name: 'username',  label: 'Нікнейм',         holder: '@username' },
-        { name: 'pseudonym', label: 'Псевдонім',       holder: 'Введи псевдонім' },
-        { name: 'date',      label: 'Дата народження', holder: 'дд.мм.рррр' },
-        { name: 'signature', label: 'Підпис',          holder: 'Введи підпис' },
+        { name: 'firstName', label: "Ім'я", holder: "Введи ім'я" },
+        { name: 'lastName', label: 'Прізвище', holder: 'Введи прізвище' },
+        { name: 'username', label: 'Нікнейм', holder: '@username' },
+        { name: 'pseudonym', label: 'Псевдонім', holder: 'Введи псевдонім' },
+        { name: 'date', label: 'Дата народження', holder: 'дд.мм.рррр' },
+        { name: 'signature', label: 'Підпис', holder: 'Введи підпис' },
     ];
 
     return (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-
-            <Card title='Картка профілю' style={{
-                backgroundColor: 'white',
-                borderRadius: 16,
-                padding: 16,
-                alignItems: 'center',
-                gap: 8,
-            }}>
+            <Card title="Картка профілю" style={{ alignItems: 'center', gap: 24 }}>
                 <TouchableOpacity onPress={pickImage}>
                     {imageSource ? (
                         <Image
                             source={imageSource}
                             style={{
-                                width: 90, height: 90,
+                                width: 90,
+                                height: 90,
                                 borderRadius: 45,
                                 borderWidth: 2,
                                 borderColor: COLORS.primary,
                             }}
                         />
                     ) : (
-                        <View style={{
-                            width: 90, height: 90,
-                            borderRadius: 45,
-                            backgroundColor: COLORS.grey,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderWidth: 2,
-                            borderColor: COLORS.primary,
-                        }}>
+                        <Button style={styles.avatar} onPress={pickImage}>
                             <Text style={{ fontSize: 32 }}>📷</Text>
-                        </View>
+                        </Button>
                     )}
                 </TouchableOpacity>
-                <Text style={{ fontSize: 13, color: COLORS.primary, fontWeight: '600' }}>
-                    {localImageUri ? 'Фото вибрано' : 'Змінити фото'}
-                </Text>
+                <View style={{ alignItems: 'center', gap: 5 }}>
+                    <Text style={styles.displayName}>John Doe</Text>
+                    <Text style={styles.username}>@johndoe</Text>
+                </View>
             </Card>
 
-
-            <Card title='Особиста інформація' style={{
-                backgroundColor: 'white',
-                borderRadius: 16,
-                padding: 16,
-                gap: 12,
-            }}>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: COLORS.black }}>
-                    Особиста інформація
-                </Text>
-
+            <Card
+                title="Особиста інформація"
+                style={{
+                    backgroundColor: 'white',
+                    borderRadius: 16,
+                    padding: 16,
+                    gap: 12,
+                }}
+            >
                 {fields.map(({ name, label, holder, type = 'text' }) => (
                     <Controller
                         key={name}
@@ -172,18 +163,16 @@ export function SettingsForm() {
                         name={name}
                         render={({ field, fieldState }) => (
                             <View style={{ gap: 4 }}>
-                                <Text style={{ fontSize: 13, color: COLORS.black, opacity: 0.6 }}>
-                                    {label}
-                                </Text>
                                 <Input
                                     type={type}
+                                    label={label}
                                     holder={holder}
                                     value={field.value ?? ''}
                                     onChangeText={field.onChange}
                                     onBlur={field.onBlur}
                                 />
                                 {fieldState.error && (
-                                    <Text style={{ fontSize: 12, color: COLORS.error }}>
+                                    <Text style={{ fontSize: 15, color: COLORS.error }}>
                                         {fieldState.error.message}
                                     </Text>
                                 )}
@@ -192,15 +181,30 @@ export function SettingsForm() {
                     />
                 ))}
             </Card>
-
-            <View style={{ alignItems: 'center', paddingBottom: 32 }}>
-                <Button
-                    type="fill"
-                    text={isUpdating ? 'Збереження...' : 'Зберегти'}
-                    onPress={() => handleSubmit(onSubmit)()}
-                />
-            </View>
-
+            <Card title="Варіанти підпису">
+                <Text>Псевдонім автора</Text>
+                <Text>Мій електронний підпис</Text>
+            </Card>
         </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    avatar: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+        backgroundColor: COLORS.grey,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: COLORS.primary,
+    },
+    displayName: {
+        fontSize: 24,
+        fontWeight: '700',
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+});

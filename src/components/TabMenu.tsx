@@ -1,33 +1,33 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router, usePathname } from 'expo-router';
+import { TabMenuProps, TabItem } from '@/shared/types/component.types';
+import { Button } from '@/shared/ui';
 
-const TABS = [
+const DEFAULT_TABS: TabItem[] = [
     { label: 'Особиста інформація', href: '/home' },
-    { label: 'Альбоми',             href: '/home/albums' },
+    { label: 'Альбоми', href: '/home/albums' },
 ];
 
-export function TabMenu() {
+export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
     const pathname = usePathname();
 
     return (
-        <View style={styles.container}>
-            {TABS.map((tab) => {
+        <View style={[type === 'fill' ? styles.container : '', styles.menu]}>
+            {tabs.map(tab => {
                 const isActive =
-                    tab.href === '/home'
-                        ? pathname === '/home'
-                        : pathname === tab.href;
+                    tab.href === '/home' ? pathname === '/home' : pathname === tab.href;
 
                 return (
-                    <Pressable
+                    <Button
+                        type="borderless"
                         key={tab.href}
                         style={[styles.tab, isActive && styles.tabActive]}
                         onPress={() => router.push(tab.href as any)}
-                        android_ripple={{ color: '#543C5215' }}
                     >
                         <Text style={[styles.text, isActive && styles.textActive]}>
                             {tab.label}
                         </Text>
-                    </Pressable>
+                    </Button>
                 );
             })}
         </View>
@@ -35,10 +35,12 @@ export function TabMenu() {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    menu: {
         flexDirection: 'row',
-        backgroundColor: 'white',
         paddingHorizontal: 16,
+    },
+    container: {
+        backgroundColor: 'white',
         borderBottomWidth: 1,
         borderBottomColor: '#EBEBEB',
     },
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#543C52',
     },
     text: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#999',
         fontWeight: '500',
     },
