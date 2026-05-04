@@ -14,10 +14,10 @@ function AppContent() {
     const inAuth = segments[0] === '(auth)';
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
             {!inAuth && <Header />}
             
-            <View style={{ 
+            <View style={{
                 flex: 1, 
                 backgroundColor: inAuth ? '#F3F4F6' : '#f7f4ff' 
             }}>
@@ -25,7 +25,7 @@ function AppContent() {
             </View>
 
             {!inAuth && <Bottom />}
-        </SafeAreaView>
+        </View>
     );
 }
 

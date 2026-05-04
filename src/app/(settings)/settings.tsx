@@ -15,13 +15,6 @@ export default function SettingsScreen() {
                 borderBottomWidth: 1,
                 borderBottomColor: '#EBEBEB',
             }}>
-                <Text style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    color: COLORS.primary,
-                }}>
-                    Налаштування
-                </Text>
             </View>
             <SettingsForm />
         </View>
