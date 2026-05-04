@@ -5,17 +5,19 @@ import { ReactNode } from 'react';
 export function Card({
     title,
     children,
+    edited,
     style,
 }: {
     title: string;
     children: ReactNode;
+    edited: boolean;
     style?: StyleProp<ViewStyle>;
 }) {
     return (
         <View style={styles.card}>
             <View style={styles.header}>
                 <Text style={styles.title}>{title}</Text>
-                <Button type='outline' icon="edit" style={styles.editBtn} />
+                <Button type='outline' icon="edit" iconSize={24} text={edited ? 'Зберегти' : ''} style={edited ? styles.saveBtn : styles.editBtn} />
             </View>
             <View style={[style, { width: '100%', gap: 16 }]}>
                 {children}
@@ -42,5 +44,12 @@ const styles = StyleSheet.create({
     editBtn: {
         width: 40,
         height: 40,
+    },
+    saveBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E9E5EE',
+        padding: 10,
+        gap: 10
     }
 });

@@ -1,6 +1,4 @@
 import { View, Text } from 'react-native';
-import { COLORS } from '@/shared/consts';
-import { SettingsForm } from '@/modules/settings';
 import { TabMenu } from '@/components/TabMenu';
 import { TabItem } from '@/shared/types/component.types';
 
@@ -9,14 +7,14 @@ const TABS: TabItem[] = [
     { label: 'Альбоми', href: '/settings/albums' },
 ];
 
-export default function SettingsScreen() {
+export default function AlbumsScreen() {
     return (
         <View style={{
             flex: 1, 
             backgroundColor: '#f7f4ff' 
             }}>
             <TabMenu type='transparent' tabs={TABS} />
-            <SettingsForm />
+            <Text>Albums</Text>
         </View>
     );
 }

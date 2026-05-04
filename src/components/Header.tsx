@@ -1,4 +1,4 @@
-import { View, Image } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 import { Button, Icon } from '@/shared/ui';
 import { BASE } from '@/shared/consts';
 import { router } from 'expo-router';
@@ -10,19 +10,19 @@ export function Header() {
             <View style={[BASE.nav, BASE.yc]}>
                 <Image source={require('../assets/logo.png')} style={{ width: 145, height: 18 }} />
                 <View style={[BASE.yc, { gap: 10 }]}>
-                    <Button type="outline" onPress={() => router.push('/(posts)/create-post')}>
-                        <Icon name="add" />
-                    </Button>
-
-                    <Button type="outline" onPress={() => router.push('/(settings)/settings')}>
-                        <Icon name="settings" />
-                    </Button>
-
-                    <Button type="outline" onPress={() => router.push('/(auth)/logout')}>
-                        <Icon name="logout" />
-                    </Button>
+                    <Button type="outline" style={styles.navBtn} icon='add' onPress={() => router.push('/(posts)/create-post')} />
+                    <Button type="outline" style={styles.navBtn} icon='settings' onPress={() => router.push('/(settings)/settings')} />
+                    <Button type="outline" style={styles.navBtn} icon='logout' onPress={() => router.push('/(auth)/logout')} />
                 </View>
             </View>
         </SafeAreaView>
     );
 }
+
+
+const styles = StyleSheet.create({
+    navBtn: {
+        width: 40,
+        height: 40
+    }
+})

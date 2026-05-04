@@ -34,10 +34,14 @@ export function Button({
 
     return (
         <Ripple onPress={onPress} style={finalStyles}>
-            <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 {icon && <Icon name={icon} size={iconSize} />}
 
-                {children ? children : <Text style={[BASE.btnText, ...textStyle]}>{text}</Text>}
+                {children ? (
+                    children
+                ) : text ? (
+                    <Text style={[BASE.btnText, ...textStyle]}>{text}</Text>
+                ) : null}
             </View>
         </Ripple>
     );

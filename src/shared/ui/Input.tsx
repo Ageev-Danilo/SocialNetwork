@@ -1,9 +1,10 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { TextInput, View, Text } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 
 import { BASE, COLORS } from '../consts';
 import { InputProps } from '../types/shared.types';
+import { Button } from './Button';
 
 export function Input({
     type,
@@ -11,33 +12,40 @@ export function Input({
     holder = 'Enter text...',
     onChangeText,
     value,
+    additional,
     ...props
 }: InputProps) {
     const inputRef = useRef<TextInput>(null);
+    const [isSecure, setIsSecure] = useState(type === 'pwd');
 
     const handlePress = () => {
         inputRef.current?.focus();
     };
 
-    return (
-        <View style={{ gap: 6 }}>
-            {label && (
-                <Text style={{ fontSize: 16, color: COLORS.black, opacity: 0.6 }}>{label}</Text>
-            )}
+    const toggleSecure = () => {
+        setIsSecure(prev => !prev);
+    };
 
-            <Ripple onPress={handlePress} rippleOpacity={0.08}>
-                <TextInput
-                    ref={inputRef}
-                    style={BASE.input}
-                    placeholder={holder}
-                    placeholderTextColor="#999"
-                    onChangeText={onChangeText}
-                    value={value}
-                    secureTextEntry={type === 'pwd'}
-                    autoComplete={type === 'email' ? 'email' : 'name'}
-                    {...props}
-                />
-            </Ripple>
+    return (
+        <View style={{ flex: 1, gap: 6 }}>
+            {label && <Text style={BASE.inputLabel}>{label}</Text>}
+
+            <View style={BASE.inputRow}>
+                <Ripple style={BASE.inputContainer} onPress={handlePress} rippleOpacity={0.08}>
+                    <TextInput
+                        ref={inputRef}
+                        style={BASE.input}
+                        placeholder={holder}
+                        placeholderTextColor="#999"
+                        onChangeText={onChangeText}
+                        value={value}
+                        secureTextEntry={isSecure}
+                        autoComplete={type === 'email' ? 'email' : 'name'}
+                        {...props}
+                    />
+                </Ripple>
+                {type === 'pwd' ? <Button type="icon" icon={isSecure ? 'visible' : 'hide'} iconSize={24} style={BASE.inputBtn} onPress={toggleSecure} /> : ''}
+            </View>
         </View>
     );
 }
