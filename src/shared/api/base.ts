@@ -6,7 +6,7 @@ export const baseApi = createApi({
     reducerPath: 'api',
     tagTypes: ['Settings', 'Posts', 'MyPosts'], 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://10.0.2.2:3000',
+        baseUrl: 'http://192.168.178.22:3000',
         prepareHeaders: queryBaseHeaders,
     }),
     endpoints() {
