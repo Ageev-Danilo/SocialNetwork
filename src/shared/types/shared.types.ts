@@ -10,6 +10,10 @@ import ChatSvg from '../../assets/chat.svg';
 import GroupSvg from '../../assets/group.svg';
 import CloseSvg from '../../assets/close.svg';
 import EditSvg from "../../assets/edit.svg";
+import ShowSvg from "../../assets/eye.svg";
+import HideSvg from "../../assets/diseye.svg";
+import CameraSvg from "../../assets/camera.svg";
+
 
 export const icons = {
     add: AddSvg,
@@ -21,6 +25,9 @@ export const icons = {
     group: GroupSvg,
     close: CloseSvg,
     edit: EditSvg,
+    visible: ShowSvg,
+    hide: HideSvg,
+    camera: CameraSvg
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -64,6 +71,7 @@ export interface InputProps extends TextInputProps {
     holder?: string;
     onChangeText?: (text: string) => void;
     value?: string;
+    additional?: ReactNode;
 }
 
 export type BodyProps = {

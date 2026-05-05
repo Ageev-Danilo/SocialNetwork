@@ -41,10 +41,11 @@ export function LoginForm() {
                     name="email"
                     render={({ field, fieldState }) => (
                         <View>
-                            <Text style={styles.label}>Електронна пошта</Text>
+                            <Text style={styles.label}></Text>
                             <Input
                                 type="email"
                                 holder="you@example.com"
+                                label='Електронна пошта'
                                 value={field.value}
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
@@ -60,10 +61,10 @@ export function LoginForm() {
                     name="password"
                     render={({ field, fieldState }) => (
                         <View>
-                            <Text style={styles.label}>Пароль</Text>
                             <Input
                                 type="pwd"
                                 holder="Введи пароль"
+                                label='Пароль'
                                 value={field.value}
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}

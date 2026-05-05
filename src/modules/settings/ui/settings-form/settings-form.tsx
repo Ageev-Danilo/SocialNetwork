@@ -13,8 +13,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
-import { Input, Button } from '@/shared/ui';
-import { COLORS } from '@/shared/consts';
+import { Input, Button, Icon } from '@/shared/ui';
+import { COLORS, settingFields } from '@/shared/consts';
 import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
 import { settingsSchema } from '../../model';
 import type { SettingsSchema } from '../../model';
@@ -23,37 +23,44 @@ import { Card } from '@/components/Settings/Card';
 const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.100:3000';
 
 export function SettingsForm() {
-    const { data, isLoading } = useGetSettingsQuery();
+    const { data, isLoading, isSuccess } = useGetSettingsQuery();
     const [updateSettings, { isLoading: isUpdating }] = useUpdateSettingsMutation();
 
     const [localImageUri, setLocalImageUri] = useState<string | null>(null);
 
-    const { control, handleSubmit, reset } = useForm<SettingsSchema>({
-        defaultValues: {
-            firstName: '',
-            lastName: '',
-            username: '',
-            pseudonym: '',
-            date: '',
-            signature: '',
-        },
+    const { control, formState, handleSubmit, reset } = useForm<SettingsSchema>({
+        values: data
+        ? {
+              firstName: data.firstName ?? '',
+              lastName: data.lastName ?? '',
+              username: data.username ?? '',
+              pseudonym: data.pseudonym ?? '',
+              date: data.date ?? '',
+              signature: data.signature ?? '',
+          }
+        : {
+              firstName: '',
+              lastName: '',
+              username: '',
+              pseudonym: '',
+              date: '',
+              signature: '',
+          },
         resolver: yupResolver(settingsSchema),
     });
 
     useEffect(() => {
-        if (data) {
-            console.log('profileImage:', data.profileImage);
-            console.log('full url:', `${BASE_URL}/media/thumbnail/${data.profileImage}`);
+        if (isSuccess && data) {
             reset({
-                firstName: data.firstName,
-                lastName: data.lastName,
-                username: data.username,
-                pseudonym: data.pseudonym,
-                date: data.date,
+                firstName: data.firstName ?? '',
+                lastName: data.lastName ?? '',
+                username: data.username ?? '',
+                pseudonym: data.pseudonym ?? '',
+                date: data.date ?? '',
                 signature: data.signature ?? '',
             });
         }
-    }, [data]);
+    }, [isSuccess, data, reset]);
 
     async function pickImage() {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -106,23 +113,9 @@ export function SettingsForm() {
           ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
           : null;
 
-    const fields: {
-        name: keyof SettingsSchema;
-        label: string;
-        holder: string;
-        type?: 'text' | 'email' | 'pwd';
-    }[] = [
-        { name: 'firstName', label: "Ім'я", holder: "Введи ім'я" },
-        { name: 'lastName', label: 'Прізвище', holder: 'Введи прізвище' },
-        { name: 'username', label: 'Нікнейм', holder: '@username' },
-        { name: 'pseudonym', label: 'Псевдонім', holder: 'Введи псевдонім' },
-        { name: 'date', label: 'Дата народження', holder: 'дд.мм.рррр' },
-        { name: 'signature', label: 'Підпис', holder: 'Введи підпис' },
-    ];
-
     return (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-            <Card title="Картка профілю" style={{ alignItems: 'center', gap: 24 }}>
+            <Card title="Картка профілю" edited={formState.isDirty} style={{ alignItems: 'center', gap: 24 }}>
                 <TouchableOpacity onPress={pickImage}>
                     {imageSource ? (
                         <Image
@@ -137,7 +130,9 @@ export function SettingsForm() {
                         />
                     ) : (
                         <Button style={styles.avatar} onPress={pickImage}>
-                            <Text style={{ fontSize: 32 }}>📷</Text>
+                            <Text style={{ fontSize: 32 }}>
+                                <Icon name="camera" size={40} />
+                            </Text>
                         </Button>
                     )}
                 </TouchableOpacity>
@@ -149,6 +144,7 @@ export function SettingsForm() {
 
             <Card
                 title="Особиста інформація"
+                edited={formState.isDirty}
                 style={{
                     backgroundColor: 'white',
                     borderRadius: 16,
@@ -156,7 +152,7 @@ export function SettingsForm() {
                     gap: 12,
                 }}
             >
-                {fields.map(({ name, label, holder, type = 'text' }) => (
+                {settingFields.map(({ name, label, holder, type = 'text' }) => (
                     <Controller
                         key={name}
                         control={control}
@@ -181,7 +177,7 @@ export function SettingsForm() {
                     />
                 ))}
             </Card>
-            <Card title="Варіанти підпису">
+            <Card edited={formState.isDirty} title="Варіанти підпису">
                 <Text>Псевдонім автора</Text>
                 <Text>Мій електронний підпис</Text>
             </Card>
