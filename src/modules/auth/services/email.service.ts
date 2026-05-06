@@ -15,5 +15,5 @@ export async function sendVerificationEmail(toEmail: string): Promise<string> {
     }
 
     const data = await response.json() as { code: string };
-    return data.code;
+    return data.code; 
 }

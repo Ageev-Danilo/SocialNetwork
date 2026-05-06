@@ -7,7 +7,7 @@ import { useRegisterMutation } from '../../api';
 import { useUserContext } from '../../context';
 import { styles } from './verify-form.styles';
 
-const CODE_LENGTH = 6;
+const CODE_LENGTH = 6;  
 
 export function VerifyForm() {
     const router  = useRouter();
