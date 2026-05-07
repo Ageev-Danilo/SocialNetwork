@@ -1,4 +1,4 @@
-import { View, Image, Modal, TouchableOpacity } from 'react-native';
+import { View, Image, Modal, TouchableOpacity ,StyleSheet} from 'react-native';
 import { Button, Icon } from '@/shared/ui';
 import { BASE } from '@/shared/consts';
 import { router, usePathname } from 'expo-router';
