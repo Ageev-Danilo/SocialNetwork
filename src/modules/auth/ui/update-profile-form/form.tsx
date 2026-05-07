@@ -37,8 +37,8 @@ export function UpdateProfileForm({ styles }: { styles: any }) {
                     name="pseudonym"
                     render={({ field: { onChange, value } }) => (
                         <View style={styles.container}>
-                            <Text style={styles.label}>Псевдонім автора</Text>
                             <Input
+                                label='Псевдонім автора'
                                 placeholder="Введіть псевдонім автора"
                                 value={value}
                                 onChangeText={onChange}
@@ -53,8 +53,7 @@ export function UpdateProfileForm({ styles }: { styles: any }) {
                     name="username"
                     render={({ field: { onChange, value } }) => (
                         <View style={styles.container}>
-                            <Text style={styles.label}>Ім’я користувача</Text>
-                            <Input placeholder="@" value={value} onChangeText={onChange} />
+                            <Input label='Ім’я користувача' placeholder="@" value={value} onChangeText={onChange} />
                             {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
                             <View style={styles.suggested}>
@@ -70,7 +69,7 @@ export function UpdateProfileForm({ styles }: { styles: any }) {
                 />
             </View>
             <View style={styles.next}>
-                <Button text="Продовжити" onPress={handleSubmit(onSubmit)} />
+                <Button text="Продовжити" onPress={() => handleSubmit(onSubmit)()} />
             </View>
         </>
     );
