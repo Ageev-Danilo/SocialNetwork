@@ -9,6 +9,8 @@ import ImgSvg from '../../assets/img.svg';
 import ChatSvg from '../../assets/chat.svg';
 import GroupSvg from '../../assets/group.svg';
 import CloseSvg from '../../assets/close.svg';
+import EditSvg from "../../assets/edit.svg";
+import ShowSvg from "../../assets/eye.svg";
 
 export const icons = {
     add: AddSvg,
@@ -19,6 +21,8 @@ export const icons = {
     chat: ChatSvg,
     group: GroupSvg,
     close: CloseSvg,
+    edit: EditSvg,
+    visible: ShowSvg,
 } as const;
 
 export type IconName = keyof typeof icons;
