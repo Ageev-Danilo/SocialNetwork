@@ -25,7 +25,7 @@ export function Navigations({ style }: NavsProps) {
     const isVisible = !isChat && !isFriends;
 
     const handleLogout = () => {
-        router.push('/(modal)/about');
+        router.push('/(auth)/');
     };
 
     return (

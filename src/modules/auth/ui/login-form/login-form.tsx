@@ -25,7 +25,8 @@ export function LoginForm() {
             const result = await login(data).unwrap();
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
-            router.replace('/');
+            router.replace('/home');
+            router.push('/about');
         } catch (e) {
             console.error('Login error:', e);
         }

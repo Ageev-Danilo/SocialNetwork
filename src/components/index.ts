@@ -3,3 +3,4 @@ export { Body } from './Body';
 export { Bottom } from './Bottom';
 export { TabMenu } from './TabMenu';
 export { Header } from './Header';
+export { CreatePostModal }   from './CreatePostModal';

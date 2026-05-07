@@ -19,8 +19,9 @@ import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
 import { settingsSchema } from '../../model';
 import type { SettingsSchema } from '../../model';
 import { Card } from '@/components/Settings/Card';
+import { SettingField } from './field';
 
-const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.100:3000';
+const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://10.0.2.2:3000';
 
 export function SettingsForm() {
     const { data, isLoading, isSuccess } = useGetSettingsQuery();
@@ -28,26 +29,39 @@ export function SettingsForm() {
 
     const [localImageUri, setLocalImageUri] = useState<string | null>(null);
 
-    const { control, formState, handleSubmit, reset } = useForm<SettingsSchema>({
+    const { control, formState, handleSubmit, reset, watch } = useForm<SettingsSchema>({
         values: data
-        ? {
-              firstName: data.firstName ?? '',
-              lastName: data.lastName ?? '',
-              username: data.username ?? '',
-              pseudonym: data.pseudonym ?? '',
-              date: data.date ?? '',
-              signature: data.signature ?? '',
-          }
-        : {
-              firstName: '',
-              lastName: '',
-              username: '',
-              pseudonym: '',
-              date: '',
-              signature: '',
-          },
+            ? {
+                  firstName: data.firstName ?? '',
+                  lastName: data.lastName ?? '',
+                  username: data.username ?? '',
+                  pseudonym: data.pseudonym ?? '',
+                  date: data.date ?? '',
+                  signature: data.signature ?? '',
+              }
+            : {
+                  firstName: '',
+                  lastName: '',
+                  username: '',
+                  pseudonym: '',
+                  date: '',
+                  signature: '',
+              },
         resolver: yupResolver(settingsSchema),
     });
+
+    const firstName = watch('firstName');
+const lastName = watch('lastName');
+const username = watch('username');
+const displayName = `${firstName ?? ''} ${lastName ?? ''}`.trim();
+
+    const { dirtyFields } = formState;
+    const personalFields: (keyof SettingsSchema)[] = ['firstName', 'lastName', 'username', 'date'];
+    const signatureFields: (keyof SettingsSchema)[] = ['pseudonym', 'signature'];
+
+    const isPersonalEdited = personalFields.some(field => dirtyFields[field]);
+    const isSignatureEdited = signatureFields.some(field => dirtyFields[field]);
+    const isProfileEdited = !!localImageUri;
 
     useEffect(() => {
         if (isSuccess && data) {
@@ -115,7 +129,11 @@ export function SettingsForm() {
 
     return (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-            <Card title="Картка профілю" edited={formState.isDirty} style={{ alignItems: 'center', gap: 24 }}>
+            <Card
+                title="Картка профілю"
+                edited={isProfileEdited}
+                style={{ alignItems: 'center', gap: 24 }}
+            >
                 <TouchableOpacity onPress={pickImage}>
                     {imageSource ? (
                         <Image
@@ -137,14 +155,15 @@ export function SettingsForm() {
                     )}
                 </TouchableOpacity>
                 <View style={{ alignItems: 'center', gap: 5 }}>
-                    <Text style={styles.displayName}>John Doe</Text>
-                    <Text style={styles.username}>@johndoe</Text>
+                    <Text style={styles.displayName}>{displayName || 'Not found'}</Text>
+                    <Text style={styles.username}>{username ? `@${username}` : '@username'}</Text>
                 </View>
             </Card>
 
+
             <Card
                 title="Особиста інформація"
-                edited={formState.isDirty}
+                edited={isPersonalEdited}
                 style={{
                     backgroundColor: 'white',
                     borderRadius: 16,
@@ -153,31 +172,19 @@ export function SettingsForm() {
                 }}
             >
                 {settingFields.map(({ name, label, holder, type = 'text' }) => (
-                    <Controller
+                    <SettingField
                         key={name}
                         control={control}
                         name={name}
-                        render={({ field, fieldState }) => (
-                            <View style={{ gap: 4 }}>
-                                <Input
-                                    type={type}
-                                    label={label}
-                                    holder={holder}
-                                    value={field.value ?? ''}
-                                    onChangeText={field.onChange}
-                                    onBlur={field.onBlur}
-                                />
-                                {fieldState.error && (
-                                    <Text style={{ fontSize: 15, color: COLORS.error }}>
-                                        {fieldState.error.message}
-                                    </Text>
-                                )}
-                            </View>
-                        )}
+                        label={label}
+                        holder={holder}
+                        type={type}
                     />
                 ))}
             </Card>
-            <Card edited={formState.isDirty} title="Варіанти підпису">
+
+            
+            <Card edited={isSignatureEdited} title="Варіанти підпису">
                 <Text>Псевдонім автора</Text>
                 <Text>Мій електронний підпис</Text>
             </Card>
