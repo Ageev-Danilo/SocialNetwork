@@ -1,45 +1,100 @@
-import { useRouter } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Button } from '@shared/ui';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { Input, Button, Icon } from '@/shared/ui';
+import { BASE, COLORS } from '@/shared/consts';
+import { THEMES, YEARS } from '@/modules/albums/albums.mock';
 
-export const unstable_settings = {
-    presentation: 'modal'
-};
+export default function CreateAlbumScreen() {
+    const [name,       setName]       = useState('');
+    const [theme,      setTheme]      = useState('');
+    const [year,       setYear]       = useState('');
+    const [themeOpen,  setThemeOpen]  = useState(false);
+    const [yearOpen,   setYearOpen]   = useState(false);
 
-export default function CreateAlbumModal() {
-    const router = useRouter();
+    function handleCreate() {
+        if (!name.trim()) return;
+        //підключити до API
+        router.back();
+    }
 
     return (
-        <ScrollView contentContainerStyle={styles.overlay}>
+        <ScrollView
+            contentContainerStyle={styles.overlay}
+            keyboardShouldPersistTaps="handled"
+        >
             <View style={styles.modal}>
-                <Text style={styles.title}>Створити альбом</Text>
-
-                <View style={styles.field}>
-                    <Text style={styles.label}>Назва альбому</Text>
-                    <TextInput style={styles.input} placeholder="Ностальгія" placeholderTextColor="#A8A1B7" />
+                <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 20 }]}>
+                    <Text style={styles.title}>Створити альбом</Text>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <Icon name="close" size={20} />
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.field}>
-                    <Text style={styles.label}>Обрати тему</Text>
-                    <TouchableOpacity style={styles.select}>
-                        <Text style={styles.selectText}>Природа</Text>
+                    <Text style={styles.label}>Назва альбому</Text>
+                    <Input
+                        value={name}
+                        onChangeText={setName}
+                        holder="Настрій"
+                    />
+                </View>
+
+                <View style={styles.field}>
+                    <Text style={styles.label}>Оберіть тему</Text>
+                    <TouchableOpacity
+                        style={styles.select}
+                        onPress={() => { setThemeOpen(v => !v); setYearOpen(false); }}
+                    >
+                        <Text style={theme ? styles.selectValue : styles.selectPlaceholder}>
+                            {theme || 'Природа'}
+                        </Text>
+                        <Text style={{ color: '#666' }}>∨</Text>
                     </TouchableOpacity>
+                    {themeOpen && (
+                        <View style={styles.dropdown}>
+                            {THEMES.map((t) => (
+                                <TouchableOpacity
+                                    key={t}
+                                    style={styles.dropdownItem}
+                                    onPress={() => { setTheme(t); setThemeOpen(false); }}
+                                >
+                                    <Text style={styles.dropdownText}>{t}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
                 </View>
 
                 <View style={styles.field}>
                     <Text style={styles.label}>Рік альбому</Text>
-                    <TouchableOpacity style={styles.select}>
-                        <Text style={styles.selectText}>2025 рік</Text>
+                    <TouchableOpacity
+                        style={styles.select}
+                        onPress={() => { setYearOpen(v => !v); setThemeOpen(false); }}
+                    >
+                        <Text style={year ? styles.selectValue : styles.selectPlaceholder}>
+                            {year || 'Оберіть рік'}
+                        </Text>
+                        <Text style={{ color: '#666' }}>∨</Text>
                     </TouchableOpacity>
+                    {yearOpen && (
+                        <View style={styles.dropdown}>
+                            {YEARS.map((y) => (
+                                <TouchableOpacity
+                                    key={y}
+                                    style={styles.dropdownItem}
+                                    onPress={() => { setYear(y); setYearOpen(false); }}
+                                >
+                                    <Text style={styles.dropdownText}>{y} рік</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
                 </View>
 
-                <View style={styles.actions}>
-                    <Button type="outlined" onPress={() => router.back()}>
-                        Скасувати
-                    </Button>
-                    <Button type="filled" onPress={() => router.back()}>
-                        Зберегти
-                    </Button>
+                <View style={[BASE.yc, { justifyContent: 'flex-end', gap: 10, marginTop: 8 }]}>
+                    <Button type="outline" text="Скасувати" onPress={() => router.back()} />
+                    <Button type="fill"    text="Зберегти"  onPress={handleCreate} />
                 </View>
             </View>
         </ScrollView>
@@ -48,56 +103,68 @@ export default function CreateAlbumModal() {
 
 const styles = StyleSheet.create({
     overlay: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.12)',
-        padding: 16,
+        flexGrow:        1,
+        justifyContent:  'center',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        padding:         20,
     },
     modal: {
-        borderRadius: 24,
-        backgroundColor: 'white',
-        padding: 20,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 4,
+        borderRadius:    20,
+        backgroundColor: '#fff',
+        padding:         24,
+        gap:             4,
     },
     title: {
-        fontSize: 20,
+        fontSize:   18,
         fontWeight: '700',
-        marginBottom: 16,
-        color: '#1D1B20',
+        color:      '#1a1a1a',
     },
     field: {
-        marginBottom: 16,
+        gap:        6,
+        marginTop:  14,
     },
     label: {
-        color: '#6B6773',
-        marginBottom: 8,
-        fontSize: 14,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#E3DCE7',
-        borderRadius: 16,
-        padding: 14,
-        backgroundColor: '#F7F5F9',
-        color: '#1D1B20',
+        fontSize:   14,
+        fontWeight: '500',
+        color:      '#1a1a1a',
     },
     select: {
-        borderWidth: 1,
-        borderColor: '#E3DCE7',
-        borderRadius: 16,
-        padding: 14,
-        backgroundColor: '#F7F5F9',
-    },
-    selectText: {
-        color: '#1D1B20',
-    },
-    actions: {
-        flexDirection: 'row',
+        flexDirection:  'row',
         justifyContent: 'space-between',
-        gap: 12,
-        marginTop: 10,
+        alignItems:     'center',
+        borderWidth:    1,
+        borderColor:    '#CDCED2',
+        borderRadius:   10,
+        paddingHorizontal: 16,
+        paddingVertical:   12,
+    },
+    selectPlaceholder: {
+        color:    '#999',
+        fontSize: 14,
+    },
+    selectValue: {
+        color:    '#1a1a1a',
+        fontSize: 14,
+    },
+    dropdown: {
+        borderWidth:   1,
+        borderColor:   '#eee',
+        borderRadius:  10,
+        backgroundColor: '#fff',
+        elevation:     4,
+        shadowColor:   '#000',
+        shadowOpacity: 0.08,
+        shadowRadius:  8,
+        shadowOffset:  { width: 0, height: 2 },
+    },
+    dropdownItem: {
+        paddingHorizontal: 16,
+        paddingVertical:   12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f5f5f5',
+    },
+    dropdownText: {
+        fontSize: 14,
+        color:    '#1a1a1a',
     },
 });

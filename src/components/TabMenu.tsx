@@ -3,7 +3,7 @@ import { router, usePathname } from 'expo-router';
 
 const TABS = [
     { label: 'Особиста інформація', href: '/home' },
-    { label: 'Альбоми',             href: '/home/albums' },
+    { label: 'Альбоми',             href: '/(album)/albums' },
 ];
 
 export function TabMenu() {
