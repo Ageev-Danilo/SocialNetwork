@@ -26,9 +26,6 @@ export function LoginForm() {
             const result = await login(data).unwrap();
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
-            router.replace('/home');
-             console.log("redirect")
-            Alert.alert('Помилка', 'Не вдалося зареєструватись');
         } catch (e) {
             console.error('Login error:', e);
         }

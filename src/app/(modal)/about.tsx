@@ -10,6 +10,7 @@ export default function ModalScreen() {
             <View style={styles.modal}>
                 <View style={styles.close}>
                     <Button
+                        type='icon'
                         icon="close"
                         iconSize={17}
                         style={styles.closeBtn}
@@ -36,8 +37,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'white',
         paddingHorizontal: 16,
-        paddingTop: 24,
-        paddingBottom: 44,
+        paddingVertical: 24,
         borderRadius: 20,
     },
     close: {
