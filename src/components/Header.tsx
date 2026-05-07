@@ -58,10 +58,9 @@ export function Header() {
     );
 }
 
-
 const styles = StyleSheet.create({
     navBtn: {
         width: 40,
-        height: 40
-    }
-})
+        height: 40,
+    },
+});

@@ -35,6 +35,7 @@ export function AuthGate() {
             router.replace('/(auth)/login');
         } else if (token && inAuth) {
             router.replace('/home');
+            router.push('/(modal)/about');
         }
     }, [isReady, token, segments]);
 
@@ -46,6 +47,7 @@ export function AuthGate() {
             <Stack.Screen name="(chat)" />
             <Stack.Screen name="(friends)" />
             <Stack.Screen name="(posts)" />
+            <Stack.Screen name="(modal)" />
         </Stack>
     );
 }

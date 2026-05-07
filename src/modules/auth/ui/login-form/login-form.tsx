@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
@@ -9,6 +9,7 @@ import { useLoginMutation } from '../../api';
 import { useUserContext } from '../../context';
 import type { LoginSchema } from '../../model';
 import { styles } from './login-form.styles';
+import { Redirect } from 'expo-router';
 
 export function LoginForm() {
     const router   = useRouter();
@@ -25,7 +26,6 @@ export function LoginForm() {
             const result = await login(data).unwrap();
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
-            router.replace('/');
         } catch (e) {
             console.error('Login error:', e);
         }
