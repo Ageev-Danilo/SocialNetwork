@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from '@/shared/ui';
 import { useRegisterMutation } from '../../api';
@@ -107,6 +107,7 @@ export function VerifyForm() {
                     type="fill"
                     text={isLoading ? 'Реєстрація...' : 'Підтвердити'}
                     onPress={onConfirm}
+                    onSubmit={<Redirect href="/(modal)/about" />}
                     style={{ width: '100%', borderRadius: 14 }}
                 />
                 <TouchableOpacity onPress={() => router.back()}>

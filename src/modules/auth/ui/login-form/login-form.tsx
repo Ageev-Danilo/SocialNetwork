@@ -9,6 +9,7 @@ import { useLoginMutation } from '../../api';
 import { useUserContext } from '../../context';
 import type { LoginSchema } from '../../model';
 import { styles } from './login-form.styles';
+import { Redirect } from 'expo-router';
 
 export function LoginForm() {
     const router   = useRouter();
@@ -26,7 +27,7 @@ export function LoginForm() {
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
             router.replace('/home');
-            router.push('/(modal)/about');
+             console.log("redirect")
             Alert.alert('Помилка', 'Не вдалося зареєструватись');
         } catch (e) {
             console.error('Login error:', e);
