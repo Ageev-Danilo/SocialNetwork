@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
@@ -26,7 +26,8 @@ export function LoginForm() {
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
             router.replace('/home');
-            router.push('/about');
+            router.push('/(modal)/about');
+            Alert.alert('Помилка', 'Не вдалося зареєструватись');
         } catch (e) {
             console.error('Login error:', e);
         }
