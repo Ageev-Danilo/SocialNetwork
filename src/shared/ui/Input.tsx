@@ -12,6 +12,7 @@ export function Input({
     holder = 'Enter text...',
     onChangeText,
     value,
+    error,
     additional,
     ...props
 }: InputProps) {
@@ -27,7 +28,7 @@ export function Input({
     };
 
     return (
-        <View style={{ flex: 1, gap: 6 }}>
+        <View style={{ gap: 6 }}>
             {label && <Text style={BASE.inputLabel}>{label}</Text>}
 
             <View style={BASE.inputRow}>
@@ -46,6 +47,8 @@ export function Input({
                 </Ripple>
                 {type === 'pwd' ? <Button type="icon" icon={isSecure ? 'visible' : 'hide'} iconSize={24} style={BASE.inputBtn} onPress={toggleSecure} /> : ''}
             </View>
+
+            {error && <Text style={BASE.error}>{error.message}</Text>}
         </View>
     );
 }
