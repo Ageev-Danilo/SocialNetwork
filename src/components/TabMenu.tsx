@@ -5,7 +5,7 @@ import { Button } from '@/shared/ui';
 
 const DEFAULT_TABS: TabItem[] = [
     { label: 'Особиста інформація', href: '/home' },
-    { label: 'Альбоми', href: '/home/albums' },
+    { label: 'Альбоми',             href: '/(album)/albums' },
 ];
 
 export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
