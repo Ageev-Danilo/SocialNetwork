@@ -74,10 +74,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         lineHeight: 20,
     },
-    error: {
-        color: '#E53935',
-        fontSize: 12,
-    },
     next: {
         alignItems: 'flex-end',
     },

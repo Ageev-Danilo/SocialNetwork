@@ -115,5 +115,9 @@ export const BASE = StyleSheet.create({
         right: 8,
         width: 36,
         height: 36
-    }
+    },
+    error: {
+        color: '#E53935',
+        fontSize: 12,
+    },
 });
