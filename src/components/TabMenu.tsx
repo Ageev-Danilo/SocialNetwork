@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     text: {
         fontSize:   14,
         color:      '#999',
-        fontWeight: '500',
+        fontWeight: '700',
     },
     textActive: {
         color:      '#543C52',
