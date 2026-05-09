@@ -2,8 +2,8 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router, usePathname } from 'expo-router';
 
 const TABS = [
-    { label: 'Особиста інформація', href: '/home' },
-    { label: 'Альбоми',             href: '/(album)/albums' },
+    { label: 'Особиста інформація', href: '/settings' },
+    { label: 'Альбоми',             href: '/settings/albums' },
 ];
 
 export function TabMenu() {
@@ -12,10 +12,8 @@ export function TabMenu() {
     return (
         <View style={styles.container}>
             {TABS.map((tab) => {
-                const isActive =
-                    tab.href === '/home'
-                        ? pathname === '/home'
-                        : pathname === tab.href;
+                const isActive = pathname === tab.href ||
+                    (tab.href === '/(album)/albums' && pathname.startsWith('/(album)'));
 
                 return (
                     <Pressable
@@ -36,27 +34,27 @@ export function TabMenu() {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        backgroundColor: 'white',
+        flexDirection:     'row',
+        backgroundColor:   'transparent',  
         paddingHorizontal: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#EBEBEB',
     },
     tab: {
         paddingVertical: 12,
-        marginRight: 16,
+        marginRight:     16,
     },
     tabActive: {
         borderBottomWidth: 2,
         borderBottomColor: '#543C52',
     },
     text: {
-        fontSize: 14,
-        color: '#999',
+        fontSize:   14,
+        color:      '#999',
         fontWeight: '500',
     },
     textActive: {
-        color: '#543C52',
+        color:      '#543C52',
         fontWeight: '700',
     },
 });
