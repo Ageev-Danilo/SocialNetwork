@@ -13,18 +13,19 @@ const SETTINGS_ROUTES     = ['/settings', '/settings/albums'];
 export function Header() {
     const dispatch = useDispatch();
     const pathname = usePathname();
-    const isOpen   = useSelector((state: RootState) => state.modal.isCreatePostOpen);
+    const isOpen = useSelector((state: RootState) => state.modal.isCreatePostOpen);
 
-    const showAddButton    = CREATE_POST_ROUTES.some((r) => pathname === r);
+    const showAddButton = CREATE_POST_ROUTES.some((r) => pathname === r);
     const isSettingsActive = SETTINGS_ROUTES.some((r) => pathname === r);
 
     return (
-        <>
+        <View style={styles.headerContainer}>
             <SafeAreaView edges={['top']} style={styles.safe}>
                 <View style={styles.nav}>
                     <Image
                         source={require('../assets/logo.png')}
                         style={{ width: 145, height: 18 }}
+                        resizeMode="contain"
                     />
                     <View style={styles.actions}>
                         {showAddButton && (
@@ -38,7 +39,7 @@ export function Header() {
 
                         <Button
                             type="outline"
-                            onPress={() => router.push('/(settings)/settings')}
+                            onPress={() => router.push('/settings')} 
                             style={isSettingsActive && styles.activeBtn}
                         >
                             <Icon name="settings" />
@@ -46,42 +47,46 @@ export function Header() {
 
                         <Button
                             type="outline"
-                            onPress={() => router.push('/(auth)/logout')}
+                            onPress={() => router.push('/logout')}
                         >
                             <Icon name="logout" />
                         </Button>
                     </View>
                 </View>
             </SafeAreaView>
-
+            
             <CreatePostModal
                 visible={isOpen}
                 onClose={() => dispatch(closeCreatePost())}
             />
-        </>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    headerContainer: {
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
     safe: {
         backgroundColor: 'white',
     },
     nav: {
-        height:            56,
-        width:             '100%',
-        flexDirection:     'row',
-        alignItems:        'center',
-        justifyContent:    'space-between',
+        height: 56, 
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
-        backgroundColor:   'white',
     },
     actions: {
         flexDirection: 'row',
-        alignItems:    'center',
-        gap:           10,
+        alignItems: 'center',
+        gap: 10,
     },
     activeBtn: {
         backgroundColor: '#E9E5EE',  
-        borderColor:     '#E9E5EE',
+        borderColor: '#E9E5EE',
     },
 });

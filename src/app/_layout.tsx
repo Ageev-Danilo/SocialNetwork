@@ -10,22 +10,18 @@ import { AuthGate } from '@/modules/auth/ui/auth-gate';
 
 function AppContent() {
     const segments = useSegments();
-    
     const inAuth = segments[0] === '(auth)';
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: inAuth ? '#F3F4F6' : '#f7f4ff' }}>
             {!inAuth && <Header />}
             
-            <View style={{ 
-                flex: 1, 
-                backgroundColor: inAuth ? '#F3F4F6' : '#f7f4ff' 
-            }}>
+            <View style={{ flex: 1 }}>
                 <AuthGate />
             </View>
 
             {!inAuth && <Bottom />}
-        </SafeAreaView>
+        </View>
     );
 }
 
