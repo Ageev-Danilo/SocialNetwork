@@ -10,7 +10,6 @@ import { AuthGate } from '@/modules/auth/ui/auth-gate';
 
 function AppContent() {
     const segments = useSegments();
-    
     const inAuth = segments[0] === '(auth)';
 
     return (

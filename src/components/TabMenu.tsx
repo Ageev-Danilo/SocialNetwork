@@ -3,19 +3,19 @@ import { router, usePathname } from 'expo-router';
 import { TabMenuProps, TabItem } from '@/shared/types/component.types';
 import { Button } from '@/shared/ui';
 
-const DEFAULT_TABS: TabItem[] = [
-    { label: 'Особиста інформація', href: '/home' },
-    { label: 'Альбоми', href: '/home/albums' },
+const TABS = [
+    { label: 'Особиста інформація', href: '/settings' },
+    { label: 'Альбоми',             href: '/settings/albums' },
 ];
 
 export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
     const pathname = usePathname();
 
     return (
-        <View style={[type === 'fill' ? styles.container : '', styles.menu]}>
-            {tabs.map(tab => {
-                const isActive =
-                    tab.href === '/home' ? pathname === '/home' : pathname === tab.href;
+        <View style={styles.container}>
+            {TABS.map((tab) => {
+                const isActive = pathname === tab.href ||
+                    (tab.href === '/(album)/albums' && pathname.startsWith('/(album)'));
 
                 return (
                     <Button
@@ -35,8 +35,9 @@ export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
 }
 
 const styles = StyleSheet.create({
-    menu: {
-        flexDirection: 'row',
+    container: {
+        flexDirection:     'row',
+        backgroundColor:   'transparent',  
         paddingHorizontal: 16,
     },
     container: {
@@ -46,19 +47,19 @@ const styles = StyleSheet.create({
     },
     tab: {
         paddingVertical: 12,
-        marginRight: 16,
+        marginRight:     16,
     },
     tabActive: {
         borderBottomWidth: 2,
         borderBottomColor: '#543C52',
     },
     text: {
-        fontSize: 16,
-        color: '#999',
-        fontWeight: '500',
+        fontSize:   14,
+        color:      '#999',
+        fontWeight: '700',
     },
     textActive: {
-        color: '#543C52',
+        color:      '#543C52',
         fontWeight: '700',
     },
 });

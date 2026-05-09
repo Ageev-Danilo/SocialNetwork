@@ -1,54 +1,92 @@
 import { View, Image, StyleSheet } from 'react-native';
-import { Button, Icon } from '@/shared/ui';
-import { BASE } from '@/shared/consts';
-import { router, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Icon } from '@/shared/ui';
+import { router, usePathname } from 'expo-router';
 import type { RootState } from '@/shared/store';
 import { openCreatePost, closeCreatePost } from '@/shared/store/modal.slice';
 import { CreatePostModal } from './CreatePostModal';
 import { useDispatch, useSelector } from 'react-redux';
+
+const CREATE_POST_ROUTES  = ['/home', '/posts'];
+const SETTINGS_ROUTES     = ['/settings', '/settings/albums'];
 
 export function Header() {
     const dispatch = useDispatch();
     const pathname = usePathname();
     const isOpen = useSelector((state: RootState) => state.modal.isCreatePostOpen);
 
-    const showAddButton = ['/', '/home', '/posts'].some(r => pathname.endsWith(r));
+    const showAddButton = CREATE_POST_ROUTES.some((r) => pathname === r);
+    const isSettingsActive = SETTINGS_ROUTES.some((r) => pathname === r);
 
     return (
-        <SafeAreaView edges={['top']}>
-            <View style={[BASE.nav, BASE.yc]}>
-                <Image source={require('../assets/logo.png')} style={{ width: 145, height: 18 }} />
-                <View style={[BASE.yc, { gap: 10 }]}>
-                    {showAddButton && (
+        <View style={styles.headerContainer}>
+            <SafeAreaView edges={['top']} style={styles.safe}>
+                <View style={styles.nav}>
+                    <Image
+                        source={require('../assets/logo.png')}
+                        style={{ width: 145, height: 18 }}
+                        resizeMode="contain"
+                    />
+                    <View style={styles.actions}>
+                        {showAddButton && (
+                            <Button
+                                type="outline"
+                                onPress={() => dispatch(openCreatePost())}
+                            >
+                                <Icon name="add" />
+                            </Button>
+                        )}
+
                         <Button
                             type="outline"
-                            style={styles.navBtn}
-                            icon="add"
-                            onPress={() => dispatch(openCreatePost())}
-                        />
-                    )}
-                    <Button
-                        type="outline"
-                        style={styles.navBtn}
-                        icon="settings"
-                        onPress={() => router.push('/(settings)/settings')}
-                    />
-                    <Button
-                        type="outline"
-                        style={styles.navBtn}
-                        icon="logout"
-                        onPress={() => router.push('/(auth)/logout')}
-                    />
+                            onPress={() => router.push('/settings')} 
+                            style={isSettingsActive && styles.activeBtn}
+                        >
+                            <Icon name="settings" />
+                        </Button>
+
+                        <Button
+                            type="outline"
+                            onPress={() => router.push('/logout')}
+                        >
+                            <Icon name="logout" />
+                        </Button>
+                    </View>
                 </View>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+            
+            <CreatePostModal
+                visible={isOpen}
+                onClose={() => dispatch(closeCreatePost())}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    navBtn: {
-        width: 40,
-        height: 40,
+    headerContainer: {
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    safe: {
+        backgroundColor: 'white',
+    },
+    nav: {
+        height: 56, 
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+    },
+    actions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    activeBtn: {
+        backgroundColor: '#E9E5EE',  
+        borderColor: '#E9E5EE',
     },
 });

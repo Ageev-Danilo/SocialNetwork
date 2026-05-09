@@ -1,9 +1,8 @@
 import { Stack } from 'expo-router';
 
-export default function HomeLayout() {
+export default function AlbumLayout() {
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
             <Stack.Screen name="albums" />
         </Stack>
     );
