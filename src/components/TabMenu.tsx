@@ -3,12 +3,12 @@ import { router, usePathname } from 'expo-router';
 import { TabMenuProps, TabItem } from '@/shared/types/component.types';
 import { Button } from '@/shared/ui';
 
-const TABS = [
-    { label: 'Особиста інформація', href: '/settings' },
-    { label: 'Альбоми',             href: '/settings/albums' },
+const TABS: TabItem[] = [
+    { label: 'Особиста інформація', href: '/home' },
+    { label: 'Альбоми',             href: '/(album)/albums' },
 ];
 
-export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
+export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
     const pathname = usePathname();
 
     return (
@@ -39,11 +39,6 @@ const styles = StyleSheet.create({
         flexDirection:     'row',
         backgroundColor:   'transparent',  
         paddingHorizontal: 16,
-    },
-    container: {
-        backgroundColor: 'white',
-        borderBottomWidth: 1,
-        borderBottomColor: '#EBEBEB',
     },
     tab: {
         paddingVertical: 12,

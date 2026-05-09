@@ -1,65 +1,61 @@
-import { View, Image, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Image, Modal, TouchableOpacity ,StyleSheet} from 'react-native';
 import { Button, Icon } from '@/shared/ui';
+import { BASE } from '@/shared/consts';
 import { router, usePathname } from 'expo-router';
+import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/shared/store';
 import { openCreatePost, closeCreatePost } from '@/shared/store/modal.slice';
 import { CreatePostModal } from './CreatePostModal';
-import { useDispatch, useSelector } from 'react-redux';
 
 const CREATE_POST_ROUTES  = ['/home', '/posts'];
 const SETTINGS_ROUTES     = ['/settings', '/settings/albums'];
 
 export function Header() {
-    const dispatch = useDispatch();
-    const pathname = usePathname();
-    const isOpen = useSelector((state: RootState) => state.modal.isCreatePostOpen);
+    const dispatch  = useDispatch();
+    const pathname  = usePathname();
+    const isOpen    = useSelector((state: RootState) => state.modal.isCreatePostOpen);
 
-    const showAddButton = CREATE_POST_ROUTES.some((r) => pathname === r);
-    const isSettingsActive = SETTINGS_ROUTES.some((r) => pathname === r);
+    const showAddButton = CREATE_POST_ROUTES.some((r) => pathname.endsWith(r));
 
     return (
-        <View style={styles.headerContainer}>
-            <SafeAreaView edges={['top']} style={styles.safe}>
-                <View style={styles.nav}>
-                    <Image
-                        source={require('../assets/logo.png')}
-                        style={{ width: 145, height: 18 }}
-                        resizeMode="contain"
-                    />
-                    <View style={styles.actions}>
-                        {showAddButton && (
-                            <Button
-                                type="outline"
-                                onPress={() => dispatch(openCreatePost())}
-                            >
-                                <Icon name="add" />
-                            </Button>
-                        )}
+        <>
+            <View style={[BASE.nav, BASE.yc]}>
+                <Image
+                    source={require('../assets/logo.png')}
+                    style={{ width: 145, height: 18 }}
+                />
 
+                <View style={[BASE.yc, { gap: 10 }]}>
+                    {showAddButton && (
                         <Button
                             type="outline"
-                            onPress={() => router.push('/settings')} 
-                            style={isSettingsActive && styles.activeBtn}
+                            onPress={() => dispatch(openCreatePost())}
                         >
-                            <Icon name="settings" />
+                            <Icon name="add" />
                         </Button>
+                    )}
 
-                        <Button
-                            type="outline"
-                            onPress={() => router.push('/logout')}
-                        >
-                            <Icon name="logout" />
-                        </Button>
-                    </View>
+                    <Button
+                        type="outline"
+                        onPress={() => router.push('/(settings)/settings')}
+                    >
+                        <Icon name="settings" />
+                    </Button>
+
+                    <Button
+                        type="outline"
+                        onPress={() => router.push('/(auth)/logout')}
+                    >
+                        <Icon name="logout" />
+                    </Button>
                 </View>
-            </SafeAreaView>
-            
+            </View>
+
             <CreatePostModal
                 visible={isOpen}
                 onClose={() => dispatch(closeCreatePost())}
             />
-        </View>
+        </>
     );
 }
 
