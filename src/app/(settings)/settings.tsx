@@ -5,8 +5,8 @@ import { TabMenu } from '@/components/TabMenu';
 import { TabItem } from '@/shared/types/component.types';
 
 const TABS: TabItem[] = [
-    { label: 'Особиста інформація', href: '/settings' },
-    { label: 'Альбоми', href: '/settings/albums' },
+    { label: 'Особиста інформація', href: '/settingsTabs' },
+    { label: 'Альбоми', href: '/settingsTabs/albums' },
 ];
 
 export default function SettingsScreen() {
