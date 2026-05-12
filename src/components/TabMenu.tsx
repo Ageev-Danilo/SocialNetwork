@@ -8,6 +8,7 @@ const TABS: TabItem[] = [
     { label: 'Альбоми',             href: '/(album)/albums' },
 ];
 
+
 export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
     const pathname = usePathname();
 
