@@ -1,5 +1,5 @@
 import { baseApi } from "@/shared/api/base";
-import type { AlbumResponse, CreateAlbumPayload } from "./api.types";
+import type { AlbumResponse, CreateAlbumPayload, UpdateAlbumPayload } from "./api.types";
 
 const albumsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -15,10 +15,27 @@ const albumsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Albums'],
         }),
+        updateAlbum: builder.mutation<{ message: string }, UpdateAlbumPayload>({
+            query: ({ id, ...body }) => ({
+                url:    `/albums/update/${id}`,
+                method: 'PATCH',
+                body,
+            }),
+            invalidatesTags: ['Albums'],
+        }),
+        deletePhoto: builder.mutation<void, number>({
+            query: (id) => ({
+                url: `albums/photo/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Albums'],
+        }),
     }),
 });
 
 export const {
     useGetMyAlbumsQuery,
     useCreateAlbumMutation,
+    useUpdateAlbumMutation,
+    useDeletePhotoMutation,
 } = albumsApi;
