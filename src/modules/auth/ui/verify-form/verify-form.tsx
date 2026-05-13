@@ -1,25 +1,25 @@
 import { useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from '@/shared/ui';
 import { useRegisterMutation } from '../../api';
 import { useUserContext } from '../../context';
 import { styles } from './verify-form.styles';
 
-const CODE_LENGTH = 6;  
+const CODE_LENGTH = 6;
 
 export function VerifyForm() {
-    const router  = useRouter();
-    const params  = useLocalSearchParams<{
-        email:    string;
+    const router = useRouter();
+    const params = useLocalSearchParams<{
+        email: string;
         password: string;
-        code:     string;
+        code: string;
     }>();
-    const { setToken }              = useUserContext();
+    const { setToken } = useUserContext();
     const [register, { isLoading }] = useRegisterMutation();
-    const [digits, setDigits]       = useState<string[]>(Array(CODE_LENGTH).fill(''));
-    const [error, setError]         = useState<string | null>(null);
+    const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
+    const [error, setError] = useState<string | null>(null);
     const inputs = useRef<(TextInput | null)[]>([]);
 
     function handleChange(text: string, index: number) {
@@ -41,7 +41,10 @@ export function VerifyForm() {
 
     async function onConfirm() {
         const entered = digits.join('');
-        if (entered.length < CODE_LENGTH) { setError('Введи всі 6 цифр'); return; }
+        if (entered.length < CODE_LENGTH) {
+            setError('Введи всі 6 цифр');
+            return;
+        }
         if (entered !== params.code) {
             setError('Невірний код. Спробуй ще раз');
             setDigits(Array(CODE_LENGTH).fill(''));
@@ -50,11 +53,11 @@ export function VerifyForm() {
         }
         try {
             const result = await register({
-                email:    params.email,
+                email: params.email,
                 password: params.password,
-                username: params.email.split('@')[0], 
-                name:     '',
-                surname:  '',
+                username: params.email.split('@')[0],
+                name: '',
+                surname: '',
             }).unwrap();
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
@@ -77,13 +80,17 @@ export function VerifyForm() {
             <View style={styles.codeContainer}>
                 {digits.map((digit, i) => (
                     <View key={i} style={[styles.codeBox, digit ? styles.codeBoxFilled : null]}>
-                        <Text style={[styles.underscore, digit ? styles.underscoreActive : null]}>_</Text>
-                        
+                        <Text style={[styles.underscore, digit ? styles.underscoreActive : null]}>
+                            _
+                        </Text>
+
                         <TextInput
-                            ref={(r) => { inputs.current[i] = r; }}
+                            ref={r => {
+                                inputs.current[i] = r;
+                            }}
                             style={styles.codeInput}
                             value={digit}
-                            onChangeText={(t) => handleChange(t, i)}
+                            onChangeText={t => handleChange(t, i)}
                             onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
                             keyboardType="number-pad"
                             maxLength={1}
@@ -100,6 +107,7 @@ export function VerifyForm() {
                     type="fill"
                     text={isLoading ? 'Реєстрація...' : 'Підтвердити'}
                     onPress={onConfirm}
+                    onSubmit={<Redirect href="/(modal)/about" />}
                     style={{ width: '100%', borderRadius: 14 }}
                 />
                 <TouchableOpacity onPress={() => router.back()}>

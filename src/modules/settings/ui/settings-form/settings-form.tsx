@@ -1,52 +1,80 @@
 import { useEffect, useState } from 'react';
 import {
-    View, Text, ScrollView, Alert,
-    ActivityIndicator, Image, TouchableOpacity,
+    View,
+    Text,
+    ScrollView,
+    Alert,
+    ActivityIndicator,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
-import { Input, Button } from '@/shared/ui';
-import { COLORS } from '@/shared/consts';
+import { Input, Button, Icon } from '@/shared/ui';
+import { COLORS, settingFields } from '@/shared/consts';
 import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
 import { settingsSchema } from '../../model';
 import type { SettingsSchema } from '../../model';
+import { Card } from '@/components/Settings/Card';
+import { SettingField } from './field';
 
-const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.100:3000';
+const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://10.0.2.2:3000';
 
 export function SettingsForm() {
-    const { data, isLoading } = useGetSettingsQuery();
+    const { data, isLoading, isSuccess } = useGetSettingsQuery();
     const [updateSettings, { isLoading: isUpdating }] = useUpdateSettingsMutation();
 
     const [localImageUri, setLocalImageUri] = useState<string | null>(null);
 
-    const { control, handleSubmit, reset } = useForm<SettingsSchema>({
-        defaultValues: {
-            firstName: '',
-            lastName:  '',
-            username:  '',
-            pseudonym: '',
-            date:      '',
-            signature: '',
-        },
+    const { control, formState, handleSubmit, reset, watch } = useForm<SettingsSchema>({
+        values: data
+            ? {
+                  firstName: data.firstName ?? '',
+                  lastName: data.lastName ?? '',
+                  username: data.username ?? '',
+                  pseudonym: data.pseudonym ?? '',
+                  date: data.date ?? '',
+                  signature: data.signature ?? '',
+              }
+            : {
+                  firstName: '',
+                  lastName: '',
+                  username: '',
+                  pseudonym: '',
+                  date: '',
+                  signature: '',
+              },
         resolver: yupResolver(settingsSchema),
     });
 
+    const firstName = watch('firstName');
+const lastName = watch('lastName');
+const username = watch('username');
+const displayName = `${firstName ?? ''} ${lastName ?? ''}`.trim();
+
+    const { dirtyFields } = formState;
+    const personalFields: (keyof SettingsSchema)[] = ['firstName', 'lastName', 'username', 'date'];
+    const signatureFields: (keyof SettingsSchema)[] = ['pseudonym', 'signature'];
+
+    const isPersonalEdited = personalFields.some(field => dirtyFields[field]);
+    const isSignatureEdited = signatureFields.some(field => dirtyFields[field]);
+    const isProfileEdited = !!localImageUri;
+
     useEffect(() => {
-        if (data) {
-            console.log('profileImage:', data.profileImage);
-            console.log('full url:', `${BASE_URL}/media/thumbnail/${data.profileImage}`);
+        if (isSuccess && data) {
             reset({
-                firstName: data.firstName,
-                lastName:  data.lastName,
-                username:  data.username,
-                pseudonym: data.pseudonym,
-                date:      data.date,
+                firstName: data.firstName ?? '',
+                lastName: data.lastName ?? '',
+                username: data.username ?? '',
+                pseudonym: data.pseudonym ?? '',
+                date: data.date ?? '',
                 signature: data.signature ?? '',
             });
         }
-    }, [data]);
+    }, [isSuccess, data, reset]);
 
     async function pickImage() {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -64,15 +92,15 @@ export function SettingsForm() {
             const form = new FormData();
 
             form.append('firstName', values.firstName);
-            form.append('lastName',  values.lastName);
-            form.append('username',  values.username);
+            form.append('lastName', values.lastName);
+            form.append('username', values.username);
             form.append('pseudonym', values.pseudonym);
-            form.append('date',      values.date);
+            form.append('date', values.date);
             form.append('signature', values.signature ?? '');
 
             if (localImageUri) {
                 form.append('profileImage', {
-                    uri:  localImageUri,
+                    uri: localImageUri,
                     type: 'image/jpeg',
                     name: `${Date.now()}.jpeg`,
                 } as any);
@@ -96,111 +124,90 @@ export function SettingsForm() {
     const imageSource = localImageUri
         ? { uri: localImageUri }
         : data?.profileImage
-            ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
-            : null;
-
-    const fields: {
-        name: keyof SettingsSchema;
-        label: string;
-        holder: string;
-        type?: 'text' | 'email' | 'pwd';
-    }[] = [
-        { name: 'firstName', label: "Ім'я",            holder: "Введи ім'я" },
-        { name: 'lastName',  label: 'Прізвище',        holder: 'Введи прізвище' },
-        { name: 'username',  label: 'Нікнейм',         holder: '@username' },
-        { name: 'pseudonym', label: 'Псевдонім',       holder: 'Введи псевдонім' },
-        { name: 'date',      label: 'Дата народження', holder: 'дд.мм.рррр' },
-        { name: 'signature', label: 'Підпис',          holder: 'Введи підпис' },
-    ];
+          ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
+          : null;
 
     return (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-
-            {/* Аватар */}
-            <View style={{
-                backgroundColor: 'white',
-                borderRadius: 16,
-                padding: 16,
-                alignItems: 'center',
-                gap: 8,
-            }}>
+            <Card
+                title="Картка профілю"
+                edited={isProfileEdited}
+                style={{ alignItems: 'center', gap: 24 }}
+            >
                 <TouchableOpacity onPress={pickImage}>
                     {imageSource ? (
                         <Image
                             source={imageSource}
                             style={{
-                                width: 90, height: 90,
+                                width: 90,
+                                height: 90,
                                 borderRadius: 45,
                                 borderWidth: 2,
                                 borderColor: COLORS.primary,
                             }}
                         />
                     ) : (
-                        <View style={{
-                            width: 90, height: 90,
-                            borderRadius: 45,
-                            backgroundColor: COLORS.grey,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderWidth: 2,
-                            borderColor: COLORS.primary,
-                        }}>
-                            <Text style={{ fontSize: 32 }}>📷</Text>
-                        </View>
+                        <Button style={styles.avatar} onPress={pickImage}>
+                            <Text style={{ fontSize: 32 }}>
+                                <Icon name="camera" size={40} />
+                            </Text>
+                        </Button>
                     )}
                 </TouchableOpacity>
-                <Text style={{ fontSize: 13, color: COLORS.primary, fontWeight: '600' }}>
-                    {localImageUri ? 'Фото вибрано' : 'Змінити фото'}
-                </Text>
-            </View>
+                <View style={{ alignItems: 'center', gap: 5 }}>
+                    <Text style={styles.displayName}>{displayName || 'Not found'}</Text>
+                    <Text style={styles.username}>{username ? `@${username}` : '@username'}</Text>
+                </View>
+            </Card>
 
 
-            <View style={{
-                backgroundColor: 'white',
-                borderRadius: 16,
-                padding: 16,
-                gap: 12,
-            }}>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: COLORS.black }}>
-                    Особиста інформація
-                </Text>
-
-                {fields.map(({ name, label, holder, type = 'text' }) => (
-                    <Controller
+            <Card
+                title="Особиста інформація"
+                edited={isPersonalEdited}
+                style={{
+                    backgroundColor: 'white',
+                    borderRadius: 16,
+                    padding: 16,
+                    gap: 12,
+                }}
+            >
+                {settingFields.map(({ name, label, holder, type = 'text' }) => (
+                    <SettingField
                         key={name}
                         control={control}
                         name={name}
-                        render={({ field, fieldState }) => (
-                            <View style={{ gap: 4 }}>
-                                <Text style={{ fontSize: 13, color: COLORS.black, opacity: 0.6 }}>
-                                    {label}
-                                </Text>
-                                <Input
-                                    type={type}
-                                    holder={holder}
-                                    value={field.value ?? ''}
-                                    onChangeText={field.onChange}
-                                    onBlur={field.onBlur}
-                                />
-                                {fieldState.error && (
-                                    <Text style={{ fontSize: 12, color: COLORS.error }}>
-                                        {fieldState.error.message}
-                                    </Text>
-                                )}
-                            </View>
-                        )}
+                        label={label}
+                        holder={holder}
+                        type={type}
                     />
                 ))}
-            </View>
+            </Card>
 
-            <View style={{ alignItems: 'center', paddingBottom: 32 }}>
-                <Button
-                    type="fill"
-                    text={isUpdating ? 'Збереження...' : 'Зберегти'}
-                    onPress={() => handleSubmit(onSubmit)()}
-                />
-            </View>
-
+            
+            <Card edited={isSignatureEdited} title="Варіанти підпису">
+                <Text>Псевдонім автора</Text>
+                <Text>Мій електронний підпис</Text>
+            </Card>
         </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    avatar: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+        backgroundColor: COLORS.grey,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: COLORS.primary,
+    },
+    displayName: {
+        fontSize: 24,
+        fontWeight: '700',
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+});

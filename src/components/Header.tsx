@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, Modal, TouchableOpacity ,StyleSheet} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Icon } from '@/shared/ui';
 import { router, usePathname } from 'expo-router';
@@ -88,5 +88,9 @@ const styles = StyleSheet.create({
     activeBtn: {
         backgroundColor: '#E9E5EE',  
         borderColor: '#E9E5EE',
+    },
+    navBtn: {
+        width: 40,
+        height: 40,
     },
 });

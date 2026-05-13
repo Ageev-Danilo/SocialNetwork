@@ -5,16 +5,12 @@ import { Button } from '../shared/ui/Button';
 import { Icon } from '../shared/ui/base/Icon';
 
 import { BASE } from '@/shared/consts';
-import { NavsProps } from '@/shared/types/types';
-
+import { NavsProps } from '@/shared/types/shared.types';
 
 export function Nav() {
     return (
         <View style={[BASE.nav, BASE.yc]}>
-            <Image
-                source={require('../assets/logo.png')}
-                style={{ width: 145, height: 18 }}
-            />
+            <Image source={require('../assets/logo.png')} style={{ width: 145, height: 18 }} />
             <Navigations style={[BASE.yc, { gap: 10 }]} />
         </View>
     );
@@ -29,7 +25,7 @@ export function Navigations({ style }: NavsProps) {
     const isVisible = !isChat && !isFriends;
 
     const handleLogout = () => {
-        router.push('/(modal)/about');
+        router.push('/(auth)/');
     };
 
     return (

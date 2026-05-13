@@ -11,6 +11,9 @@ import GroupSvg from '../../assets/group.svg';
 import CloseSvg from '../../assets/close.svg';
 import EditSvg from "../../assets/edit.svg";
 import ShowSvg from "../../assets/eye.svg";
+import HideSvg from "../../assets/diseye.svg";
+import CameraSvg from "../../assets/camera.svg";
+
 
 export const icons = {
     add: AddSvg,
@@ -23,6 +26,8 @@ export const icons = {
     close: CloseSvg,
     edit: EditSvg,
     visible: ShowSvg,
+    hide: HideSvg,
+    camera: CameraSvg
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -62,9 +67,12 @@ export type TabBtnProps = {
 
 export interface InputProps extends TextInputProps {
     type?: 'pwd' | 'text' | 'email';
+    label?: string;
     holder?: string;
     onChangeText?: (text: string) => void;
     value?: string;
+    error?: any;
+    additional?: ReactNode;
 }
 
 export type BodyProps = {
