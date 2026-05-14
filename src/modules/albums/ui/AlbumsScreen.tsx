@@ -15,49 +15,47 @@ import {
 } from '@/modules/albums/api';
 import type { AlbumResponse, AlbumPhotoResponse } from '@/modules/albums/api';
 
-type IconName = "visible" | "img" | "add" | "logout" | "settings" | "home" | "chat" | "group" | "close" | "edit";
-
 export function AlbumsScreen() {
-    const { data: albums = [], isLoading } = useGetMyAlbumsQuery();
+    const { data: albums = [], isLoading }         = useGetMyAlbumsQuery();
     const [createAlbum, { isLoading: isCreating }] = useCreateAlbumMutation();
     const [updateAlbum, { isLoading: isUpdating }] = useUpdateAlbumMutation();
-    const [deletePhoto] = useDeletePhotoMutation(); 
+    const [deletePhoto]                            = useDeletePhotoMutation();
 
     const [createOpen, setCreateOpen] = useState(false);
-    const [editAlbum, setEditAlbum] = useState<AlbumResponse | null>(null);
-    const [myPhotos, setMyPhotos] = useState<{ id: number; uri: string }[]>([]);
+    const [editAlbum,  setEditAlbum]  = useState<AlbumResponse | null>(null);
+
+    const [myPhotos,   setMyPhotos]   = useState<{ id: number; uri: string }[]>([]);
+    const [hiddenPhotos, setHiddenPhotos] = useState<Set<number>>(new Set());
+
+    function toggleHidden(id: number) {
+        setHiddenPhotos(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    }
 
     async function addMyPhoto() {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            quality: 0.8,
+            quality:    0.8,
         });
         if (!result.canceled) {
-            setMyPhotos(prev => [...prev, { id: Date.now(), uri: result.assets[0].uri }]);
+            setMyPhotos(prev => [
+                ...prev,
+                { id: Date.now(), uri: result.assets[0].uri },
+            ]);
         }
     }
 
     function deleteMyPhoto(id: number) {
         setMyPhotos(prev => prev.filter(p => p.id !== id));
+        setHiddenPhotos(prev => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+        });
     }
-    async function handleDeletePhotoFromAlbum(photoId: number) {
-        console.log('Attempting to delete photo with ID:', photoId); 
-        Alert.alert('Видалити фото?', 'Це фото буде назавжди видалено з альбому', [
-            { text: 'Скасувати', style: 'cancel' },
-            {
-                text: 'Видалити',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deletePhoto(photoId).unwrap();
-                    } catch (e) {
-                        console.log('Delete error detail:', e);
-                        Alert.alert('Помилка', 'Не вдалося видалити фото');
-                    }
-                },
-            },
-    ]);
-}
 
     async function handleCreate(name: string, theme: string, date: string) {
         try {
@@ -81,18 +79,40 @@ export function AlbumsScreen() {
     async function handleAddPhotoToAlbum(albumId: number) {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            quality: 0.8,
+            quality:    0.8,
         });
         if (!result.canceled) {
             try {
                 await updateAlbum({
-                    id: albumId,
+                    id:     albumId,
                     photos: [{ url: result.assets[0].uri }],
                 }).unwrap();
             } catch (e) {
                 console.log('Upload error:', e);
             }
         }
+    }
+
+    function handleDeletePhoto(photoId: number) {
+        Alert.alert(
+            'Видалити фото?',
+            'Це фото буде назавжди видалено з альбому',
+            [
+                { text: 'Скасувати', style: 'cancel' },
+                {
+                    text:  'Видалити',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deletePhoto(photoId).unwrap();
+                        } catch (e) {
+                            console.log('deletePhoto error:', e);
+                            Alert.alert('Помилка', 'Не вдалося видалити фото');
+                        }
+                    },
+                },
+            ],
+        );
     }
 
     if (isLoading) {
@@ -105,7 +125,10 @@ export function AlbumsScreen() {
 
     return (
         <View style={styles.screen}>
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.scroll}
+                showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.card}>
                     <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 16 }]}>
                         <Text style={styles.cardTitle}>Мої фото</Text>
@@ -114,6 +137,7 @@ export function AlbumsScreen() {
                             <Text style={styles.addPhotoBtnText}>Додати фото</Text>
                         </TouchableOpacity>
                     </View>
+
                     <View style={styles.photosGrid}>
                         {myPhotos.length === 0 ? (
                             <Text style={styles.noPhotosText}>У вас поки що немає фото</Text>
@@ -122,6 +146,8 @@ export function AlbumsScreen() {
                                 <PhotoThumb
                                     key={photo.id}
                                     uri={photo.uri}
+                                    isHidden={hiddenPhotos.has(photo.id)}
+                                    onToggleHidden={() => toggleHidden(photo.id)}
                                     onDelete={() => deleteMyPhoto(photo.id)}
                                 />
                             ))
@@ -132,7 +158,10 @@ export function AlbumsScreen() {
                 {albums.length === 0 ? (
                     <View style={[styles.card, BASE.yc, { justifyContent: 'space-between' }]}>
                         <Text style={styles.emptyText}>Немає ще жодного альбому</Text>
-                        <TouchableOpacity onPress={() => setCreateOpen(true)} style={styles.circleBtn}>
+                        <TouchableOpacity
+                            onPress={() => setCreateOpen(true)}
+                            style={styles.circleBtn}
+                        >
                             <Text style={styles.circleBtnText}>+</Text>
                         </TouchableOpacity>
                     </View>
@@ -142,14 +171,19 @@ export function AlbumsScreen() {
                             <AlbumBlock
                                 key={album.id}
                                 album={album}
+                                hiddenPhotos={hiddenPhotos}
                                 onEdit={() => setEditAlbum(album)}
                                 onAddPhoto={() => handleAddPhotoToAlbum(album.id)}
-                                onDeletePhoto={(photoId) => handleDeletePhotoFromAlbum(photoId)}
+                                onDeletePhoto={handleDeletePhoto}
+                                onToggleHidden={toggleHidden}
                             />
                         ))}
                         <View style={[styles.card, BASE.yc, { justifyContent: 'space-between' }]}>
                             <Text style={styles.emptyText}>Додати альбом</Text>
-                            <TouchableOpacity onPress={() => setCreateOpen(true)} style={styles.circleBtn}>
+                            <TouchableOpacity
+                                onPress={() => setCreateOpen(true)}
+                                style={styles.circleBtn}
+                            >
                                 <Text style={styles.circleBtnText}>+</Text>
                             </TouchableOpacity>
                         </View>
@@ -164,7 +198,6 @@ export function AlbumsScreen() {
                 onClose={() => setCreateOpen(false)}
                 onSubmit={handleCreate}
             />
-
             {editAlbum && (
                 <AlbumFormModal
                     visible
@@ -181,31 +214,48 @@ export function AlbumsScreen() {
     );
 }
 
-function ActionBtn({ name, onPress }: { name: IconName, onPress?: () => void }) {
+type ActionIconName = 'visible' | 'hide' | 'close' | 'edit' | 'img' |
+                     'add' | 'logout' | 'settings' | 'home' |
+                     'chat' | 'group' | 'camera';
+
+function ActionBtn({
+    name, onPress,
+}: { name: ActionIconName; onPress?: () => void }) {
     return (
         <TouchableOpacity style={actionStyles.btn} onPress={onPress}>
-            <Icon name={name} size={18} />
+            <Icon name={name} size={16} />
         </TouchableOpacity>
     );
 }
 
 const actionStyles = StyleSheet.create({
     btn: {
-        width:           40,
-        height:          40,
-        borderRadius:    20,
+        width:           34,
+        height:          34,
+        borderRadius:    17,
         backgroundColor: 'rgba(255,255,255,0.9)',
         justifyContent:  'center',
         alignItems:      'center',
     },
 });
 
-function PhotoThumb({ uri, onDelete }: { uri: string; onDelete: () => void }) {
+function PhotoThumb({
+    uri, isHidden, onToggleHidden, onDelete,
+}: {
+    uri:            string;
+    isHidden:       boolean;
+    onToggleHidden: () => void;
+    onDelete:       () => void;
+}) {
     return (
         <View style={thumb.wrap}>
             <Image source={{ uri }} style={thumb.img} resizeMode="cover" />
+            {isHidden && <View style={thumb.blur} />}
             <View style={thumb.actions}>
-                <ActionBtn name="visible" />
+                <ActionBtn
+                    name={isHidden ? 'hide' : 'visible'}
+                    onPress={onToggleHidden}
+                />
                 <ActionBtn name="close" onPress={onDelete} />
             </View>
         </View>
@@ -214,32 +264,57 @@ function PhotoThumb({ uri, onDelete }: { uri: string; onDelete: () => void }) {
 
 const thumb = StyleSheet.create({
     wrap: {
-        width:           200,
-        height:          200,
+        width:           160,
+        height:          160,
         borderRadius:    12,
         overflow:        'hidden',
         position:        'relative',
         backgroundColor: '#f0f0f0',
     },
-    img:     { width: '100%', height: '100%' },
-    actions: { position: 'absolute', bottom: 10, left: 10, flexDirection: 'row', gap: 8 },
+    img: {
+        width:  '100%',
+        height: '100%',
+    },
+    blur: {
+        position:        'absolute',
+        top:             0,
+        left:            0,
+        right:           0,
+        bottom:          0,
+        backgroundColor: 'rgba(247, 244, 255, 0.85)', 
+    },
+    actions: {
+        position:      'absolute',
+        bottom:        8,
+        left:          8,
+        flexDirection: 'row',
+        gap:           6,
+    },
 });
 
 interface AlbumBlockProps {
-    album:          AlbumResponse;
-    onEdit:         () => void;
-    onAddPhoto:     () => void;
-    onDeletePhoto:  (id: number) => void;
+    album:           AlbumResponse;
+    hiddenPhotos:    Set<number>;
+    onEdit:          () => void;
+    onAddPhoto:      () => void;
+    onDeletePhoto:   (id: number) => void;
+    onToggleHidden:  (id: number) => void;
 }
 
-function AlbumBlock({ album, onEdit, onAddPhoto, onDeletePhoto }: AlbumBlockProps) {
+function AlbumBlock({
+    album, hiddenPhotos, onEdit, onAddPhoto, onDeletePhoto, onToggleHidden,
+}: AlbumBlockProps) {
     return (
         <View style={styles.card}>
             <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 8 }]}>
                 <Text style={album_s.name}>{album.name}</Text>
                 <View style={[BASE.yc, { gap: 6 }]}>
-                    <TouchableOpacity style={album_s.iconCircle}><Icon name="visible" size={17} /></TouchableOpacity>
-                    <TouchableOpacity style={album_s.iconCircle} onPress={onEdit}><Icon name="edit" size={17} /></TouchableOpacity>
+                    <TouchableOpacity style={album_s.iconCircle}>
+                        <Icon name="visible" size={17} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={album_s.iconCircle} onPress={onEdit}>
+                        <Icon name="edit" size={17} />
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -252,15 +327,30 @@ function AlbumBlock({ album, onEdit, onAddPhoto, onDeletePhoto }: AlbumBlockProp
             <Text style={album_s.photosLabel}>Фотографіії</Text>
 
             <View style={album_s.grid}>
-                {album.photos.map((photo: AlbumPhotoResponse) => (
-                    <View key={photo.id} style={album_s.photoWrap}>
-                        <Image source={{ uri: photo.url }} style={album_s.photoImg} resizeMode="cover" />
-                        <View style={album_s.photoActions}>
-                            <ActionBtn name="visible" />
-                            <ActionBtn name="close" onPress={() => onDeletePhoto(photo.id)} />
+                {album.photos.map((photo: AlbumPhotoResponse) => {
+                    const isHidden = hiddenPhotos.has(photo.id);
+                    return (
+                        <View key={photo.id} style={album_s.photoWrap}>
+                            <Image
+                                source={{ uri: photo.url }}
+                                style={album_s.photoImg}
+                                resizeMode="cover"
+                            />
+                            {isHidden && <View style={album_s.photoBlur} />}
+                            <View style={album_s.photoActions}>
+                                <ActionBtn
+                                    name={isHidden ? 'hide' : 'visible'}
+                                    onPress={() => onToggleHidden(photo.id)}
+                                />
+                                <ActionBtn
+                                    name="close"
+                                    onPress={() => onDeletePhoto(photo.id)}
+                                />
+                            </View>
                         </View>
-                    </View>
-                ))}
+                    );
+                })}
+
                 <TouchableOpacity onPress={onAddPhoto} style={album_s.addPhoto}>
                     <Text style={album_s.addPhotoPlus}>+</Text>
                 </TouchableOpacity>
@@ -270,35 +360,76 @@ function AlbumBlock({ album, onEdit, onAddPhoto, onDeletePhoto }: AlbumBlockProp
 }
 
 const album_s = StyleSheet.create({
-    name: { fontSize: 16, fontWeight: '500', color: '#1a1a1a' },
+    name: {
+        fontSize:   16,
+        fontWeight: '500',
+        color:      '#1a1a1a',
+    },
     iconCircle: {
-        width:          34,
-        height:         34,
-        borderRadius:   17,
-        borderWidth:    1,
-        borderColor:    '#E3DCE7',
-        justifyContent: 'center',
-        alignItems:     'center',
+        width:           34,
+        height:          34,
+        borderRadius:    17,
+        borderWidth:     1,
+        borderColor:     '#E3DCE7',
+        justifyContent:  'center',
+        alignItems:      'center',
         backgroundColor: '#fff',
     },
-    theme:       { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
-    year:        { fontSize: 14, color: '#81818D' },
-    divider:     { height: 1, backgroundColor: '#EBEBEB', marginBottom: 12 },
-    photosLabel: { fontSize: 14, fontWeight: '600', color: '#1a1a1a', marginBottom: 10 },
-    grid:        { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    theme: {
+        fontSize:   14,
+        fontWeight: '500',
+        color:      '#1a1a1a',
+    },
+    year: {
+        fontSize: 14,
+        color:    '#81818D',
+    },
+    divider: {
+        height:          1,
+        backgroundColor: '#EBEBEB',
+        marginBottom:    12,
+    },
+    photosLabel: {
+        fontSize:     14,
+        fontWeight:   '600',
+        color:        '#1a1a1a',
+        marginBottom: 10,
+    },
+    grid: {
+        flexDirection: 'row',
+        flexWrap:      'wrap',
+        gap:           10,
+    },
     photoWrap: {
-        width:           162,
-        height:          162,
+        width:           '47%',
+        aspectRatio:     1,
         borderRadius:    12,
         overflow:        'hidden',
         position:        'relative',
         backgroundColor: '#eee',
     },
-    photoImg:     { width: '100%', height: '100%' },
-    photoActions: { position: 'absolute', bottom: 10, left: 10, flexDirection: 'row', gap: 8 },
+    photoImg: {
+        width:  '100%',
+        height: '100%',
+    },
+    photoBlur: {
+        position:        'absolute',
+        top:             0,
+        left:            0,
+        right:           0,
+        bottom:          0,
+        backgroundColor: 'rgba(247, 244, 255, 0.85)',
+    },
+    photoActions: {
+        position:      'absolute',
+        bottom:        8,
+        left:          8,
+        flexDirection: 'row',
+        gap:           6,
+    },
     addPhoto: {
-        width:          162,
-        height:         162,
+        width:          '47%',
+        aspectRatio:    1,
         borderRadius:   12,
         borderWidth:    1,
         borderStyle:    'dashed',
@@ -307,7 +438,11 @@ const album_s = StyleSheet.create({
         alignItems:     'center',
         backgroundColor: '#fff',
     },
-    addPhotoPlus: { fontSize: 32, color: COLORS.primary },
+    addPhotoPlus: {
+        fontSize:   32,
+        color:      COLORS.primary,
+        lineHeight: 36,
+    },
 });
 
 interface AlbumFormModalProps {
@@ -471,13 +606,13 @@ const styles = StyleSheet.create({
         color:      '#1a1a1a',
     },
     circleBtn: {
-        width:          36,
-        height:         36,
-        borderRadius:   18,
-        borderWidth:    1,
-        borderColor:    COLORS.primary,
-        justifyContent: 'center',
-        alignItems:     'center',
+        width:           36,
+        height:          36,
+        borderRadius:    18,
+        borderWidth:     1,
+        borderColor:     COLORS.primary,
+        justifyContent:  'center',
+        alignItems:      'center',
     },
     circleBtnText: {
         fontSize:   22,
