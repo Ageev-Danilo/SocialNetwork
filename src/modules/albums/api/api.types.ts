@@ -19,3 +19,11 @@ export interface CreateAlbumPayload {
     date:  string;
     theme: string;
 }
+
+export interface UpdateAlbumPayload {
+    id:     number;
+    name?:  string;
+    date?:  string;
+    theme?: string;
+    photos?: { url: string }[];
+}
