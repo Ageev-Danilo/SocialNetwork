@@ -12,6 +12,8 @@
 // }
 import { View, Text, Image } from 'react-native';
 import { Icon, Button } from '@shared/ui';
+// import { Button } from './Button';
+// import { Icon } from './Icon';
 import { NavsProps } from '@/shared/types/types';
 
 
