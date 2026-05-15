@@ -1,7 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, usePathname } from 'expo-router';
-import { TabMenuProps, TabItem } from '@/shared/types/component.types';
-import { Button } from '@/shared/ui';
+import type { TabMenuProps, TabItem } from '@/shared/types/component.types';
 
 const TABS = [
     { label: 'Особиста інформація', href: '/settings' },
@@ -12,23 +11,20 @@ export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
     const pathname = usePathname();
 
     return (
-        <View style={[styles.menu, type === 'fill' && styles.container]}>
+        <View style={styles.menu}>
             {tabs.map((tab) => {
-                const isActive =
-                    pathname === tab.href ||
-                    (tab.href === '/(album)/albums' && pathname.startsWith('/(album)'));
-
+                const isActive = pathname === tab.href;
                 return (
-                    <Button
-                        type="borderless"
+                    <TouchableOpacity
                         key={tab.href}
                         style={[styles.tab, isActive && styles.tabActive]}
-                        onPress={() => router.push(tab.href as any)}
+                        onPress={() => { if (!isActive) router.push(tab.href as any); }}
+                        activeOpacity={0.7}
                     >
                         <Text style={[styles.text, isActive && styles.textActive]}>
                             {tab.label}
                         </Text>
-                    </Button>
+                    </TouchableOpacity>
                 );
             })}
         </View>
@@ -37,16 +33,13 @@ export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
 
 const styles = StyleSheet.create({
     menu: {
-        flexDirection:     'row',
+        flexDirection:   'row',
         paddingHorizontal: 16,
-    },
-    container: {
-        backgroundColor:   'white',
-        borderBottomWidth: 1,
-        borderBottomColor: '#EBEBEB',
+        paddingTop:      8,
+        backgroundColor: '#E9E5EE',
     },
     tab: {
-        paddingVertical: 12,
+        paddingVertical: 10,
         marginRight:     16,
     },
     tabActive: {
@@ -55,11 +48,11 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize:   14,
-        color:      '#999',
-        fontWeight: '700',
+        color:      '#81818D',
+        fontWeight: '500',
     },
     textActive: {
-        color:      '#543C52',
+        color:      '#070A1C',
         fontWeight: '700',
     },
 });
