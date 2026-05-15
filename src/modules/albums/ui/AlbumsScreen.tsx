@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
     View, Text, ScrollView, TouchableOpacity,
-    Image, Modal, StyleSheet, ActivityIndicator, Alert,
+    Image, Modal, StyleSheet, ActivityIndicator,
+    Alert, Dimensions,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Input, Button, Icon } from '@/shared/ui';
@@ -15,16 +16,18 @@ import {
 } from '@/modules/albums/api';
 import type { AlbumResponse, AlbumPhotoResponse } from '@/modules/albums/api';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const PHOTO_SIZE   = Math.floor((SCREEN_WIDTH - 32 - 10 - 32) / 2);
+
 export function AlbumsScreen() {
     const { data: albums = [], isLoading }         = useGetMyAlbumsQuery();
     const [createAlbum, { isLoading: isCreating }] = useCreateAlbumMutation();
     const [updateAlbum, { isLoading: isUpdating }] = useUpdateAlbumMutation();
     const [deletePhoto]                            = useDeletePhotoMutation();
 
-    const [createOpen, setCreateOpen] = useState(false);
-    const [editAlbum,  setEditAlbum]  = useState<AlbumResponse | null>(null);
-
-    const [myPhotos,   setMyPhotos]   = useState<{ id: number; uri: string }[]>([]);
+    const [createOpen,   setCreateOpen]   = useState(false);
+    const [editAlbum,    setEditAlbum]    = useState<AlbumResponse | null>(null);
+    const [myPhotos,     setMyPhotos]     = useState<{ id: number; uri: string }[]>([]);
     const [hiddenPhotos, setHiddenPhotos] = useState<Set<number>>(new Set());
 
     function toggleHidden(id: number) {
@@ -218,9 +221,7 @@ type ActionIconName = 'visible' | 'hide' | 'close' | 'edit' | 'img' |
                      'add' | 'logout' | 'settings' | 'home' |
                      'chat' | 'group' | 'camera';
 
-function ActionBtn({
-    name, onPress,
-}: { name: ActionIconName; onPress?: () => void }) {
+function ActionBtn({ name, onPress }: { name: ActionIconName; onPress?: () => void }) {
     return (
         <TouchableOpacity style={actionStyles.btn} onPress={onPress}>
             <Icon name={name} size={16} />
@@ -248,7 +249,7 @@ function PhotoThumb({
     onDelete:       () => void;
 }) {
     return (
-        <View style={thumb.wrap}>
+        <View style={[thumb.wrap, { width: PHOTO_SIZE, height: PHOTO_SIZE }]}>
             <Image source={{ uri }} style={thumb.img} resizeMode="cover" />
             {isHidden && <View style={thumb.blur} />}
             <View style={thumb.actions}>
@@ -264,8 +265,6 @@ function PhotoThumb({
 
 const thumb = StyleSheet.create({
     wrap: {
-        width:           160,
-        height:          160,
         borderRadius:    12,
         overflow:        'hidden',
         position:        'relative',
@@ -281,7 +280,7 @@ const thumb = StyleSheet.create({
         left:            0,
         right:           0,
         bottom:          0,
-        backgroundColor: 'rgba(247, 244, 255, 0.85)', 
+        backgroundColor: 'rgba(247, 244, 255, 0.85)',
     },
     actions: {
         position:      'absolute',
@@ -293,12 +292,12 @@ const thumb = StyleSheet.create({
 });
 
 interface AlbumBlockProps {
-    album:           AlbumResponse;
-    hiddenPhotos:    Set<number>;
-    onEdit:          () => void;
-    onAddPhoto:      () => void;
-    onDeletePhoto:   (id: number) => void;
-    onToggleHidden:  (id: number) => void;
+    album:          AlbumResponse;
+    hiddenPhotos:   Set<number>;
+    onEdit:         () => void;
+    onAddPhoto:     () => void;
+    onDeletePhoto:  (id: number) => void;
+    onToggleHidden: (id: number) => void;
 }
 
 function AlbumBlock({
@@ -401,8 +400,8 @@ const album_s = StyleSheet.create({
         gap:           10,
     },
     photoWrap: {
-        width:           '47%',
-        aspectRatio:     1,
+        width:           PHOTO_SIZE,
+        height:          PHOTO_SIZE,
         borderRadius:    12,
         overflow:        'hidden',
         position:        'relative',
@@ -428,14 +427,14 @@ const album_s = StyleSheet.create({
         gap:           6,
     },
     addPhoto: {
-        width:          '47%',
-        aspectRatio:    1,
-        borderRadius:   12,
-        borderWidth:    1,
-        borderStyle:    'dashed',
-        borderColor:    COLORS.primary,
-        justifyContent: 'center',
-        alignItems:     'center',
+        width:           PHOTO_SIZE,
+        height:          PHOTO_SIZE,
+        borderRadius:    12,
+        borderWidth:     1,
+        borderStyle:     'dashed',
+        borderColor:     COLORS.primary,
+        justifyContent:  'center',
+        alignItems:      'center',
         backgroundColor: '#fff',
     },
     addPhotoPlus: {
@@ -559,7 +558,7 @@ function AlbumFormModal({
 const styles = StyleSheet.create({
     screen: {
         flex:            1,
-        backgroundColor: '#f7f4ff',
+        backgroundColor: '#E9E5EE',
     },
     center: {
         flex:           1,
@@ -567,13 +566,14 @@ const styles = StyleSheet.create({
         alignItems:     'center',
     },
     scroll: {
-        padding:       16,
-        gap:           14,
+        paddingTop:    12,
         paddingBottom: 40,
+        gap:           12,
     },
     card: {
         backgroundColor: '#fff',
         borderRadius:    16,
+        marginHorizontal: 16,
         padding:         16,
     },
     cardTitle: {
