@@ -6,6 +6,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Icon } from '@/shared/ui';
 import { MOCK_REQUESTS } from '@/modules/friends';
+import {
+    useAddFriendMutation,
+    useRemoveFriendMutation,
+} from '@/modules/friends';
 
 function HeartIcon() {
     return (
@@ -32,20 +36,74 @@ function EyeIcon() {
 
 const MOCK_LAST_POST = {
     content: 'adadadadadadadadadadadadadadadadadadadadadadadad ',
-    tags: '#вайб',
-    likes: 120,
-    views: 890,
+    tags:    '#вайб',
+    likes:   120,
+    views:   890,
     album: {
         title: 'Настрій',
         topic: 'Природа',
-        year: '2025 рік',
+        year:  '2025 рік',
         image: { uri: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600' },
     },
 };
 
 export default function UserProfileScreen() {
     const { userId } = useLocalSearchParams<{ userId: string }>();
+
     const user = MOCK_REQUESTS.find(u => String(u.id) === userId) ?? MOCK_REQUESTS[0];
+
+    const [addFriend]    = useAddFriendMutation();
+    const [removeFriend] = useRemoveFriendMutation();
+
+    async function handleConfirm() {
+        const payload = {
+            profile: {
+                id:           user.id,
+                userId:       user.id,
+                pseudonym:    user.username,
+                firstName:    user.name.split(' ')[0] ?? '',
+                lastName:     user.name.split(' ')[1] ?? '',
+                date:         '',
+                username:     user.username,
+                signature:    null,
+                profileImage: null,
+            },
+        };
+        console.log('[UserProfile] → addFriend payload:', JSON.stringify(payload));
+
+        try {
+            const result = await addFriend(payload).unwrap();
+            console.log('[UserProfile] addFriend success:', result);
+            router.back();
+        } catch (e) {
+            console.log('[UserProfile] addFriend error (бекенд не готовий):', e);
+        }
+    }
+
+    async function handleRemove() {
+        const payload = {
+            profile: {
+                id:           user.id,
+                userId:       user.id,
+                pseudonym:    user.username,
+                firstName:    user.name.split(' ')[0] ?? '',
+                lastName:     user.name.split(' ')[1] ?? '',
+                date:         '',
+                username:     user.username,
+                signature:    null,
+                profileImage: null,
+            },
+        };
+        console.log('[UserProfile] → removeFriend payload:', JSON.stringify(payload));
+
+        try {
+            const result = await removeFriend(payload).unwrap();
+            console.log('[UserProfile] removeFriend success:', result);
+            router.back();
+        } catch (e) {
+            console.log('[UserProfile] removeFriend error (бекенд не готовий):', e);
+        }
+    }
 
     return (
         <View style={styles.screen}>
@@ -84,10 +142,10 @@ export default function UserProfileScreen() {
                     </View>
 
                     <View style={styles.actions}>
-                        <TouchableOpacity style={styles.btnPrimary}>
+                        <TouchableOpacity style={styles.btnPrimary} onPress={handleConfirm}>
                             <Text style={styles.btnPrimaryText}>Підтвердити</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.btnOutline}>
+                        <TouchableOpacity style={styles.btnOutline} onPress={handleRemove}>
                             <Text style={styles.btnOutlineText}>Видалити</Text>
                         </TouchableOpacity>
                     </View>
@@ -150,239 +208,229 @@ export default function UserProfileScreen() {
 
 const styles = StyleSheet.create({
     screen: {
-        flex: 1,
+        flex:            1,
         backgroundColor: '#F3F4F6',
     },
-
     header: {
-        backgroundColor: '#fff',
+        backgroundColor:   '#fff',
         paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 8,
+        paddingTop:        16,
+        paddingBottom:     8,
     },
-    backBtn: { 
-        width: 40 
+    backBtn: {
+        width: 40,
     },
-    backArrow: { 
-        fontSize: 32, 
-        color: '#1A1A1A', 
-        lineHeight: 36 
+    backArrow: {
+        fontSize:   32,
+        color:      '#1A1A1A',
+        lineHeight: 36,
     },
-
     scroll: {
-        paddingTop: 16,        
-        paddingHorizontal: 0, 
-        paddingBottom: 40,
-        gap: 12,
+        paddingTop:        16,
+        paddingHorizontal: 0,
+        paddingBottom:     40,
+        gap:               12,
     },
-
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#EBEBEB',
-        paddingVertical: 20,
+        backgroundColor:  '#fff',
+        borderRadius:     16,
+        borderWidth:      1,
+        borderColor:      '#EBEBEB',
+        paddingVertical:  20,
         paddingHorizontal: 16,
     },
-
     avatarWrap: {
-        position: 'relative',
+        position:  'relative',
         alignSelf: 'center',
         marginBottom: 12,
     },
     avatar: {
-        width: 96,
-        height: 96,
+        width:        96,
+        height:       96,
         borderRadius: 48,
     },
     onlineDot: {
-        position: 'absolute',
-        bottom: 2,
-        right: 2,
-        width: 18,
-        height: 18,
-        borderRadius: 9,
+        position:        'absolute',
+        bottom:          2,
+        right:           2,
+        width:           18,
+        height:          18,
+        borderRadius:    9,
         backgroundColor: '#D0D0D0',
-        borderWidth: 2,
-        borderColor: '#fff',
+        borderWidth:     2,
+        borderColor:     '#fff',
     },
     name: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#070A1C',
-        textAlign: 'center',
-        letterSpacing: -0.24,   
+        fontSize:      24,
+        fontWeight:    '700',
+        color:         '#070A1C',
+        textAlign:     'center',
+        letterSpacing: -0.24,
     },
     username: {
-        fontSize: 16,
+        fontSize:   16,
         fontWeight: '500',
-        color: '#070A1C',
-        textAlign: 'center',
-        marginTop: 4,
+        color:      '#070A1C',
+        textAlign:  'center',
+        marginTop:  4,
     },
-
     statsRow: {
-        flexDirection: 'row',
+        flexDirection:  'row',
         justifyContent: 'center',
-        marginTop: 16,
-        marginBottom: 4,
+        marginTop:      16,
+        marginBottom:   4,
     },
     statItem: {
-        alignItems: 'center',
+        alignItems:        'center',
         paddingHorizontal: 24,
     },
     statNum: {
-        fontSize: 18,
+        fontSize:   18,
         fontWeight: '700',
-        color: '#070A1C',
+        color:      '#070A1C',
     },
     statLabel: {
-        fontSize: 13,
+        fontSize:   13,
         fontWeight: '500',
-        color: '#81818D',
-        marginTop: 2,
+        color:      '#81818D',
+        marginTop:  2,
     },
     divider: {
-        width: 1,
+        width:           1,
         backgroundColor: '#EBEBEB',
-        marginVertical: 4,
+        marginVertical:  4,
     },
-
     actions: {
-        flexDirection: 'row',
-        gap: 12,
-        marginTop: 16,
+        flexDirection:  'row',
+        gap:            12,
+        marginTop:      16,
         justifyContent: 'center',
     },
     btnPrimary: {
-        backgroundColor: '#543C52',
+        backgroundColor:   '#543C52',
         paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 24,
+        paddingVertical:   12,
+        borderRadius:      24,
     },
-    btnPrimaryText: { 
-        color: '#fff', 
-        fontWeight: '700', 
-        fontSize: 15 
+    btnPrimaryText: {
+        color:      '#fff',
+        fontWeight: '700',
+        fontSize:   15,
     },
     btnOutline: {
-        borderWidth: 1,
-        borderColor: '#D0D0D0',
+        borderWidth:       1,
+        borderColor:       '#D0D0D0',
         paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 24,
+        paddingVertical:   12,
+        borderRadius:      24,
     },
-    btnOutlineText: { 
-        color: '#1A1A1A', 
-        fontWeight: '600', 
-        fontSize: 15 
+    btnOutlineText: {
+        color:      '#1A1A1A',
+        fontWeight: '600',
+        fontSize:   15,
     },
-
     sectionHeader: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 12,
-        color: '#81818D',
+        alignItems:    'center',
+        gap:           6,
+        marginBottom:  12,
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize:   14,
         fontWeight: '500',
-        color: '#81818D',
+        color:      '#81818D',
     },
     seeAll: {
-        fontSize: 14,
+        fontSize:   14,
         fontWeight: '500',
-        color: '#543C52',
+        color:      '#543C52',
     },
     separator: {
-        height: 1,
+        height:          1,
         backgroundColor: '#EBEBEB',
-        marginBottom: 12,
+        marginBottom:    12,
     },
-
     albumName: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#070A1C',
+        fontSize:     15,
+        fontWeight:   '500',
+        color:        '#070A1C',
         marginBottom: 4,
     },
     albumMeta: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 12,
+        gap:           8,
+        marginBottom:  12,
     },
     albumTopic: {
-        fontSize: 13,
+        fontSize:   13,
         fontWeight: '400',
-        color: '#070A1C',
+        color:      '#070A1C',
     },
     albumYear: {
-        fontSize: 13,
+        fontSize:   13,
         fontWeight: '400',
-        color: '#81818D',
+        color:      '#81818D',
     },
     albumImage: {
-        width: '100%',
-        height: 180,
+        width:        '100%',
+        height:       180,
         borderRadius: 12,
     },
-
     postHeader: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 12,
+        alignItems:    'center',
+        gap:           10,
+        marginBottom:  12,
     },
     postAvatarWrap: {
         position: 'relative',
     },
     postAvatar: {
-        width: 46,
-        height: 46,
+        width:        46,
+        height:       46,
         borderRadius: 23,
     },
     postOnlineDot: {
-        position: 'absolute',
-        bottom: 1,
-        right: 1,
-        width: 12,
-        height: 12,
-        borderRadius: 6,
+        position:        'absolute',
+        bottom:          1,
+        right:           1,
+        width:           12,
+        height:          12,
+        borderRadius:    6,
         backgroundColor: '#D0D0D0',
-        borderWidth: 2,
-        borderColor: '#fff',
+        borderWidth:     2,
+        borderColor:     '#fff',
     },
     postName: {
-        fontSize: 15,
+        fontSize:   15,
         fontWeight: '400',
-        color: '#070A1C',
+        color:      '#070A1C',
     },
     postContent: {
-        fontSize: 15,
-        fontWeight: '400',
-        color: '#070A1C',
-        lineHeight: 22,
+        fontSize:     15,
+        fontWeight:   '400',
+        color:        '#070A1C',
+        lineHeight:   22,
         marginBottom: 6,
     },
     postTag: {
-        fontSize: 15,
-        fontWeight: '400',
-        color: '#543C52',
+        fontSize:     15,
+        fontWeight:   '400',
+        color:        '#543C52',
         marginBottom: 16,
     },
     postStats: {
         flexDirection: 'row',
-        gap: 20,
+        gap:           20,
     },
     statChip: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
+        alignItems:    'center',
+        gap:           6,
     },
     statChipText: {
-        fontSize: 13,
+        fontSize:   13,
         fontWeight: '400',
-        color: '#070A1C',
+        color:      '#070A1C',
     },
 });
