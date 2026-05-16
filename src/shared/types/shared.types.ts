@@ -71,6 +71,7 @@ export interface InputProps extends TextInputProps {
     holder?: string;
     onChangeText?: (text: string) => void;
     value?: string;
+    error?: any;
     additional?: ReactNode;
 }
 

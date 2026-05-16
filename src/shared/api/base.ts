@@ -4,9 +4,9 @@ import { queryBaseHeaders } from './headers';
 
 export const baseApi = createApi({
     reducerPath: 'api',
-    tagTypes: ['Settings', 'Posts', 'MyPosts'], 
+    tagTypes: ['Settings', 'Posts', 'MyPosts', 'Albums'], 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://192.168.178.22:3000', 
+        baseUrl: 'http://192.168.1.101:3000', 
         prepareHeaders: queryBaseHeaders,
     }),
     endpoints() {
