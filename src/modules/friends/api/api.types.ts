@@ -1,19 +1,21 @@
 export interface FriendProfile {
-    id:           number;
-    pseudonym:    string;
-    firstName:    string;
-    lastName:     string;
-    date:         string;
-    username:     string;
-    signature:    string | null;
-    profileImage: string | null;
-    userId:       number;
+    id:               number;
+    pseudonym:        string;
+    signature:        string | null;
+    date:             string | null;
+    profileImage:     string | null;
+    isImageSignature: boolean;
+    isTextSignature:  boolean;
 }
 
-export interface SendFriendRequestPayload {
-    targetUserId: number;  
+export interface CreateFriendRequestPayload {
+    receiverProfileId: number;
 }
 
-export interface FriendActionPayload {
-    profile: FriendProfile;  
+export interface AcceptFriendPayload {
+    senderProfileId: number;
+}
+
+export interface DeleteFriendPayload {
+    contactProfileId: number;
 }

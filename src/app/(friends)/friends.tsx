@@ -10,7 +10,7 @@ import {
 } from '@/modules/friends';
 import {
     useSendFriendRequestMutation,
-    useAddFriendMutation,
+    useAcceptFriendMutation,
     useRemoveFriendMutation,
 } from '@/modules/friends';
 import type { FriendCardData } from '@/modules/friends';
@@ -47,7 +47,7 @@ export default function FriendsScreen() {
     const [activeTab, setActiveTab] = useState('main');
 
     const [sendFriendRequest] = useSendFriendRequestMutation();
-    const [addFriend]         = useAddFriendMutation();
+    const [acceptFriend]      = useAcceptFriendMutation();
     const [removeFriend]      = useRemoveFriendMutation();
 
     function goToTab(tab: string) {
@@ -67,24 +67,13 @@ export default function FriendsScreen() {
     }
 
     async function handleRemove(friend: FriendCardData) {
-        console.log('[Friends] remove pressed, userId:', friend.id);
+        const payload = { contactProfileId: friend.id };
+        console.log('[Friends] → removeFriend payload:', JSON.stringify(payload));
         try {
-            const result = await removeFriend({
-                profile: {
-                    id:           friend.id,
-                    userId:       friend.id,
-                    pseudonym:    friend.username,
-                    firstName:    friend.name.split(' ')[0] ?? '',
-                    lastName:     friend.name.split(' ')[1] ?? '',
-                    date:         '',
-                    username:     friend.username,
-                    signature:    null,
-                    profileImage: null,
-                },
-            }).unwrap();
-            console.log('[Friends] removeFriend result:', result);
+            const result = await removeFriend(payload).unwrap();
+            console.log('[Friends] removeFriend success:', result);
         } catch (e) {
-            console.log('[Friends] removeFriend error (бекенд не готовий):', e);
+            console.log('[Friends] removeFriend error:', e);
         }
     }
 

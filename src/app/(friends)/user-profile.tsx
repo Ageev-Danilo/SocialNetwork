@@ -7,7 +7,8 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { Icon } from '@/shared/ui';
 import { MOCK_REQUESTS } from '@/modules/friends';
 import {
-    useAddFriendMutation,
+    useSendFriendRequestMutation,
+    useAcceptFriendMutation,
     useRemoveFriendMutation,
 } from '@/modules/friends';
 
@@ -52,56 +53,31 @@ export default function UserProfileScreen() {
 
     const user = MOCK_REQUESTS.find(u => String(u.id) === userId) ?? MOCK_REQUESTS[0];
 
-    const [addFriend]    = useAddFriendMutation();
-    const [removeFriend] = useRemoveFriendMutation();
+    const [sendFriendRequest] = useSendFriendRequestMutation();
+    const [acceptFriend]      = useAcceptFriendMutation();
+    const [removeFriend]      = useRemoveFriendMutation();
 
     async function handleConfirm() {
-        const payload = {
-            profile: {
-                id:           user.id,
-                userId:       user.id,
-                pseudonym:    user.username,
-                firstName:    user.name.split(' ')[0] ?? '',
-                lastName:     user.name.split(' ')[1] ?? '',
-                date:         '',
-                username:     user.username,
-                signature:    null,
-                profileImage: null,
-            },
-        };
-        console.log('[UserProfile] → addFriend payload:', JSON.stringify(payload));
-
+        const payload = { senderProfileId: user.id };
+        console.log('[UserProfile] → acceptFriend payload:', JSON.stringify(payload));
         try {
-            const result = await addFriend(payload).unwrap();
-            console.log('[UserProfile] addFriend success:', result);
+            const result = await acceptFriend(payload).unwrap();
+            console.log('[UserProfile] acceptFriend success:', result);
             router.back();
         } catch (e) {
-            console.log('[UserProfile] addFriend error (бекенд не готовий):', e);
+            console.log('[UserProfile] acceptFriend error:', e);
         }
     }
 
     async function handleRemove() {
-        const payload = {
-            profile: {
-                id:           user.id,
-                userId:       user.id,
-                pseudonym:    user.username,
-                firstName:    user.name.split(' ')[0] ?? '',
-                lastName:     user.name.split(' ')[1] ?? '',
-                date:         '',
-                username:     user.username,
-                signature:    null,
-                profileImage: null,
-            },
-        };
+        const payload = { contactProfileId: user.id };
         console.log('[UserProfile] → removeFriend payload:', JSON.stringify(payload));
-
         try {
             const result = await removeFriend(payload).unwrap();
             console.log('[UserProfile] removeFriend success:', result);
             router.back();
         } catch (e) {
-            console.log('[UserProfile] removeFriend error (бекенд не готовий):', e);
+            console.log('[UserProfile] removeFriend error:', e);
         }
     }
 

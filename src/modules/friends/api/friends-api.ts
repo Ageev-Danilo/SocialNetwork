@@ -1,38 +1,39 @@
 import { baseApi } from '@/shared/api/base';
 import type {
     FriendProfile,
-    SendFriendRequestPayload,
-    FriendActionPayload,
+    CreateFriendRequestPayload,
+    AcceptFriendPayload,
+    DeleteFriendPayload,
 } from './api.types';
+import type { ContactWithProfile, FriendRequestWithSender } from './response.types';
 
 const friendsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
 
-        getAllProfiles: builder.query<FriendProfile[], void>({
-            query: () => ({ url: 'settings/all' }),
+        getRecommendations: builder.query<FriendProfile[], void>({
+            query: () => ({ url: 'friends/recommendations' }),
             providesTags: ['Friends'],
         }),
 
-        getFriends: builder.query<FriendProfile[], void>({
+        getFriends: builder.query<ContactWithProfile[], void>({
             query: () => ({ url: 'friends' }),
             providesTags: ['Friends'],
         }),
 
-        getFriendRequests: builder.query<FriendProfile[], void>({
+        getFriendRequests: builder.query<FriendRequestWithSender[], void>({
             query: () => ({ url: 'friends/requests' }),
             providesTags: ['FriendRequests'],
         }),
-
-        sendFriendRequest: builder.mutation<{ message: string }, SendFriendRequestPayload>({
+        sendFriendRequest: builder.mutation<{ message: string }, CreateFriendRequestPayload>({
             query: (body) => ({
-                url:    'friends/request',
+                url:    'friends/requests',
                 method: 'POST',
                 body,
             }),
             invalidatesTags: ['FriendRequests'],
         }),
 
-        addFriend: builder.mutation<{ message: string }, FriendActionPayload>({
+        acceptFriend: builder.mutation<{ message: string }, AcceptFriendPayload>({
             query: (body) => ({
                 url:    'friends',
                 method: 'POST',
@@ -41,7 +42,7 @@ const friendsApi = baseApi.injectEndpoints({
             invalidatesTags: ['Friends', 'FriendRequests'],
         }),
 
-        removeFriend: builder.mutation<{ message: string }, FriendActionPayload>({
+        removeFriend: builder.mutation<{ message: string }, DeleteFriendPayload>({
             query: (body) => ({
                 url:    'friends',
                 method: 'DELETE',
@@ -53,10 +54,10 @@ const friendsApi = baseApi.injectEndpoints({
 });
 
 export const {
-    useGetAllProfilesQuery,
+    useGetRecommendationsQuery,
     useGetFriendsQuery,
     useGetFriendRequestsQuery,
     useSendFriendRequestMutation,
-    useAddFriendMutation,
+    useAcceptFriendMutation,
     useRemoveFriendMutation,
 } = friendsApi;

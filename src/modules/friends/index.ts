@@ -4,16 +4,19 @@ export type { FriendCardData } from './ui/FriendCard';
 export { MOCK_REQUESTS, MOCK_RECOMMENDATIONS, MOCK_FRIENDS } from './ui/mock-data';
 
 export {
-    useGetAllProfilesQuery,
+    useGetRecommendationsQuery,
     useGetFriendsQuery,
     useGetFriendRequestsQuery,
     useSendFriendRequestMutation,
-    useAddFriendMutation,
+    useAcceptFriendMutation,
     useRemoveFriendMutation,
 } from './api';
 
 export type {
     FriendProfile,
-    SendFriendRequestPayload,
-    FriendActionPayload,
+    CreateFriendRequestPayload,
+    AcceptFriendPayload,
+    DeleteFriendPayload,
+    ContactWithProfile,
+    FriendRequestWithSender,
 } from './api';
