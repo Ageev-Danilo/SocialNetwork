@@ -1,14 +1,14 @@
-export { FriendCard }   from './ui/FriendCard';
+export { FriendCard }    from './ui/FriendCard';
 export type { FriendCardData } from './ui/FriendCard';
-
-export { MOCK_REQUESTS, MOCK_RECOMMENDATIONS, MOCK_FRIENDS } from './ui/mock-data';
 
 export {
     useGetRecommendationsQuery,
     useGetFriendsQuery,
     useGetFriendRequestsQuery,
+    useGetPublicProfileQuery,
     useSendFriendRequestMutation,
     useAcceptFriendMutation,
+    useRejectFriendRequestMutation,
     useRemoveFriendMutation,
 } from './api';
 
@@ -17,6 +17,10 @@ export type {
     CreateFriendRequestPayload,
     AcceptFriendPayload,
     DeleteFriendPayload,
+    RejectFriendRequestPayload,
+    PublicProfileData,
+    PublicAlbum,
+    PublicPost,
     ContactWithProfile,
     FriendRequestWithSender,
 } from './api';
