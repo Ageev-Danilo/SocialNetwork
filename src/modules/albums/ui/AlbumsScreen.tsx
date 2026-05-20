@@ -13,6 +13,7 @@ import {
     useCreateAlbumMutation,
     useUpdateAlbumMutation,
     useDeletePhotoMutation,
+    useUploadAlbumPhotoMutation,
 } from '@/modules/albums/api';
 import type { AlbumResponse, AlbumPhotoResponse } from '@/modules/albums/api';
 
@@ -24,7 +25,7 @@ export function AlbumsScreen() {
     const [createAlbum, { isLoading: isCreating }] = useCreateAlbumMutation();
     const [updateAlbum, { isLoading: isUpdating }] = useUpdateAlbumMutation();
     const [deletePhoto]                            = useDeletePhotoMutation();
-
+    const [uploadAlbumPhoto] = useUploadAlbumPhotoMutation();
     const [createOpen,   setCreateOpen]   = useState(false);
     const [editAlbum,    setEditAlbum]    = useState<AlbumResponse | null>(null);
     const [myPhotos,     setMyPhotos]     = useState<{ id: number; uri: string }[]>([]);
@@ -86,12 +87,13 @@ export function AlbumsScreen() {
         });
         if (!result.canceled) {
             try {
-                await updateAlbum({
-                    id:     albumId,
-                    images: [{ image: result.assets[0].uri }],
+                await uploadAlbumPhoto({
+                    uri:     result.assets[0].uri,
+                    albumId,
                 }).unwrap();
             } catch (e) {
                 console.log('Upload error:', e);
+                Alert.alert('Помилка', 'Не вдалося завантажити фото');
             }
         }
     }

@@ -64,9 +64,13 @@ export function PostsList({ posts, isLoading, emptyText = 'Немає публі
     );
 }
 
+function stripTrailingTags(content: string): string {
+    return content.replace(/(\n(#\S+\s*)+)+$/, '').trim();
+}
+
 function PostCard({ post }: { post: PostResponse }) {
-    console.log('post.user:', post.user);
-    const initials = post.user?.email?.charAt(0).toUpperCase() ?? '?';
+    const initials    = post.user?.email?.charAt(0).toUpperCase() ?? '?';
+    const cleanContent = stripTrailingTags(post.content);
 
     return (
         <View style={styles.card}>
@@ -82,12 +86,16 @@ function PostCard({ post }: { post: PostResponse }) {
             <View style={styles.divider} />
 
             <Text style={styles.title}>{post.title}</Text>
-            <Text style={styles.content}>{post.content}</Text>
+            <Text style={styles.content}>{cleanContent}</Text>
 
             {post.tags.length > 0 && (
-                <Text style={styles.hashtags}>
-                    {post.tags.map((t) => t.name).join(' ')}
-                </Text>
+                <View style={styles.tagsRow}>
+                    {post.tags.map((t) => (
+                        <View key={t.id} style={styles.tagChip}>
+                            <Text style={styles.tagChipText}>{t.name}</Text>
+                        </View>
+                    ))}
+                </View>
             )}
 
             {post.media.length > 0 && (
@@ -134,29 +142,24 @@ const styles = StyleSheet.create({
         shadowOffset:    { width: 0, height: 2 },
     },
     cardHeader:  { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    avatar: {
-        width: 36, height: 36, borderRadius: 18,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center', alignItems: 'center',
-    },
-    avatarText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-    email:      { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
-    dots:       { fontSize: 20, fontWeight: '700', color: '#81818D', letterSpacing: 2 },
+    avatar:      { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
+    avatarText:  { color: '#fff', fontWeight: '700', fontSize: 16 },
+    email:       { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
+    dots:        { fontSize: 20, fontWeight: '700', color: '#81818D', letterSpacing: 2 },
 
-    divider: { height: 1, backgroundColor: '#f0f0f0', marginVertical: 4 },
+    divider:     { height: 1, backgroundColor: '#f0f0f0', marginVertical: 4 },
 
-    title:    { fontSize: 17, fontWeight: '700', color: '#1a1a1a' },
-    content:  { fontSize: 14, color: '#444', lineHeight: 20 },
-    hashtags: { fontSize: 13, color: COLORS.primary },
+    title:       { fontSize: 17, fontWeight: '700', color: '#1a1a1a' },
+    content:     { fontSize: 14, color: '#444', lineHeight: 20 },
+
+    tagsRow:     { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
+    tagChip:     { backgroundColor: '#F2EEF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+    tagChipText: { fontSize: 13, color: COLORS.primary, fontWeight: '500' },
 
     mediaContainer: { gap: 8, marginTop: 4 },
-    media: { width: '100%', height: 225, borderRadius: 12 },
+    media:          { width: '100%', height: 225, borderRadius: 12 },
 
-    cardFooter: {
-        flexDirection: 'row', gap: 20,
-        marginTop: 4, paddingTop: 8,
-        borderTopWidth: 1, borderTopColor: '#f5f5f5',
-    },
-    stat:     { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    statText: { fontSize: 13, color: '#888' },
+    cardFooter: { flexDirection: 'row', gap: 20, marginTop: 4, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f5f5f5' },
+    stat:       { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    statText:   { fontSize: 13, color: '#888' },
 });

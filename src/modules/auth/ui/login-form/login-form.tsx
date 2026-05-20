@@ -1,19 +1,22 @@
-import { View, Text, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import { Button, Input } from '@/shared/ui';
 import { loginSchema } from '../../model/schemas';
 import { useLoginMutation } from '../../api';
 import { useUserContext } from '../../context';
 import type { LoginSchema } from '../../model';
 import { styles } from './login-form.styles';
-import { Redirect } from 'expo-router';
+import { baseApi } from '@/shared/api/base';
+import type { AppDispatch } from '@/shared/store';
 
 export function LoginForm() {
-    const router   = useRouter();
-    const { setToken } = useUserContext();
+    const router             = useRouter();
+    const { setToken }       = useUserContext();
+    const dispatch           = useDispatch<AppDispatch>();
     const [login, { isLoading }] = useLoginMutation();
 
     const { control, handleSubmit } = useForm<LoginSchema>({
@@ -24,6 +27,8 @@ export function LoginForm() {
     async function onSubmit(data: LoginSchema) {
         try {
             const result = await login(data).unwrap();
+            dispatch(baseApi.util.resetApiState());
+
             await AsyncStorage.setItem('token', result.token);
             setToken(result.token);
         } catch (e) {
@@ -45,7 +50,7 @@ export function LoginForm() {
                             <Input
                                 type="email"
                                 holder="you@example.com"
-                                label='Електронна пошта'
+                                label="Електронна пошта"
                                 value={field.value}
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
@@ -64,7 +69,7 @@ export function LoginForm() {
                             <Input
                                 type="pwd"
                                 holder="Введи пароль"
-                                label='Пароль'
+                                label="Пароль"
                                 value={field.value}
                                 onChangeText={field.onChange}
                                 onBlur={field.onBlur}
