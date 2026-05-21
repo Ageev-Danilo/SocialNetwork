@@ -8,7 +8,6 @@ import {
     useGetFriendRequestsQuery,
     useGetFriendsQuery,
     useSendFriendRequestMutation,
-    useAcceptFriendMutation,
     useRejectFriendRequestMutation,
     useRemoveFriendMutation,
 } from '@/modules/friends';
@@ -18,7 +17,8 @@ const API_MEDIA_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000
 
 function buildAvatarUri(profileImage: string | null | undefined): string {
     if (!profileImage) return 'https://g-issues.com/wp-content/uploads/2019/08/default-avatar.png';
-    if (profileImage.startsWith('http')) return profileImage;
+    if (profileImage.startsWith('http') || profileImage.startsWith('file')) return profileImage;
+    if (profileImage.startsWith('/media')) return `${API_MEDIA_BASE}${profileImage}`;
     return `${API_MEDIA_BASE}/media/thumbnail/${profileImage}`;
 }
 
@@ -59,10 +59,9 @@ export default function FriendsScreen() {
     const { data: requestsData        = [], isLoading: isReqLoading }     = useGetFriendRequestsQuery();
     const { data: friendsData         = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
 
-    const [sendFriendRequest]      = useSendFriendRequestMutation();
-    const [acceptFriend]           = useAcceptFriendMutation();
-    const [rejectFriendRequest]    = useRejectFriendRequestMutation();
-    const [removeFriend]           = useRemoveFriendMutation();
+    const [sendFriendRequest]   = useSendFriendRequestMutation();
+    const [rejectFriendRequest] = useRejectFriendRequestMutation();
+    const [removeFriend]        = useRemoveFriendMutation();
 
     const mappedRequests: FriendCardData[] = requestsData.map(req => ({
         id:       req.sender.id,
@@ -85,7 +84,7 @@ export default function FriendsScreen() {
         avatar:   { uri: buildAvatarUri(f.contactProfile.profileImage) },
     }));
 
-    function openProfile(friend: FriendCardData) {
+    function openProfile(friend: FriendCardData, mode: 'request' | 'recommendation' | 'friend') {
         router.push({
             pathname: '/(friends)/user-profile',
             params:   {
@@ -93,6 +92,7 @@ export default function FriendsScreen() {
                 name:      friend.name,
                 username:  friend.username,
                 avatarUrl: friend.avatar.uri,
+                mode,
             },
         } as any);
     }
@@ -106,17 +106,7 @@ export default function FriendsScreen() {
             }
             return;
         }
-
-        if (mode === 'request') {
-            try {
-                await acceptFriend({ senderProfileId: friend.id }).unwrap();
-            } catch (e) {
-                console.warn('[Friends] acceptFriend error:', e);
-            }
-            return;
-        }
-
-        openProfile(friend);
+        openProfile(friend, mode);
     }
 
     async function handleRemove(friend: FriendCardData, mode: 'request' | 'recommendation' | 'friend') {
@@ -137,9 +127,7 @@ export default function FriendsScreen() {
             }
             return;
         }
-
     }
-
 
     const renderRequests = () =>
         mappedRequests.map(f => (
@@ -230,23 +218,21 @@ export default function FriendsScreen() {
 }
 
 const styles = StyleSheet.create({
-    screen:        { 
-        flex: 1, 
-        backgroundColor: '#F3F4F6' 
+    screen:        {
+        flex: 1,
+        backgroundColor: '#F3F4F6',
     },
     container:     { flex: 1 },
-    scrollContent: { 
-        paddingBottom: 20 
-    },
+    scrollContent: { paddingBottom: 20 },
     cardContainer: {
-        backgroundColor: 'white',
-        width:           '100%',
-        marginTop:       12,
-        borderRadius:    16,
-        borderTopWidth:  1,
+        backgroundColor:   'white',
+        width:             '100%',
+        marginTop:         12,
+        borderRadius:      16,
+        borderTopWidth:    1,
         borderBottomWidth: 1,
-        borderColor:     '#EBEBEB',
-        paddingVertical: 16,
+        borderColor:       '#EBEBEB',
+        paddingVertical:   16,
     },
     sectionHeader: {
         flexDirection:     'row',
@@ -255,15 +241,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginBottom:      16,
     },
-    sectionTitle: { 
-        fontSize: 18, 
-        fontWeight: '700', 
-        color: '#1A1A1A' 
+    sectionTitle: {
+        fontSize:   18,
+        fontWeight: '700',
+        color:      '#1A1A1A',
     },
-    seeAllText:   { 
-        fontSize: 14, 
-        color: '#543C52', 
-        fontWeight: '700' 
+    seeAllText: {
+        fontSize:   14,
+        color:      '#543C52',
+        fontWeight: '700',
     },
     emptyContent: {
         paddingHorizontal: 16,
@@ -275,11 +261,9 @@ const styles = StyleSheet.create({
         borderColor:       '#F0F0F0',
         alignItems:        'center',
     },
-    emptyText: { 
-        color: '#999', 
-        fontSize: 14 
+    emptyText: {
+        color:    '#999',
+        fontSize: 14,
     },
-    content:   { 
-        paddingHorizontal: 16 
-    },
+    content: { paddingHorizontal: 16 },
 });
