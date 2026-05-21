@@ -1,14 +1,26 @@
 export {
-    useGetAllProfilesQuery,
+    useGetRecommendationsQuery,
     useGetFriendsQuery,
     useGetFriendRequestsQuery,
+    useGetPublicProfileQuery,
     useSendFriendRequestMutation,
-    useAddFriendMutation,
+    useAcceptFriendMutation,
+    useRejectFriendRequestMutation,
     useRemoveFriendMutation,
 } from './friends-api';
 
 export type {
     FriendProfile,
-    SendFriendRequestPayload,
-    FriendActionPayload,
+    CreateFriendRequestPayload,
+    AcceptFriendPayload,
+    DeleteFriendPayload,
+    RejectFriendRequestPayload,
+    PublicProfileData,
+    PublicAlbum,
+    PublicPost,
 } from './api.types';
+
+export type {
+    ContactWithProfile,
+    FriendRequestWithSender,
+} from './response.types';

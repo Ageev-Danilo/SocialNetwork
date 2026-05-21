@@ -60,19 +60,19 @@ export function AlbumsScreen() {
         });
     }
 
-    async function handleCreate(name: string, theme: string, date: string) {
+    async function handleCreate(name: string, theme: string, year: number) {
         try {
-            await createAlbum({ name, theme, date }).unwrap();
+            await createAlbum({ name, theme, year }).unwrap();
             setCreateOpen(false);
         } catch (e) {
             console.log('createAlbum error:', e);
         }
     }
 
-    async function handleUpdate(name: string, theme: string, date: string) {
+    async function handleUpdate(name: string, theme: string, year: number) {
         if (!editAlbum) return;
         try {
-            await updateAlbum({ id: editAlbum.id, name, theme, date }).unwrap();
+            await updateAlbum({ id: editAlbum.id, name, theme, year }).unwrap();
             setEditAlbum(null);
         } catch (e) {
             console.log('updateAlbum error:', e);
@@ -88,7 +88,7 @@ export function AlbumsScreen() {
             try {
                 await updateAlbum({
                     id:     albumId,
-                    photos: [{ url: result.assets[0].uri }],
+                    images: [{ image: result.assets[0].uri }],
                 }).unwrap();
             } catch (e) {
                 console.log('Upload error:', e);
@@ -207,7 +207,7 @@ export function AlbumsScreen() {
                     title="Редагувати альбом"
                     initialName={editAlbum.name}
                     initialTheme={editAlbum.theme}
-                    initialYear={editAlbum.date}
+                    initialYear={String(editAlbum.year)}
                     isLoading={isUpdating}
                     onClose={() => setEditAlbum(null)}
                     onSubmit={handleUpdate}
@@ -319,19 +319,19 @@ function AlbumBlock({
 
             <View style={[BASE.yc, { gap: 16, marginBottom: 12 }]}>
                 <Text style={album_s.theme}>{album.theme}</Text>
-                <Text style={album_s.year}>{album.date} рік</Text>
+                <Text style={album_s.year}>{album.year} рік</Text>
             </View>
 
             <View style={album_s.divider} />
             <Text style={album_s.photosLabel}>Фотографіії</Text>
 
             <View style={album_s.grid}>
-                {album.photos.map((photo: AlbumPhotoResponse) => {
+                {album.images.map((photo: AlbumPhotoResponse) => {
                     const isHidden = hiddenPhotos.has(photo.id);
                     return (
                         <View key={photo.id} style={album_s.photoWrap}>
                             <Image
-                                source={{ uri: photo.url }}
+                                source={{ uri: photo.image }}
                                 style={album_s.photoImg}
                                 resizeMode="cover"
                             />
@@ -452,7 +452,7 @@ interface AlbumFormModalProps {
     initialTheme?: string;
     initialYear?:  string;
     onClose:       () => void;
-    onSubmit:      (name: string, theme: string, year: string) => void;
+    onSubmit:      (name: string, theme: string, year: number) => void;
 }
 
 function AlbumFormModal({
@@ -470,7 +470,7 @@ function AlbumFormModal({
 
     function handleSubmit() {
         if (!name.trim()) return;
-        onSubmit(name.trim(), theme, year);
+        onSubmit(name.trim(), theme, Number(year));
     }
 
     return (
