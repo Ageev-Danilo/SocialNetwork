@@ -30,8 +30,8 @@ function EyeIcon() {
 }
 
 interface Props {
-    posts:     PostResponse[] | undefined;
-    isLoading: boolean;
+    posts:      PostResponse[] | undefined;
+    isLoading:  boolean;
     emptyText?: string;
 }
 
@@ -65,11 +65,15 @@ export function PostsList({ posts, isLoading, emptyText = 'Немає публі
 }
 
 function stripTrailingTags(content: string): string {
-    return content.replace(/(\n(#\S+\s*)+)+$/, '').trim();
+    return content.replace(/(\s*(#\S+))+\s*$/, '').trim();
+}
+
+function formatTag(name: string): string {
+    return name.startsWith('#') ? name : `#${name}`;
 }
 
 function PostCard({ post }: { post: PostResponse }) {
-    const initials    = post.user?.email?.charAt(0).toUpperCase() ?? '?';
+    const initials     = post.user?.email?.charAt(0).toUpperCase() ?? '?';
     const cleanContent = stripTrailingTags(post.content);
 
     return (
@@ -89,13 +93,9 @@ function PostCard({ post }: { post: PostResponse }) {
             <Text style={styles.content}>{cleanContent}</Text>
 
             {post.tags.length > 0 && (
-                <View style={styles.tagsRow}>
-                    {post.tags.map((t) => (
-                        <View key={t.id} style={styles.tagChip}>
-                            <Text style={styles.tagChipText}>{t.name}</Text>
-                        </View>
-                    ))}
-                </View>
+                <Text style={styles.tagsText}>
+                    {post.tags.map(t => formatTag(t.name)).join(' ')}
+                </Text>
             )}
 
             {post.media.length > 0 && (
@@ -147,14 +147,12 @@ const styles = StyleSheet.create({
     email:       { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
     dots:        { fontSize: 20, fontWeight: '700', color: '#81818D', letterSpacing: 2 },
 
-    divider:     { height: 1, backgroundColor: '#f0f0f0', marginVertical: 4 },
+    divider:  { height: 1, backgroundColor: '#f0f0f0', marginVertical: 4 },
 
-    title:       { fontSize: 17, fontWeight: '700', color: '#1a1a1a' },
-    content:     { fontSize: 14, color: '#444', lineHeight: 20 },
+    title:    { fontSize: 17, fontWeight: '700', color: '#1a1a1a' },
+    content:  { fontSize: 14, color: '#444', lineHeight: 20 },
 
-    tagsRow:     { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
-    tagChip:     { backgroundColor: '#F2EEF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-    tagChipText: { fontSize: 13, color: COLORS.primary, fontWeight: '500' },
+    tagsText: { fontSize: 14, color: COLORS.primary, lineHeight: 20 },
 
     mediaContainer: { gap: 8, marginTop: 4 },
     media:          { width: '100%', height: 225, borderRadius: 12 },

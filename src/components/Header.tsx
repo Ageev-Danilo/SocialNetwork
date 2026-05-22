@@ -5,7 +5,7 @@ import { router, usePathname } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { RootState, AppDispatch } from '@/shared/store';
-import { openCreatePost } from '@/shared/store/modal.slice';
+import { closeCreatePost, openCreatePost } from '@/shared/store/modal.slice';
 import { CreatePostModal } from './CreatePostModal';
 import { baseApi } from '@/shared/api/base';
 import { useUserContext } from '@/modules/auth/context';
@@ -69,7 +69,7 @@ export function Header() {
 
             <CreatePostModal
                 visible={isOpen}
-                onClose={() => dispatch(openCreatePost())}
+                onClose={() => dispatch(closeCreatePost())}
             />
         </View>
     );

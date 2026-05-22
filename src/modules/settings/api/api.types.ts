@@ -5,6 +5,7 @@ export interface SettingsResponse {
     lastName:     string;
     date:         string;
     username:     string;
+    email:        string;
     signature:    string | null;
     profileImage: string | null;
     userId:       number;
