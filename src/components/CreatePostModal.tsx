@@ -22,7 +22,7 @@ export function CreatePostModal({ visible, onClose }: Props) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ flex: 1 }}>
-                        <PostsForm onSuccess={onClose} />
+                        <PostsForm onSuccess={onClose} onClose={onClose} />
                     </View>
                 </View>
             </View>

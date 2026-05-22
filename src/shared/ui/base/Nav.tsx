@@ -12,7 +12,7 @@
 // }
 import { View, Text, Image } from 'react-native';
 import { Icon, Button } from '@shared/ui';
-import { NavsProps } from '@/shared/types/types';
+import { NavsProps } from '@/shared/types/shared.types';
 
 
 export function Nav({ route }: NavsProps) {
