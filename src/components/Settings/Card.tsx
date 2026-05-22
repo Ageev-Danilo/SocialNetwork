@@ -46,9 +46,11 @@ const styles = StyleSheet.create({
         width:          '100%',
     },
     title: {
-        fontSize:   18,
-        fontWeight: 'bold',
-        marginBottom: 10,
+        fontFamily:    'GT Walsheim Pro', 
+        fontSize:      16,                
+        fontWeight:    '500',             
+        lineHeight:    16,                
+        color:         '#070A1C',         
     },
     editBtn: {
         width:  40,

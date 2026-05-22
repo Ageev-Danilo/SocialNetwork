@@ -18,7 +18,6 @@ export default function EditAlbumScreen() {
 
     function handleSave() {
         if (!name.trim()) return;
-        //підключити до API
         router.back();
     }
 
