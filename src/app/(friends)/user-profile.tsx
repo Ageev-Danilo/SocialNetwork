@@ -36,14 +36,14 @@ function EyeIcon() {
     );
 }
 
-const API_MEDIA_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 const DEFAULT_AVATAR = 'https://g-issues.com/wp-content/uploads/2019/08/default-avatar.png';
 
-function buildMediaUri(path: string | null | undefined): string | null {
+export function buildMediaUri(path: string | null | undefined): string | null {
     if (!path) return null;
     if (path.startsWith('http') || path.startsWith('file')) return path;
-    if (path.startsWith('/media')) return `${API_MEDIA_BASE}${path}`;
-    return `${API_MEDIA_BASE}/media/thumbnail/${path}`;
+    if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+    return `${BASE_URL}/media/thumbnail/${path}`;
 }
 function stripTrailingTags(content: string): string {
     return content.replace(/(\n(#\S+\s*)+)+$/, '').trim();

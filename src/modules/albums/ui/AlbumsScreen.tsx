@@ -4,6 +4,7 @@ import {
     Image, Modal, StyleSheet, ActivityIndicator,
     Alert, Dimensions,
 } from 'react-native';
+import Svg, { Rect, Path, Circle } from 'react-native-svg';
 import * as ImagePicker from 'expo-image-picker';
 import { Input, Button, Icon } from '@/shared/ui';
 import { BASE, COLORS } from '@/shared/consts';
@@ -17,15 +18,55 @@ import {
 } from '@/modules/albums/api';
 import type { AlbumResponse, AlbumPhotoResponse } from '@/modules/albums/api';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const PHOTO_SIZE   = Math.floor((SCREEN_WIDTH - 32 - 10 - 32) / 2);
+const SCREEN_WIDTH  = Dimensions.get('window').width;
+const PHOTO_SIZE    = Math.floor((SCREEN_WIDTH - 32 - 10) / 2);
+const MY_PHOTO_SIZE = 200;
+
+const BASE_URL = 'http://10.0.2.2:3000';
+
+function getImageUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${BASE_URL}${path}`;
+}
+
+function CustomCloseIcon() {
+    return (
+        <Svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+            <Rect x="0.5" y="0.5" width="39" height="39" rx="19.5" fill="white" />
+            <Rect x="0.5" y="0.5" width="39" height="39" rx="19.5" stroke="#000000" strokeWidth="1.5" />
+            <Path
+                d="M13.334 15.8333H26.6673M18.334 19.1667V24.1667M21.6673 19.1667V24.1667M14.1673 15.8333L15.0007 25.8333C15.0007 26.2754 15.1762 26.6993 15.4888 27.0118C15.8014 27.3244 16.2253 27.5 16.6673 27.5H23.334C23.776 27.5 24.1999 27.3244 24.5125 27.0118C24.8251 26.6993 25.0007 26.2754 25.0007 25.8333L25.834 15.8333M17.5007 15.8333V13.3333C17.5007 13.1123 17.5884 12.9004 17.7447 12.7441C17.901 12.5878 18.113 12.5 18.334 12.5H21.6673C21.8883 12.5 22.1003 12.5878 22.2566 12.7441C22.4129 12.9004 22.5007 13.1123 22.5007 13.3333V15.8333"
+                stroke="#000000"
+                strokeWidth="1.66667"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </Svg>
+    );
+}
+
+function EyeIcon() {
+    return (
+        <Svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <Path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                stroke="#000000"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <Circle cx="12" cy="12" r="3" stroke="#000000" strokeWidth="2" />
+        </Svg>
+    );
+}
 
 export function AlbumsScreen() {
     const { data: albums = [], isLoading }         = useGetMyAlbumsQuery();
     const [createAlbum, { isLoading: isCreating }] = useCreateAlbumMutation();
     const [updateAlbum, { isLoading: isUpdating }] = useUpdateAlbumMutation();
     const [deletePhoto]                            = useDeletePhotoMutation();
-    const [uploadAlbumPhoto] = useUploadAlbumPhotoMutation();
+    const [uploadAlbumPhoto]                       = useUploadAlbumPhotoMutation();
     const [createOpen,   setCreateOpen]   = useState(false);
     const [editAlbum,    setEditAlbum]    = useState<AlbumResponse | null>(null);
     const [myPhotos,     setMyPhotos]     = useState<{ id: number; uri: string }[]>([]);
@@ -45,10 +86,7 @@ export function AlbumsScreen() {
             quality:    0.8,
         });
         if (!result.canceled) {
-            setMyPhotos(prev => [
-                ...prev,
-                { id: Date.now(), uri: result.assets[0].uri },
-            ]);
+            setMyPhotos(prev => [...prev, { id: Date.now(), uri: result.assets[0].uri }]);
         }
     }
 
@@ -87,10 +125,7 @@ export function AlbumsScreen() {
         });
         if (!result.canceled) {
             try {
-                await uploadAlbumPhoto({
-                    uri:     result.assets[0].uri,
-                    albumId,
-                }).unwrap();
+                await uploadAlbumPhoto({ uri: result.assets[0].uri, albumId }).unwrap();
             } catch (e) {
                 console.log('Upload error:', e);
                 Alert.alert('Помилка', 'Не вдалося завантажити фото');
@@ -105,8 +140,8 @@ export function AlbumsScreen() {
             [
                 { text: 'Скасувати', style: 'cancel' },
                 {
-                    text:  'Видалити',
-                    style: 'destructive',
+                    text:    'Видалити',
+                    style:   'destructive',
                     onPress: async () => {
                         try {
                             await deletePhoto(photoId).unwrap();
@@ -142,7 +177,6 @@ export function AlbumsScreen() {
                             <Text style={styles.addPhotoBtnText}>Додати фото</Text>
                         </TouchableOpacity>
                     </View>
-
                     <View style={styles.photosGrid}>
                         {myPhotos.length === 0 ? (
                             <Text style={styles.noPhotosText}>У вас поки що немає фото</Text>
@@ -163,10 +197,7 @@ export function AlbumsScreen() {
                 {albums.length === 0 ? (
                     <View style={[styles.card, BASE.yc, { justifyContent: 'space-between' }]}>
                         <Text style={styles.emptyText}>Немає ще жодного альбому</Text>
-                        <TouchableOpacity
-                            onPress={() => setCreateOpen(true)}
-                            style={styles.circleBtn}
-                        >
+                        <TouchableOpacity onPress={() => setCreateOpen(true)} style={styles.circleBtn}>
                             <Text style={styles.circleBtnText}>+</Text>
                         </TouchableOpacity>
                     </View>
@@ -185,10 +216,7 @@ export function AlbumsScreen() {
                         ))}
                         <View style={[styles.card, BASE.yc, { justifyContent: 'space-between' }]}>
                             <Text style={styles.emptyText}>Додати альбом</Text>
-                            <TouchableOpacity
-                                onPress={() => setCreateOpen(true)}
-                                style={styles.circleBtn}
-                            >
+                            <TouchableOpacity onPress={() => setCreateOpen(true)} style={styles.circleBtn}>
                                 <Text style={styles.circleBtnText}>+</Text>
                             </TouchableOpacity>
                         </View>
@@ -224,6 +252,20 @@ type ActionIconName = 'visible' | 'hide' | 'close' | 'edit' | 'img' |
                      'chat' | 'group' | 'camera';
 
 function ActionBtn({ name, onPress }: { name: ActionIconName; onPress?: () => void }) {
+    if (name === 'close') {
+        return (
+            <TouchableOpacity onPress={onPress} style={actionStyles.customBtnWrapper}>
+                <CustomCloseIcon />
+            </TouchableOpacity>
+        );
+    }
+    if (name === 'visible' || name === 'hide') {
+        return (
+            <TouchableOpacity style={actionStyles.btn} onPress={onPress}>
+                <EyeIcon />
+            </TouchableOpacity>
+        );
+    }
     return (
         <TouchableOpacity style={actionStyles.btn} onPress={onPress}>
             <Icon name={name} size={16} />
@@ -236,9 +278,17 @@ const actionStyles = StyleSheet.create({
         width:           34,
         height:          34,
         borderRadius:    17,
-        backgroundColor: 'rgba(255,255,255,0.9)',
+        backgroundColor: '#FFFFFF',
+        borderWidth:     1,
+        borderColor:     '#000000',
         justifyContent:  'center',
         alignItems:      'center',
+    },
+    customBtnWrapper: {
+        width:          34,
+        height:         34,
+        justifyContent: 'center',
+        alignItems:     'center',
     },
 });
 
@@ -251,14 +301,11 @@ function PhotoThumb({
     onDelete:       () => void;
 }) {
     return (
-        <View style={[thumb.wrap, { width: PHOTO_SIZE, height: PHOTO_SIZE }]}>
+        <View style={[thumb.wrap, { width: MY_PHOTO_SIZE, height: MY_PHOTO_SIZE }]}>
             <Image source={{ uri }} style={thumb.img} resizeMode="cover" />
             {isHidden && <View style={thumb.blur} />}
             <View style={thumb.actions}>
-                <ActionBtn
-                    name={isHidden ? 'hide' : 'visible'}
-                    onPress={onToggleHidden}
-                />
+                <ActionBtn name={isHidden ? 'hide' : 'visible'} onPress={onToggleHidden} />
                 <ActionBtn name="close" onPress={onDelete} />
             </View>
         </View>
@@ -287,7 +334,7 @@ const thumb = StyleSheet.create({
     actions: {
         position:      'absolute',
         bottom:        8,
-        left:          8,
+        right:         8,
         flexDirection: 'row',
         gap:           6,
     },
@@ -311,7 +358,7 @@ function AlbumBlock({
                 <Text style={album_s.name}>{album.name}</Text>
                 <View style={[BASE.yc, { gap: 6 }]}>
                     <TouchableOpacity style={album_s.iconCircle}>
-                        <Icon name="visible" size={17} />
+                        <EyeIcon />
                     </TouchableOpacity>
                     <TouchableOpacity style={album_s.iconCircle} onPress={onEdit}>
                         <Icon name="edit" size={17} />
@@ -325,15 +372,16 @@ function AlbumBlock({
             </View>
 
             <View style={album_s.divider} />
-            <Text style={album_s.photosLabel}>Фотографіії</Text>
+            <Text style={album_s.photosLabel}>Фотографії</Text>
 
             <View style={album_s.grid}>
                 {album.images.map((photo: AlbumPhotoResponse) => {
-                    const isHidden = hiddenPhotos.has(photo.id);
+                    const isHidden  = hiddenPhotos.has(photo.id);
+                    const imageUri  = getImageUrl(photo.image);
                     return (
                         <View key={photo.id} style={album_s.photoWrap}>
                             <Image
-                                source={{ uri: photo.image }}
+                                source={{ uri: imageUri }}
                                 style={album_s.photoImg}
                                 resizeMode="cover"
                             />
@@ -351,7 +399,6 @@ function AlbumBlock({
                         </View>
                     );
                 })}
-
                 <TouchableOpacity onPress={onAddPhoto} style={album_s.addPhoto}>
                     <Text style={album_s.addPhotoPlus}>+</Text>
                 </TouchableOpacity>
@@ -371,7 +418,7 @@ const album_s = StyleSheet.create({
         height:          34,
         borderRadius:    17,
         borderWidth:     1,
-        borderColor:     '#E3DCE7',
+        borderColor:     '#000000',
         justifyContent:  'center',
         alignItems:      'center',
         backgroundColor: '#fff',
@@ -424,7 +471,7 @@ const album_s = StyleSheet.create({
     photoActions: {
         position:      'absolute',
         bottom:        8,
-        left:          8,
+        right:         8,
         flexDirection: 'row',
         gap:           6,
     },
@@ -434,14 +481,14 @@ const album_s = StyleSheet.create({
         borderRadius:    12,
         borderWidth:     1,
         borderStyle:     'dashed',
-        borderColor:     COLORS.primary,
+        borderColor:     '#000000',
         justifyContent:  'center',
         alignItems:      'center',
         backgroundColor: '#fff',
     },
     addPhotoPlus: {
         fontSize:   32,
-        color:      COLORS.primary,
+        color:      '#000000',
         lineHeight: 36,
     },
 });
@@ -574,9 +621,10 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#fff',
-        borderRadius:    16,
-        marginHorizontal: 16,
-        padding:         16,
+        paddingHorizontal: 16,
+        paddingVertical:   16,
+        borderRadius:      16,
+        marginHorizontal: -0,
     },
     cardTitle: {
         fontSize:   16,
@@ -590,12 +638,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical:   6,
         borderWidth:       1,
-        borderColor:       '#CDCED2',
+        borderColor:       '#000000',
         borderRadius:      20,
     },
     addPhotoBtnText: {
         fontSize: 13,
-        color:    COLORS.primary,
+        color:    '#000000',
     },
     photosGrid: {
         flexDirection: 'row',
@@ -608,17 +656,17 @@ const styles = StyleSheet.create({
         color:      '#1a1a1a',
     },
     circleBtn: {
-        width:           36,
-        height:          36,
-        borderRadius:    18,
-        borderWidth:     1,
-        borderColor:     COLORS.primary,
-        justifyContent:  'center',
-        alignItems:      'center',
+        width:          36,
+        height:         36,
+        borderRadius:   18,
+        borderWidth:    1,
+        borderColor:    '#000000',
+        justifyContent: 'center',
+        alignItems:     'center',
     },
     circleBtnText: {
         fontSize:   22,
-        color:      COLORS.primary,
+        color:      '#000000',
         lineHeight: 26,
     },
     noPhotosText: {
