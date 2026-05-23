@@ -1,6 +1,3 @@
-export { FriendCard }    from './ui/FriendCard';
-export type { FriendCardData } from './ui/FriendCard';
-
 export {
     useGetRecommendationsQuery,
     useGetFriendsQuery,
@@ -10,7 +7,7 @@ export {
     useAcceptFriendMutation,
     useRejectFriendRequestMutation,
     useRemoveFriendMutation,
-} from './api';
+} from './friends-api';
 
 export type {
     FriendProfile,
@@ -21,6 +18,9 @@ export type {
     PublicProfileData,
     PublicAlbum,
     PublicPost,
+} from './api.types';
+
+export type {
     ContactWithProfile,
     FriendRequestWithSender,
-} from './api';
+} from './response.types';

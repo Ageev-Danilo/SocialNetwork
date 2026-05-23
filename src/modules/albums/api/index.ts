@@ -1,2 +1,2 @@
-export { useGetMyAlbumsQuery, useCreateAlbumMutation, useUpdateAlbumMutation, useDeletePhotoMutation } from './albums-api';
+export { useGetMyAlbumsQuery, useCreateAlbumMutation, useUpdateAlbumMutation, useDeletePhotoMutation, useUploadAlbumPhotoMutation } from './albums-api';
 export type { AlbumResponse, AlbumPhotoResponse, CreateAlbumPayload, UpdateAlbumPayload } from './api.types';

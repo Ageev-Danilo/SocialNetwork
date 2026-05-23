@@ -14,7 +14,6 @@ export default function CreateAlbumScreen() {
 
     function handleCreate() {
         if (!name.trim()) return;
-        //підключити до API
         router.back();
     }
 

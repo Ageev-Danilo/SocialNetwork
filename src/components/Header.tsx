@@ -1,22 +1,39 @@
-import { View, Image, Modal, TouchableOpacity ,StyleSheet} from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Icon } from '@/shared/ui';
 import { router, usePathname } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '@/shared/store';
-import { openCreatePost, closeCreatePost } from '@/shared/store/modal.slice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { RootState, AppDispatch } from '@/shared/store';
+import { closeCreatePost, openCreatePost } from '@/shared/store/modal.slice';
 import { CreatePostModal } from './CreatePostModal';
+import { CreateGroupButton } from './CreateGroupButton';
+import { baseApi } from '@/shared/api/base';
+import { useUserContext } from '@/modules/auth/context';
 
-const CREATE_POST_ROUTES  = ['/home', '/posts'];
-const SETTINGS_ROUTES     = ['/settings', '/settings/albums'];
+const CREATE_POST_ROUTES = ['/home', '/posts'];
+const SETTINGS_ROUTES    = ['/settings', '/settings/albums'];
+const CHAT_MAIN_ROUTE    = '/chat';
 
 export function Header() {
-    const dispatch = useDispatch();
-    const pathname = usePathname();
-    const isOpen = useSelector((state: RootState) => state.modal.isCreatePostOpen);
+    const dispatch  = useDispatch<AppDispatch>();
+    const pathname  = usePathname();
+    const isOpen    = useSelector((state: RootState) => state.modal.isCreatePostOpen);
+    const { setToken, setUser } = useUserContext();
 
-    const showAddButton = CREATE_POST_ROUTES.some((r) => pathname === r);
-    const isSettingsActive = SETTINGS_ROUTES.some((r) => pathname === r);
+    const showCreatePostButton = CREATE_POST_ROUTES.some(r => pathname === r);
+    const showCreateGroupButton = pathname === CHAT_MAIN_ROUTE;
+    const isChatSection         = pathname === CHAT_MAIN_ROUTE || pathname.startsWith('/chat/');
+    const showSettingsButton    = !isChatSection;
+    const isSettingsActive      = SETTINGS_ROUTES.some(r => pathname === r);
+
+    async function handleLogout() {
+        await AsyncStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        dispatch(baseApi.util.resetApiState());
+        router.replace('/(auth)/login');
+    }
 
     return (
         <View style={styles.headerContainer}>
@@ -28,7 +45,7 @@ export function Header() {
                         resizeMode="contain"
                     />
                     <View style={styles.actions}>
-                        {showAddButton && (
+                        {showCreatePostButton && (
                             <Button
                                 type="outline"
                                 onPress={() => dispatch(openCreatePost())}
@@ -37,24 +54,28 @@ export function Header() {
                             </Button>
                         )}
 
-                        <Button
-                            type="outline"
-                            onPress={() => router.push('/settings')} 
-                            style={isSettingsActive && styles.activeBtn}
-                        >
-                            <Icon name="settings" />
-                        </Button>
+                        {showCreateGroupButton && <CreateGroupButton />}
+
+                        {showSettingsButton && (
+                            <Button
+                                type="outline"
+                                onPress={() => router.push('/settings')}
+                                style={isSettingsActive && styles.activeBtn}
+                            >
+                                <Icon name="settings" />
+                            </Button>
+                        )}
 
                         <Button
                             type="outline"
-                            onPress={() => router.push('/logout')}
+                            onPress={handleLogout}
                         >
                             <Icon name="logout" />
                         </Button>
                     </View>
                 </View>
             </SafeAreaView>
-            
+
             <CreatePostModal
                 visible={isOpen}
                 onClose={() => dispatch(closeCreatePost())}
@@ -65,7 +86,7 @@ export function Header() {
 
 const styles = StyleSheet.create({
     headerContainer: {
-        backgroundColor: 'white',
+        backgroundColor:   'white',
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
     },
@@ -73,24 +94,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     nav: {
-        height: 56, 
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        height:            56,
+        width:             '100%',
+        flexDirection:     'row',
+        alignItems:        'center',
+        justifyContent:    'space-between',
         paddingHorizontal: 16,
     },
     actions: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
+        alignItems:    'center',
+        gap:           10,
     },
     activeBtn: {
-        backgroundColor: '#E9E5EE',  
-        borderColor: '#E9E5EE',
-    },
-    navBtn: {
-        width: 40,
-        height: 40,
+        backgroundColor: '#E9E5EE',
+        borderColor:     '#E9E5EE',
     },
 });
