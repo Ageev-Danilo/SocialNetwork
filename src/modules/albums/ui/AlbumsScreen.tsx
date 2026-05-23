@@ -144,10 +144,9 @@ export function AlbumsScreen() {
                     style:   'destructive',
                     onPress: async () => {
                         try {
-                            await deletePhoto(photoId).unwrap();
+                            const res = await deletePhoto(photoId).unwrap();
                         } catch (e) {
-                            console.log('deletePhoto error:', e);
-                            Alert.alert('Помилка', 'Не вдалося видалити фото');
+                            Alert.alert('Помилка', `Не вдалося видалити фото (ID: ${photoId})`);
                         }
                     },
                 },
