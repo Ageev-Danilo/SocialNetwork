@@ -3,13 +3,14 @@ import { useLocalSearchParams } from 'expo-router';
 import {
     ChatThreadScreen,
     getConversationById,
-    MOCK_DM_MESSAGES,
+    getDmThread,
 } from '@/modules/chat';
+import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 
 export default function ConversationScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const conversation = getConversationById(id);
-    const messages     = MOCK_DM_MESSAGES[id] ?? [];
+    const items        = getDmThread(id);
 
     if (!conversation) {
         return (
@@ -23,7 +24,7 @@ export default function ConversationScreen() {
         <ChatThreadScreen
             title={conversation.contactName}
             avatarUri={conversation.avatarUri}
-            messages={messages}
+            items={items}
         />
     );
 }
@@ -33,10 +34,10 @@ const styles = StyleSheet.create({
         flex:            1,
         justifyContent:  'center',
         alignItems:      'center',
-        backgroundColor: '#F3F4F6',
+        backgroundColor: CHAT_COLORS.screenBg,
     },
     errorText: {
-        color:    '#999',
+        color:    CHAT_COLORS.textLight,
         fontSize: 16,
     },
 });

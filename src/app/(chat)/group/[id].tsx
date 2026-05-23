@@ -3,13 +3,15 @@ import { useLocalSearchParams } from 'expo-router';
 import {
     ChatThreadScreen,
     getGroupChatById,
-    MOCK_GROUP_MESSAGES,
+    getGroupThread,
+    getGroupSubtitle,
 } from '@/modules/chat';
+import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 
 export default function GroupChatScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const group    = getGroupChatById(id);
-    const messages = MOCK_GROUP_MESSAGES[id] ?? [];
+    const items    = getGroupThread(id);
 
     if (!group) {
         return (
@@ -22,9 +24,10 @@ export default function GroupChatScreen() {
     return (
         <ChatThreadScreen
             title={group.name}
-            subtitle={`${group.membersCount} учасників`}
+            subtitle={getGroupSubtitle(group)}
+            initials={group.initials}
             avatarUri={group.avatarUri}
-            messages={messages}
+            items={items}
         />
     );
 }
@@ -34,10 +37,10 @@ const styles = StyleSheet.create({
         flex:            1,
         justifyContent:  'center',
         alignItems:      'center',
-        backgroundColor: '#F3F4F6',
+        backgroundColor: CHAT_COLORS.screenBg,
     },
     errorText: {
-        color:    '#999',
+        color:    CHAT_COLORS.textLight,
         fontSize: 16,
     },
 });

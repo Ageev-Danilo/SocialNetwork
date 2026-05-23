@@ -1,5 +1,6 @@
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import type { Contact } from '../model/mock-data';
+import { CHAT_COLORS } from './chat-theme';
 
 interface Props {
     contact: Contact;
@@ -9,14 +10,8 @@ interface Props {
 export function ContactListItem({ contact, onPress }: Props) {
     return (
         <Pressable style={styles.row} onPress={onPress}>
-            <View style={styles.avatarWrap}>
-                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
-                {contact.isOnline && <View style={styles.onlineDot} />}
-            </View>
-            <View style={styles.body}>
-                <Text style={styles.name}>{contact.name}</Text>
-                <Text style={styles.username}>@{contact.username}</Text>
-            </View>
+            <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
+            <Text style={styles.name}>{contact.name}</Text>
         </Pressable>
     );
 }
@@ -26,37 +21,18 @@ const styles = StyleSheet.create({
         flexDirection:     'row',
         alignItems:        'center',
         paddingHorizontal: 16,
-        paddingVertical:   14,
-        backgroundColor:   '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
-        gap:               12,
+        paddingVertical:   12,
+        gap:               14,
     },
-    avatarWrap: { position: 'relative' },
     avatar: {
-        width:        52,
-        height:       52,
-        borderRadius: 26,
+        width:        48,
+        height:       48,
+        borderRadius: 24,
     },
-    onlineDot: {
-        position:        'absolute',
-        bottom:          2,
-        right:           2,
-        width:           12,
-        height:          12,
-        borderRadius:    6,
-        backgroundColor: '#4CAF50',
-        borderWidth:     2,
-        borderColor:     '#fff',
-    },
-    body: { flex: 1, gap: 2 },
     name: {
+        flex:       1,
         fontSize:   16,
-        fontWeight: '700',
-        color:      '#1A1A1A',
-    },
-    username: {
-        fontSize: 14,
-        color:    '#81818D',
+        fontWeight: '600',
+        color:      CHAT_COLORS.text,
     },
 });

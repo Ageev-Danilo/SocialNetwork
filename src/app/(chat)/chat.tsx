@@ -1,18 +1,34 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import {
     ChatTabs,
     ChatListItem,
     ContactListItem,
+    GroupListItem,
+    ChatSectionHeader,
+    ChatSearchBar,
+    UserAddIcon,
+    MessagesTabIcon,
     MOCK_CONTACTS,
     MOCK_CONVERSATIONS,
     MOCK_GROUP_CHATS,
+    CHAT_TAB_BADGE,
 } from '@/modules/chat';
 import type { ChatTabId } from '@/modules/chat';
+import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 
 export default function ChatScreen() {
-    const [activeTab, setActiveTab] = useState<ChatTabId>('contacts');
+    const [activeTab, setActiveTab]   = useState<ChatTabId>('contacts');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredContacts = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return MOCK_CONTACTS;
+        return MOCK_CONTACTS.filter(c =>
+            c.name.toLowerCase().includes(q) || c.username.toLowerCase().includes(q),
+        );
+    }, [searchQuery]);
 
     function openConversation(id: string) {
         router.push(`/(chat)/conversation/${id}` as any);
@@ -22,72 +38,83 @@ export default function ChatScreen() {
         router.push(`/(chat)/group/${id}` as any);
     }
 
+    function renderSectionHeader() {
+        switch (activeTab) {
+            case 'messages':
+                return (
+                    <ChatSectionHeader
+                        title="Повідомлення"
+                        badge={CHAT_TAB_BADGE}
+                        rightIcon={<MessagesTabIcon />}
+                    />
+                );
+            case 'groups':
+                return <ChatSectionHeader title="Групові чати" />;
+            default:
+                return (
+                    <ChatSectionHeader
+                        title="Контакти"
+                        rightIcon={<UserAddIcon />}
+                    />
+                );
+        }
+    }
+
     function renderContent() {
         switch (activeTab) {
             case 'messages':
-                return MOCK_CONVERSATIONS.length === 0 ? (
-                    <EmptyBlock text="Повідомлень поки немає" />
-                ) : (
-                    MOCK_CONVERSATIONS.map(conv => (
-                        <ChatListItem
-                            key={conv.id}
-                            title={conv.contactName}
-                            subtitle={conv.lastMessage}
-                            time={conv.lastMessageTime}
-                            avatarUri={conv.avatarUri}
-                            unreadCount={conv.unreadCount}
-                            onPress={() => openConversation(conv.id)}
-                        />
-                    ))
-                );
+                return MOCK_CONVERSATIONS.map(conv => (
+                    <ChatListItem
+                        key={conv.id}
+                        title={conv.contactName}
+                        subtitle={conv.lastMessage}
+                        time={conv.lastMessageTime}
+                        avatarUri={conv.avatarUri}
+                        highlighted={conv.highlighted}
+                        isOnline={conv.isOnline}
+                        onPress={() => openConversation(conv.id)}
+                    />
+                ));
 
             case 'groups':
-                return MOCK_GROUP_CHATS.length === 0 ? (
-                    <EmptyBlock text="Групових чатів поки немає" />
-                ) : (
-                    MOCK_GROUP_CHATS.map(group => (
-                        <ChatListItem
-                            key={group.id}
-                            title={group.name}
-                            subtitle={group.lastMessage}
-                            time={group.lastMessageTime}
-                            avatarUri={group.avatarUri}
-                            unreadCount={group.unreadCount}
-                            onPress={() => openGroup(group.id)}
-                        />
-                    ))
-                );
+                return MOCK_GROUP_CHATS.map(group => (
+                    <GroupListItem
+                        key={group.id}
+                        group={group}
+                        onPress={() => openGroup(group.id)}
+                    />
+                ));
 
             default:
-                return MOCK_CONTACTS.length === 0 ? (
-                    <EmptyBlock text="Контактів поки немає" />
-                ) : (
-                    MOCK_CONTACTS.map(contact => (
-                        <ContactListItem
-                            key={contact.id}
-                            contact={contact}
-                            onPress={() => {
-                                const conv = MOCK_CONVERSATIONS.find(c => c.contactId === contact.id);
-                                if (conv) openConversation(conv.id);
-                            }}
-                        />
-                    ))
-                );
+                return filteredContacts.map(contact => (
+                    <ContactListItem
+                        key={contact.id}
+                        contact={contact}
+                        onPress={() => {
+                            const conv = MOCK_CONVERSATIONS.find(c => c.contactId === contact.id);
+                            if (conv) openConversation(conv.id);
+                        }}
+                    />
+                ));
         }
     }
 
     return (
         <View style={styles.screen}>
             <ChatTabs activeTab={activeTab} onTabChange={setActiveTab} />
-            <ScrollView style={styles.list}>{renderContent()}</ScrollView>
-        </View>
-    );
-}
-
-function EmptyBlock({ text }: { text: string }) {
-    return (
-        <View style={styles.empty}>
-            <Text style={styles.emptyText}>{text}</Text>
+            <View style={styles.panel}>
+                {renderSectionHeader()}
+                {activeTab === 'contacts' && (
+                    <ChatSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+                )}
+                <ScrollView
+                    style={styles.list}
+                    showsVerticalScrollIndicator
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {renderContent()}
+                </ScrollView>
+            </View>
         </View>
     );
 }
@@ -95,20 +122,11 @@ function EmptyBlock({ text }: { text: string }) {
 const styles = StyleSheet.create({
     screen: {
         flex:            1,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: CHAT_COLORS.screenBg,
+    },
+    panel: {
+        flex:            1,
+        backgroundColor: CHAT_COLORS.cardBg,
     },
     list: { flex: 1 },
-    empty: {
-        margin:            16,
-        padding:           32,
-        backgroundColor:   '#fff',
-        borderRadius:      12,
-        alignItems:        'center',
-        borderWidth:       1,
-        borderColor:       '#F0F0F0',
-    },
-    emptyText: {
-        color:    '#999',
-        fontSize: 14,
-    },
 });

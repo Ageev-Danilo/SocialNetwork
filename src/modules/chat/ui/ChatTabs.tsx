@@ -1,62 +1,63 @@
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { CHAT_COLORS } from './chat-theme';
 
 export type ChatTabId = 'contacts' | 'messages' | 'groups';
 
 const CHAT_TABS: { label: string; id: ChatTabId }[] = [
-    { label: 'Контакти',       id: 'contacts' },
-    { label: 'Повідомлення',   id: 'messages' },
-    { label: 'Групові чати',   id: 'groups' },
+    { label: 'Контакти',     id: 'contacts' },
+    { label: 'Повідомлення', id: 'messages' },
+    { label: 'Групові чати', id: 'groups' },
 ];
 
 interface Props {
-    activeTab:  ChatTabId;
+    activeTab:   ChatTabId;
     onTabChange: (id: ChatTabId) => void;
 }
 
 export function ChatTabs({ activeTab, onTabChange }: Props) {
     return (
         <View style={styles.container}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {CHAT_TABS.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <Pressable
-                            key={tab.id}
-                            style={[styles.tab, isActive && styles.tabActive]}
-                            onPress={() => onTabChange(tab.id)}
-                        >
-                            <Text style={[styles.text, isActive && styles.textActive]}>
-                                {tab.label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </ScrollView>
+            {CHAT_TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                    <Pressable
+                        key={tab.id}
+                        style={[styles.tab, isActive && styles.tabActive]}
+                        onPress={() => onTabChange(tab.id)}
+                    >
+                        <Text style={[styles.text, isActive && styles.textActive]}>
+                            {tab.label}
+                        </Text>
+                    </Pressable>
+                );
+            })}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor:   '#F3F4F6',
+        flexDirection:     'row',
+        backgroundColor:   CHAT_COLORS.cardBg,
         borderBottomWidth: 1,
-        borderBottomColor: '#EBEBEB',
+        borderBottomColor: CHAT_COLORS.border,
     },
     tab: {
-        paddingVertical:   16,
-        paddingHorizontal: 16,
+        flex:              1,
+        paddingVertical:   14,
+        alignItems:        'center',
     },
     tabActive: {
         borderBottomWidth: 2,
-        borderBottomColor: '#543C52',
+        borderBottomColor: CHAT_COLORS.primary,
     },
     text: {
-        fontSize:   15,
-        color:      '#999',
-        fontWeight: '700',
+        fontSize:   14,
+        color:      CHAT_COLORS.textLight,
+        fontWeight: '600',
     },
     textActive: {
-        color:      '#543C52',
+        color:      CHAT_COLORS.primary,
         fontWeight: '700',
     },
 });

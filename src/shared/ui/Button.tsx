@@ -47,7 +47,7 @@ export function Button({
     );
 }
 
-export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
+export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
     const pathname = usePathname();
 
     const isActive = href ? pathname === href || pathname.startsWith(href + '/') : false;
@@ -74,7 +74,22 @@ export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
                 />
             )}
             <View style={[BASE.column, BASE.tab, { height: 60, justifyContent: 'center' }]}>
-                <Icon name={icon} />
+                <View>
+                    <Icon name={icon} />
+                    {badge != null && badge > 0 && (
+                        <View style={{
+                            position: 'absolute', top: -4, right: -8,
+                            minWidth: 16, height: 16, borderRadius: 8,
+                            backgroundColor: '#E53935',
+                            justifyContent: 'center', alignItems: 'center',
+                            paddingHorizontal: 4,
+                        }}>
+                            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+                                {badge}
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 {label && (
                     <Text
                         style={[
