@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         marginBottom:      12,
         paddingHorizontal: 14,
         paddingVertical:   10,
-        borderRadius:      24,
+        borderRadius:      10,
         borderWidth:       1,
         borderColor:       CHAT_COLORS.border,
         backgroundColor:   CHAT_COLORS.cardBg,

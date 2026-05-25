@@ -7,7 +7,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
-import { Button, Icon } from '@/shared/ui';
+import { Button, Icon, Input } from '@/shared/ui';
 import { COLORS, settingFields } from '@/shared/consts';
 import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
 import { settingsSchema, passwordSchema } from '../../model';
@@ -158,21 +158,8 @@ export function SettingsForm() {
                 }
 
                 <View style={styles.readonlyField}>
-                    <Text style={styles.fieldLabel}>Електронна адреса</Text>
-                    <View style={styles.fieldRow}>
-                        <TextInput
-                            style={styles.fieldInput}
-                            value={data?.email ?? ''}
-                            editable={false}
-                            placeholder="you@example.com"
-                            placeholderTextColor="#aaa"
-                        />
-                        <TouchableOpacity style={styles.eyeBtn}>
-                            <Icon name="hide" size={18} />
-                        </TouchableOpacity>
-                    </View>
+                    <Input type='pwd' label='Електронна пошта' holder='example@gmail.com' />
                 </View>
-
                 <View style={{ marginTop: 8, gap: 4 }}>
                     <View style={styles.passwordHeader}>
                         <Text style={styles.fieldLabel}>Пароль</Text>

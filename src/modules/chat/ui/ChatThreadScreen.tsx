@@ -1,6 +1,6 @@
 import { View, Text, Image, FlatList, StyleSheet, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Icon } from '@/shared/ui';
+import { Button, Icon, Input } from '@/shared/ui';
 import type { ThreadItem, MessageStatus } from '../model/mock-data';
 import { CHAT_COLORS } from './chat-theme';
 import {
@@ -116,15 +116,9 @@ export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items }
             />
 
             <View style={styles.inputBar}>
-                <View style={styles.inputField}>
-                    <Text style={styles.inputPlaceholder}>Повідомлення</Text>
-                </View>
-                <Pressable style={styles.attachBtn}>
-                    <Icon name="img" size={22} />
-                </Pressable>
-                <Pressable style={styles.sendBtn}>
-                    <SendIcon />
-                </Pressable>
+                <Input type='text' placeholder="Повідомлення" style={{ flex: 1 }} />
+                <Button type='outline' icon='img' style={styles.attachBtn} />
+                <Button type='fill' icon='send' style={styles.sendBtn} />
             </View>
         </View>
     );
@@ -275,7 +269,7 @@ const styles = StyleSheet.create({
         flex:              1,
         borderWidth:       1,
         borderColor:       CHAT_COLORS.border,
-        borderRadius:      24,
+        borderRadius:      10,
         paddingHorizontal: 16,
         paddingVertical:   12,
         backgroundColor:   CHAT_COLORS.cardBg,
@@ -285,8 +279,8 @@ const styles = StyleSheet.create({
         color:    CHAT_COLORS.textLight,
     },
     attachBtn: {
-        width:          40,
-        height:         40,
+        width:          44,
+        height:         44,
         justifyContent: 'center',
         alignItems:     'center',
     },

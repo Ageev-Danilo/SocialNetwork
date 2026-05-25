@@ -17,6 +17,7 @@ import {
 } from '@/modules/chat';
 import type { ChatTabId } from '@/modules/chat';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
+import { Icon } from '@/shared/ui';
 
 export default function ChatScreen() {
     const [activeTab, setActiveTab]   = useState<ChatTabId>('contacts');
@@ -45,7 +46,7 @@ export default function ChatScreen() {
                     <ChatSectionHeader
                         title="Повідомлення"
                         badge={CHAT_TAB_BADGE}
-                        rightIcon={<MessagesTabIcon />}
+                        icon={<MessagesTabIcon />}
                     />
                 );
             case 'groups':
@@ -54,7 +55,7 @@ export default function ChatScreen() {
                 return (
                     <ChatSectionHeader
                         title="Контакти"
-                        rightIcon={<UserAddIcon />}
+                        icon={<Icon name="group" size={20} fill='#81818D' />}
                     />
                 );
         }

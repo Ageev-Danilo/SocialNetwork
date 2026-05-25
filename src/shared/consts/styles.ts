@@ -32,6 +32,7 @@ export const BASE = StyleSheet.create({
     },
     bottomBar: {
         justifyContent: 'space-between',
+        backgroundColor: 'white',
         paddingHorizontal: 16,
     },
     tab: {

@@ -14,6 +14,7 @@ export function Input({
     value,
     error,
     additional,
+    style,
     ...props
 }: InputProps) {
     const inputRef = useRef<TextInput>(null);
@@ -28,11 +29,11 @@ export function Input({
     };
 
     return (
-        <View style={{ gap: 6 }}>
+        <View style={[{ gap: 6 }, style]}>
             {label && <Text style={BASE.inputLabel}>{label}</Text>}
 
             <View style={BASE.inputRow}>
-                <Ripple style={BASE.inputContainer} onPress={handlePress} rippleOpacity={0.08}>
+                <Ripple style={[BASE.inputContainer, style]} onPress={handlePress} rippleOpacity={0.08}>
                     <TextInput
                         ref={inputRef}
                         style={BASE.input}

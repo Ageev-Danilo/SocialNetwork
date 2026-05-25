@@ -1,18 +1,20 @@
 import type { ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
+import { BASE } from '@/shared/consts';
 
 interface Props {
     title:       string;
-    rightIcon?:  ReactNode;
+    icon?:  ReactNode;
+    rightIcon?: ReactNode;
     badge?:      number;
     onRightPress?: () => void;
 }
 
-export function ChatSectionHeader({ title, rightIcon, badge, onRightPress }: Props) {
+export function ChatSectionHeader({ title, icon, rightIcon, badge, onRightPress }: Props) {
     return (
         <View style={styles.row}>
-            <Text style={styles.title}>{title}</Text>
+            {icon && <View style={[BASE.center, { gap: 8 }]}>{icon}<Text style={styles.title}>{title}</Text></View>}
             {(rightIcon || badge != null) && (
                 <Pressable
                     style={styles.right}
