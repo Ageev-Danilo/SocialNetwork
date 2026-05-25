@@ -12,5 +12,5 @@ export const CHAT_COLORS = {
     bubbleOtherBorder:'#EBEBEB',
     online:           '#4CAF50',
     badge:            '#E53935',
-    dateBg:           '#F3F4F6',
+    dateBg:           '#E9E5EE',
 } as const;
