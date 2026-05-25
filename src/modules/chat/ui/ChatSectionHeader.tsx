@@ -1,18 +1,23 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
 
+
 interface Props {
-    title:       string;
-    rightIcon?:  ReactNode;
-    badge?:      number;
+    title:         string;
+    icon?:         ReactNode;
+    rightIcon?:    ReactNode;
+    badge?:        number;
     onRightPress?: () => void;
 }
 
-export function ChatSectionHeader({ title, rightIcon, badge, onRightPress }: Props) {
+export function ChatSectionHeader({ title, icon, rightIcon, badge, onRightPress }: Props) {
     return (
         <View style={styles.row}>
-            <Text style={styles.title}>{title}</Text>
+            <View style={styles.left}>
+                {icon}
+                <Text style={styles.title}>{title}</Text>
+            </View>
             {(rightIcon || badge != null) && (
                 <Pressable
                     style={styles.right}
@@ -40,10 +45,15 @@ const styles = StyleSheet.create({
         paddingTop:        16,
         paddingBottom:     12,
     },
+    left: {
+        flexDirection: 'row',
+        alignItems:    'center',
+        gap:           8,
+    },
     title: {
         fontSize:   20,
-        fontWeight: '700',
-        color:      CHAT_COLORS.text,
+        fontWeight: '500',
+        color:      CHAT_COLORS.textMuted,
     },
     right: {
         flexDirection: 'row',

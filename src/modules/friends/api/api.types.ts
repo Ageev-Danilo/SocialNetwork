@@ -23,6 +23,12 @@ export interface PublicAlbum {
     images: { id: number; image: string }[];
 }
 
+// export interface PostMedia {
+//     id:     number;
+//     url:    string;
+//     postId: number;
+// }
+
 export interface PublicPost {
     id:        number;
     title:     string;
@@ -32,6 +38,7 @@ export interface PublicPost {
     media:     { id: number; url: string }[];  
     likes:     number;
     views:     number;
+    // media: PostMedia[];
 }
 
 export interface PublicProfileData {
@@ -39,3 +46,4 @@ export interface PublicProfileData {
     albums:   PublicAlbum[];
     lastPost: PublicPost | null;
 }
+

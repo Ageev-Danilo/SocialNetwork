@@ -7,7 +7,7 @@ export const baseApi = createApi({
     reducerPath: 'api',
     tagTypes: ['Settings', 'Posts', 'MyPosts', 'Albums', 'Friends', 'FriendRequests'],
     baseQuery: fetchBaseQuery({
-        baseUrl: API_URL,
+        baseUrl: 'http://192.168.178.22:3000', 
         prepareHeaders: queryBaseHeaders,
     }),
     endpoints() {

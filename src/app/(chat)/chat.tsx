@@ -17,18 +17,40 @@ import {
 } from '@/modules/chat';
 import type { ChatTabId } from '@/modules/chat';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
+import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
+
 
 export default function ChatScreen() {
-    const [activeTab, setActiveTab]   = useState<ChatTabId>('contacts');
+    const [activeTab, setActiveTab]     = useState<ChatTabId>('contacts');
     const [searchQuery, setSearchQuery] = useState('');
 
+    const q = searchQuery.trim().toLowerCase();
+
     const filteredContacts = useMemo(() => {
-        const q = searchQuery.trim().toLowerCase();
         if (!q) return MOCK_CONTACTS;
         return MOCK_CONTACTS.filter(c =>
             c.name.toLowerCase().includes(q) || c.username.toLowerCase().includes(q),
         );
-    }, [searchQuery]);
+    }, [q]);
+
+    const filteredConversations = useMemo(() => {
+        if (!q) return MOCK_CONVERSATIONS;
+        return MOCK_CONVERSATIONS.filter(c =>
+            c.contactName.toLowerCase().includes(q) || c.lastMessage.toLowerCase().includes(q),
+        );
+    }, [q]);
+
+    const filteredGroups = useMemo(() => {
+        if (!q) return MOCK_GROUP_CHATS;
+        return MOCK_GROUP_CHATS.filter(g =>
+            g.name.toLowerCase().includes(q) || g.lastMessage.toLowerCase().includes(q),
+        );
+    }, [q]);
+
+    function handleTabChange(id: ChatTabId) {
+        setActiveTab(id);
+        setSearchQuery('');
+    }
 
     function openConversation(id: string) {
         router.push(`/(chat)/conversation/${id}` as any);
@@ -44,17 +66,23 @@ export default function ChatScreen() {
                 return (
                     <ChatSectionHeader
                         title="Повідомлення"
-                        badge={CHAT_TAB_BADGE}
-                        rightIcon={<MessagesTabIcon />}
+                        icon={<MessagesTabIcon color={CHAT_COLORS.textMuted} size={20} />}
+                        //rightIcon={<MessagesTabIcon />}
                     />
                 );
             case 'groups':
-                return <ChatSectionHeader title="Групові чати" />;
+                return (
+                    <ChatSectionHeader
+                        title="Групові чати"
+                        icon={<GroupsTabIcon color={CHAT_COLORS.textMuted} size={20} />}
+                    />
+                );
             default:
                 return (
                     <ChatSectionHeader
                         title="Контакти"
-                        rightIcon={<UserAddIcon />}
+                        icon={<ContactsTabIcon color={CHAT_COLORS.textMuted} size={20} />}
+                        //rightIcon={<UserAddIcon />}
                     />
                 );
         }
@@ -63,7 +91,7 @@ export default function ChatScreen() {
     function renderContent() {
         switch (activeTab) {
             case 'messages':
-                return MOCK_CONVERSATIONS.map(conv => (
+                return filteredConversations.map(conv => (
                     <ChatListItem
                         key={conv.id}
                         title={conv.contactName}
@@ -75,16 +103,14 @@ export default function ChatScreen() {
                         onPress={() => openConversation(conv.id)}
                     />
                 ));
-
             case 'groups':
-                return MOCK_GROUP_CHATS.map(group => (
+                return filteredGroups.map(group => (
                     <GroupListItem
                         key={group.id}
                         group={group}
                         onPress={() => openGroup(group.id)}
                     />
                 ));
-
             default:
                 return filteredContacts.map(contact => (
                     <ContactListItem
@@ -101,12 +127,14 @@ export default function ChatScreen() {
 
     return (
         <View style={styles.screen}>
-            <ChatTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            <ChatTabs
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                messageBadge={CHAT_TAB_BADGE}
+            />
             <View style={styles.panel}>
                 {renderSectionHeader()}
-                {activeTab === 'contacts' && (
-                    <ChatSearchBar value={searchQuery} onChangeText={setSearchQuery} />
-                )}
+                <ChatSearchBar value={searchQuery} onChangeText={setSearchQuery} />
                 <ScrollView
                     style={styles.list}
                     showsVerticalScrollIndicator

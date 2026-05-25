@@ -2,13 +2,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import type { TabMenuProps, TabItem } from '@/shared/types/component.types';
 
-const DEFAULT_TABS: TabItem[] = [
+const TABS = [
     { label: 'Особиста інформація', href: '/settings' },
-    { label: 'Альбоми',             href: '/settings/albums' },
+    { label: 'Альбоми',             href: '/(album)/albums' },
 ];
 
-
-export function TabMenu({ type = 'fill', tabs = DEFAULT_TABS }: TabMenuProps) {
+export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
     const pathname = usePathname();
 
     return (
