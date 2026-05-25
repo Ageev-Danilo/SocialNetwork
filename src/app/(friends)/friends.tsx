@@ -13,7 +13,7 @@ import {
 } from '@/modules/friends';
 import type { FriendCardData } from '@/modules/friends';
 
-const API_MEDIA_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_MEDIA_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 
 function buildAvatarUri(profileImage: string | null | undefined): string {
     if (!profileImage) return 'https://g-issues.com/wp-content/uploads/2019/08/default-avatar.png';

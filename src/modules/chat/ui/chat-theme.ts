@@ -1,0 +1,16 @@
+export const CHAT_COLORS = {
+    primary:          '#543C52',
+    highlight:        '#E9E5EE',
+    screenBg:         '#F3F4F6',
+    cardBg:           '#FFFFFF',
+    text:             '#070A1C',
+    textMuted:        '#81818D',
+    textLight:        '#999999',
+    border:           '#EBEBEB',
+    bubbleMine:       '#F0F0F0',
+    bubbleOther:      '#FFFFFF',
+    bubbleOtherBorder:'#EBEBEB',
+    online:           '#4CAF50',
+    badge:            '#E53935',
+    dateBg:           '#E9E5EE',
+} as const;

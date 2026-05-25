@@ -28,6 +28,7 @@ const albumsApi = baseApi.injectEndpoints({
                 url: `albums/photo/${id}`,
                 method: 'DELETE',
             }),
+            invalidatesTags: ['Albums'],
         }),
         uploadAlbumPhoto: builder.mutation<{ path: string }, { uri: string; albumId: number }>({
             async queryFn({ uri, albumId }, _api, _extraOptions, baseQuery) {

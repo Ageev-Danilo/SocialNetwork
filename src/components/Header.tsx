@@ -7,11 +7,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { RootState, AppDispatch } from '@/shared/store';
 import { closeCreatePost, openCreatePost } from '@/shared/store/modal.slice';
 import { CreatePostModal } from './CreatePostModal';
+import { CreateGroupButton } from './CreateGroupButton';
 import { baseApi } from '@/shared/api/base';
 import { useUserContext } from '@/modules/auth/context';
 
 const CREATE_POST_ROUTES = ['/home', '/posts'];
-const SETTINGS_ROUTES   = ['/settings', '/settings/albums'];
+const SETTINGS_ROUTES    = ['/settings', '/settings/albums'];
+const CHAT_MAIN_ROUTE    = '/chat';
 
 export function Header() {
     const dispatch  = useDispatch<AppDispatch>();
@@ -19,8 +21,11 @@ export function Header() {
     const isOpen    = useSelector((state: RootState) => state.modal.isCreatePostOpen);
     const { setToken, setUser } = useUserContext();
 
-    const showAddButton    = CREATE_POST_ROUTES.some(r => pathname === r);
-    const isSettingsActive = SETTINGS_ROUTES.some(r => pathname === r);
+    const showCreatePostButton = CREATE_POST_ROUTES.some(r => pathname === r);
+    const showCreateGroupButton = pathname === CHAT_MAIN_ROUTE;
+    const isChatSection         = pathname === CHAT_MAIN_ROUTE || pathname.startsWith('/chat/');
+    const showSettingsButton    = !isChatSection;
+    const isSettingsActive      = SETTINGS_ROUTES.some(r => pathname === r);
 
     async function handleLogout() {
         await AsyncStorage.removeItem('token');
@@ -40,7 +45,7 @@ export function Header() {
                         resizeMode="contain"
                     />
                     <View style={styles.actions}>
-                        {showAddButton && (
+                        {showCreatePostButton && (
                             <Button
                                 type="outline"
                                 onPress={() => dispatch(openCreatePost())}
@@ -49,13 +54,17 @@ export function Header() {
                             </Button>
                         )}
 
-                        <Button
-                            type="outline"
-                            onPress={() => router.push('/settings')}
-                            style={isSettingsActive && styles.activeBtn}
-                        >
-                            <Icon name="settings" />
-                        </Button>
+                        {showCreateGroupButton && <CreateGroupButton />}
+
+                        {showSettingsButton && (
+                            <Button
+                                type="outline"
+                                onPress={() => router.push('/settings')}
+                                style={isSettingsActive && styles.activeBtn}
+                            >
+                                <Icon name="settings" />
+                            </Button>
+                        )}
 
                         <Button
                             type="outline"

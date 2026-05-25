@@ -36,14 +36,15 @@ const authApi = baseApi.injectEndpoints({
                 body,
             }),
         }),
-        getUsernameSuggestions: builder.query<UsernameSuggestionsResponse, void>({
-            query: () => ({
-                url: 'users/update-profile/',
-                method: 'GET',
+        getUsernameSuggestions: builder.mutation<UsernameSuggestionsResponse, { name: string }>({
+            query: body => ({
+                url: 'users/suggestions/',
+                method: 'POST',
+                body,
             }),
         }),
     }),
 });
 
 
-export const { useLoginMutation, useRegisterMutation, useMeQuery, useUpdateProfileMutation, useLazyGetUsernameSuggestionsQuery } = authApi;
+export const { useLoginMutation, useRegisterMutation, useMeQuery, useUpdateProfileMutation, useGetUsernameSuggestionsMutation } = authApi;

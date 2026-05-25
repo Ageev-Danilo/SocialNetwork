@@ -63,6 +63,7 @@ export type TabBtnProps = {
     label?: string;
     href?: string;
     onPress?: () => void;
+    badge?: number;
 };
 
 export interface InputProps extends TextInputProps {
