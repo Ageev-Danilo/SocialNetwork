@@ -13,6 +13,7 @@ import EditSvg from "../../assets/edit.svg";
 import ShowSvg from "../../assets/eye.svg";
 import HideSvg from "../../assets/diseye.svg";
 import CameraSvg from "../../assets/camera.svg";
+import SendSvg from "../../assets/send.svg";
 
 
 export const icons = {
@@ -27,7 +28,8 @@ export const icons = {
     edit: EditSvg,
     visible: ShowSvg,
     hide: HideSvg,
-    camera: CameraSvg
+    camera: CameraSvg,
+    send: SendSvg,
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -35,6 +37,8 @@ export type IconName = keyof typeof icons;
 export type IconProps = {
     name: IconName;
     size?: number;
+    fill?: string;
+    stroke?: string;
     style?: StyleProp<ImageStyle>;
 };
 
@@ -63,6 +67,7 @@ export type TabBtnProps = {
     label?: string;
     href?: string;
     onPress?: () => void;
+    badge?: number;
 };
 
 export interface InputProps extends TextInputProps {
@@ -72,6 +77,7 @@ export interface InputProps extends TextInputProps {
     onChangeText?: (text: string) => void;
     value?: string;
     error?: any;
+    style?: StyleProp<ViewStyle>;
     additional?: ReactNode;
 }
 

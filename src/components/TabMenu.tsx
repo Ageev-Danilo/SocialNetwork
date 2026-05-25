@@ -1,7 +1,6 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, usePathname } from 'expo-router';
-import { TabMenuProps, TabItem } from '@/shared/types/component.types';
-import { Button } from '@/shared/ui';
+import type { TabMenuProps, TabItem } from '@/shared/types/component.types';
 
 const TABS: TabItem[] = [
     { label: 'Особиста інформація', href: '/home' },
@@ -19,16 +18,16 @@ export function TabMenu({ type = 'fill', tabs = TABS }: TabMenuProps) {
                     (tab.href === '/(album)/albums' && pathname.startsWith('/(album)'));
 
                 return (
-                    <Button
-                        type="borderless"
+                    <TouchableOpacity
                         key={tab.href}
                         style={[styles.tab, isActive && styles.tabActive]}
-                        onPress={() => router.push(tab.href as any)}
+                        onPress={() => { if (!isActive) router.push(tab.href as any); }}
+                        activeOpacity={0.7}
                     >
                         <Text style={[styles.text, isActive && styles.textActive]}>
                             {tab.label}
                         </Text>
-                    </Button>
+                    </TouchableOpacity>
                 );
             })}
         </View>
@@ -42,7 +41,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     tab: {
-        paddingVertical: 12,
+        paddingVertical: 10,
         marginRight:     16,
     },
     tabActive: {
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     textActive: {
-        color:      '#543C52',
+        color:      '#070A1C',
         fontWeight: '700',
     },
 });

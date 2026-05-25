@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import { Icon } from './base/Icon';
 import { BASE } from '../consts';
@@ -27,10 +27,12 @@ export function Button({
         type === 'outline' && BASE.outlineText,
     ].filter(Boolean);
 
-    const finalStyles =
-        type === 'borderless'
-            ? [...buttonStyle, BASE.center, { overflow: 'hidden' as const }, style]
-            : [...buttonStyle, BASE.center, BASE.btn, style];
+    const finalStyles = StyleSheet.flatten([
+        buttonStyle,
+        BASE.center,
+        type === 'borderless' ? null : BASE.btn,
+        style,
+    ]);
 
     return (
         <Ripple onPress={onPress} style={finalStyles}>
@@ -47,9 +49,8 @@ export function Button({
     );
 }
 
-export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
+export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
     const pathname = usePathname();
-
     const isActive = href ? pathname === href || pathname.startsWith(href + '/') : false;
 
     const handlePress = () => {
@@ -60,7 +61,7 @@ export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
     };
 
     return (
-        <Ripple onPress={handlePress} style={{ flex: 1, overflow: 'hidden' }}>
+        <Ripple onPress={handlePress} style={{ flex: 1, borderRadius: 5, overflow: 'hidden' }}>
             {isActive && (
                 <View
                     style={{
@@ -74,12 +75,34 @@ export function TabBtn({ icon, label, href, onPress }: TabBtnProps) {
                 />
             )}
             <View style={[BASE.column, BASE.tab, { height: 60, justifyContent: 'center' }]}>
-                <Icon name={icon} />
+                <View>
+                    <Icon name={icon} />
+                    {badge != null && badge > 0 && (
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: -4,
+                                right: -8,
+                                minWidth: 16,
+                                height: 16,
+                                borderRadius: 8,
+                                backgroundColor: '#E53935',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                paddingHorizontal: 4,
+                            }}
+                        >
+                            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+                                {badge}
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 {label && (
                     <Text
                         style={[
                             BASE.tabText,
-                            { fontSize: 10, textAlign: 'center', opacity: isActive ? 0.8 : 0.5 },
+                            { fontSize: 11, textAlign: 'center' },
                         ]}
                     >
                         {label}

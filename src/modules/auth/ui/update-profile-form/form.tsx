@@ -1,5 +1,5 @@
 import {
-    useLazyGetUsernameSuggestionsQuery,
+    useGetUsernameSuggestionsMutation,
     useUpdateProfileMutation,
 } from '../../api/auth-api';
 import { updateProfileSchema, UpdateProfileSchema } from '../../model';
@@ -14,11 +14,12 @@ export function UpdateProfileForm({ styles }: { styles: any }) {
     const [updateProfile] = useUpdateProfileMutation();
 
     const [getUsernameSuggestions, { isLoading }] =
-        useLazyGetUsernameSuggestionsQuery();
+        useGetUsernameSuggestionsMutation();
 
     const {
         control,
         handleSubmit,
+        watch,
         setValue,
         formState: { errors },
     } = useForm<UpdateProfileSchema>({
@@ -32,13 +33,14 @@ export function UpdateProfileForm({ styles }: { styles: any }) {
 
     async function onSuggestion() {
         try {
-            const res = await getUsernameSuggestions().unwrap();
+            const res = await getUsernameSuggestions({ name: watch('pseudonym') }).unwrap();
+            const suggestion = res as any;
 
-            setValue('username', res.username, {
+            setValue('username', suggestion.username, {
                 shouldValidate: true,
             });
 
-            setValue('pseudonym', res.pseudonym, {
+            setValue('pseudonym', suggestion.pseudonym, {
                 shouldValidate: true,
             });
         } catch (e) {

@@ -1,22 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import { useUserContext } from '../context';
 import { useMeQuery } from '../api';
+import { baseApi } from '@/shared/api/base';
+import type { AppDispatch } from '@/shared/store';
 
 export function AuthGate() {
     const { token, setToken, setUser } = useUserContext();
     const [isReady, setIsReady] = useState(false);
 
+    const dispatch = useDispatch<AppDispatch>();
+
     const { data: meData } = useMeQuery(undefined, { skip: !token });
-    const router = useRouter();
+    const router   = useRouter();
     const segments = useSegments();
 
     useEffect(() => {
         async function bootstrap() {
-            const saved = await SecureStore.getItemAsync('token');
+            const saved = await AsyncStorage.getItem('token');
             if (saved) setToken(saved);
-            setIsReady(true); 
+            setIsReady(true);
         }
         bootstrap();
     }, []);
@@ -28,7 +33,7 @@ export function AuthGate() {
     useEffect(() => {
         if (!isReady) return;
 
-        const inAuth = segments[0] === '(auth)';
+        const inAuth  = segments[0] === '(auth)';
         const inModal = segments[0] === '(modal)';
 
         if (!token && !inAuth && !inModal) {
