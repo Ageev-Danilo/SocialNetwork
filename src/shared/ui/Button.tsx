@@ -51,7 +51,6 @@ export function Button({
 
 export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
     const pathname = usePathname();
-
     const isActive = href ? pathname === href || pathname.startsWith(href + '/') : false;
 
     const handlePress = () => {
