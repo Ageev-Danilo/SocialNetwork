@@ -1,11 +1,9 @@
-export { ClientSocket } from "./socket";
+export { ClientSocket } from './socket';
 export type {
     JoinChatCallback,
+    LeaveChatCallback,
+    SendMessageCallback,
     SendMessagePayload,
-    JoinChatPayload,
-    LeaveChatPayload,
-    GetOnlineUsersPayload,
-    GetOnlineUsersAcknowledgment,
     ServerEvents,
     ClientEvents,
-} from "./socket.contracts";
+} from './socket.contracts';

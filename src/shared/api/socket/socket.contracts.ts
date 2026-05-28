@@ -1,47 +1,22 @@
-export type JoinChatCallback = (
-    response: { status: "ok" } | { status: "error"; message?: string },
-) => void;
+export type JoinChatCallback  = (response: { joined: boolean }) => void;
+export type LeaveChatCallback = (response: { left: boolean }) => void;
+export type SendMessageCallback = (response: { delivered: boolean }) => void;
 
 export interface SendMessagePayload {
-    text?: string;
-    mediaUrl?: string;
-    chatId: number;
-    type: "text" | "media";
+    chatId:  string;
+    message: string;
 }
-
-type Message = {
-    id: number;
-    createdAt: Date;
-    updatedAt: Date;
-    chatId: number;
-    type: string;
-    text: string | null;
-    mediaUrl: string | null;
-    lastChatId: number;
-    senderId: number;
-};
-
-export interface JoinChatPayload {
-    chatId: number;
-}
-
-export interface LeaveChatPayload {
-    chatId: number;
-}
-
-export type GetOnlineUsersPayload = {
-    userIds: number[];
-};
-
-export type GetOnlineUsersAcknowledgment = (response: { userIds: number[] }) => void;
 
 export interface ServerEvents {
-    newChatMessage: (message: Message) => void;
+    'chat:new-message':  (data: { userId: string; message: string }) => void;
+    'user:connected':    (userId: string) => void;
+    'user:disconnected': (userId: string) => void;
 }
 
 export interface ClientEvents {
-    joinChat: (payload: JoinChatPayload, ack?: JoinChatCallback) => void;
-    leaveChat: (payload: LeaveChatPayload) => void;
-    sendMessage: (payload: SendMessagePayload) => void;
-    getOnlineUsers: (payload: GetOnlineUsersPayload, ack?: GetOnlineUsersAcknowledgment) => void;
+    'chat:join':    (chatId: string, ack?: JoinChatCallback) => void;
+    'chat:leave':   (chatId: string, ack?: LeaveChatCallback) => void;
+    'chat:message': (payload: SendMessagePayload, ack?: SendMessageCallback) => void;
+    'user:online':  (userId: string, ack?: (response: { success: boolean }) => void) => void;
+    'user:offline': (userId: string, ack?: (response: { success: boolean }) => void) => void;
 }
