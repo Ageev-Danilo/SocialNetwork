@@ -15,6 +15,8 @@ import {
     useSendFriendRequestMutation,
     useRejectFriendRequestMutation,
 } from '@/modules/friends';
+import { useCreateChatMutation } from '@/modules/chat/api';
+
 
 function HeartIcon() {
     return (
@@ -36,6 +38,7 @@ function EyeIcon() {
     );
 }
 
+
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 const DEFAULT_AVATAR = 'https://g-issues.com/wp-content/uploads/2019/08/default-avatar.png';
 
@@ -45,6 +48,7 @@ export function buildMediaUri(path: string | null | undefined): string | null {
     if (path.startsWith('/media')) return `${BASE_URL}${path}`;
     return `${BASE_URL}/media/thumbnail/${path}`;
 }
+
 function stripTrailingTags(content: string): string {
     return content.replace(/(\n(#\S+\s*)+)+$/, '').trim();
 }
@@ -74,6 +78,7 @@ export default function UserProfileScreen() {
     const [removeFriend]        = useRemoveFriendMutation();
     const [sendFriendRequest]   = useSendFriendRequestMutation();
     const [rejectFriendRequest] = useRejectFriendRequestMutation();
+    const [createChat]          = useCreateChatMutation();
 
     const displayName     = data?.profile.pseudonym || params.name     || 'Користувач';
     const displayUsername = data?.profile.username  || params.username || 'user';
@@ -83,18 +88,42 @@ export default function UserProfileScreen() {
     const hasPendingRequest = requestsData.some(r => r.sender.id === profileId);
 
     let relationStatus: RelationStatus = 'none';
-    if (isFriend)                                              relationStatus = 'friend';
-    else if (hasPendingRequest || incomingMode === 'request')  relationStatus = 'request_received';
+    if (isFriend)                                             relationStatus = 'friend';
+    else if (hasPendingRequest || incomingMode === 'request') relationStatus = 'request_received';
+
+    async function handleOpenChat() {
+        try {
+            const targetUserId = data?.profile.userId;
+            if (!targetUserId) {
+                console.warn('[UserProfile] userId not found in profile data');
+                return;
+            }
+            const chat = await createChat({ memberIds: [targetUserId] }).unwrap();
+            router.push({
+                pathname: '/(chat)/conversation/[id]',
+                params: {
+                    id:        String(chat.id),
+                    title:     displayName,
+                    avatarUri: avatarUri ?? '',
+                },
+            });
+        } catch (e) {
+            console.warn('[UserProfile] createChat error:', e);
+        }
+    }
 
     async function handlePrimaryAction() {
         try {
+            if (relationStatus === 'friend') {
+                await handleOpenChat();
+                return;
+            }
             if (relationStatus === 'request_received') {
                 await acceptFriend({ senderProfileId: profileId }).unwrap();
-                router.back();
-            } else if (relationStatus === 'none') {
+            } else {
                 await sendFriendRequest({ receiverProfileId: profileId }).unwrap();
-                router.back();
             }
+            router.back();
         } catch (e) {
             console.warn('[UserProfile] primaryAction error:', e);
         }
@@ -104,13 +133,10 @@ export default function UserProfileScreen() {
         try {
             if (relationStatus === 'request_received') {
                 await rejectFriendRequest({ senderProfileId: profileId }).unwrap();
-                router.back();
             } else if (relationStatus === 'friend') {
                 await removeFriend({ contactProfileId: profileId }).unwrap();
-                router.back();
-            } else {
-                router.back();
             }
+            router.back();
         } catch (e) {
             console.warn('[UserProfile] secondaryAction error:', e);
         }
@@ -135,7 +161,6 @@ export default function UserProfileScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.scroll}>
-
                 <View style={styles.card}>
                     <View style={styles.avatarWrap}>
                         <Image
@@ -188,7 +213,6 @@ export default function UserProfileScreen() {
                             <Text style={styles.sectionTitle}>Альбоми</Text>
                         </View>
                         <View style={styles.separator} />
-
                         {data!.albums.map(album => {
                             const imageUri = album.images[0]
                                 ? buildMediaUri(album.images[0].image)
@@ -227,13 +251,10 @@ export default function UserProfileScreen() {
                             <Text style={styles.postName}>{displayName}</Text>
                         </View>
                         <View style={styles.separator} />
-
                         <Text style={styles.postTitle}>{data.lastPost.title}</Text>
-
                         <Text style={styles.postContent}>
                             {stripTrailingTags(data.lastPost.content)}
                         </Text>
-
                         {data.lastPost.tags.length > 0 && (
                             <View style={styles.tagsRow}>
                                 {data.lastPost.tags.map(t => (
@@ -245,7 +266,6 @@ export default function UserProfileScreen() {
                                 ))}
                             </View>
                         )}
-
                         {data.lastPost.media && data.lastPost.media.length > 0 && (
                             <View style={styles.mediaContainer}>
                                 {data.lastPost.media.map(m => (
@@ -258,7 +278,6 @@ export default function UserProfileScreen() {
                                 ))}
                             </View>
                         )}
-
                         <View style={styles.postStats}>
                             <View style={styles.statChip}>
                                 <HeartIcon />

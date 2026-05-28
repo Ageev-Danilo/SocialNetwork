@@ -1,5 +1,6 @@
 export interface FriendProfile {
     id:               number;
+    userId:           number;
     username:         string | null;
     pseudonym:        string;
     signature:        string | null;

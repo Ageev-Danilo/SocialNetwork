@@ -1,18 +1,25 @@
+export interface SenderDto {
+    id: number;
+    email: string;
+    username: string;
+}
+
 export interface ChatDto {
-    id:        number;
+    id: number;
     createdAt: string;
     updatedAt: string;
 }
 
 export interface MessageDto {
-    id:        number;
-    chatId:    number;
-    text:      string | null;
-    mediaUrl:  string | null;
-    type:      'text' | 'media';
-    senderId:  number;
+    id: number;
+    chatId: number;
+    text: string | null;
+    mediaUrl: string | null;
+    type: 'text' | 'media';
+    senderId: number;
     createdAt: string;
     updatedAt: string;
+    sender: SenderDto;
 }
 
 export interface CreateChatPayload {
@@ -20,7 +27,7 @@ export interface CreateChatPayload {
 }
 
 export interface CreateMessagePayload {
-    text?:     string;
+    text?: string;
     mediaUrl?: string;
-    type:      'text' | 'media';
+    type: 'text' | 'media';
 }
