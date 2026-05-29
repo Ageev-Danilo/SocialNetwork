@@ -1,3 +1,4 @@
+import Ripple from 'react-native-material-ripple';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 
 const FRIENDS_TABS = [
@@ -15,28 +16,28 @@ interface Props {
 export function FriendsTabs({ activeTab, onTabChange }: Props) {
     return (
         <View style={styles.container}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {FRIENDS_TABS.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <Pressable
-                            key={tab.id}
-                            style={[styles.tab, isActive && styles.tabActive]}
-                            onPress={() => onTabChange(tab.id)}
-                        >
-                            <Text style={[styles.text, isActive && styles.textActive]}>
-                                {tab.label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </ScrollView>
+            {FRIENDS_TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                    <Ripple
+                        key={tab.id}
+                        style={[styles.tab, isActive && styles.tabActive]}
+                        onPress={() => onTabChange(tab.id)}
+                    >
+                        <Text style={[styles.text, isActive && styles.textActive]}>
+                            {tab.label}
+                        </Text>
+                    </Ripple>
+                );
+            })}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
+        flexDirection: 'row',
+        justifyContent: 'center',
         backgroundColor: '#F3F4F6', 
         borderBottomWidth: 1,
         borderBottomColor: '#EBEBEB',

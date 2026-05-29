@@ -11,7 +11,7 @@ export function Bottom() {
             <TabBtn icon="home" label="Головна" href="/home" />
             <TabBtn icon="img" label="Мої публікації" href="/posts" />
             <TabBtn icon="group" label="Друзі" href="/friends" />
-            <TabBtn icon="chat" label="Чати" href="/chat" badge={CHAT_TAB_BADGE} />
+            <TabBtn icon="chat" label="Чати" href="/chat" />
         </SafeAreaView>
     );
 }

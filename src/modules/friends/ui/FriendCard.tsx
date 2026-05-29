@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '@/shared/consts';
+import { Button } from '@/shared/ui';
 
 export interface FriendCardData {
     id: number;
@@ -31,12 +32,12 @@ export function FriendCard({ data, mode, onConfirm, onRemove }: Props) {
             <Text style={styles.username}>@{data.username}</Text>
 
             <View style={styles.actions}>
-                <TouchableOpacity style={styles.btnPrimary} onPress={onConfirm}>
+                <Button onPress={onConfirm}>
                     <Text style={styles.btnPrimaryText}>{confirmLabel}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.btnOutline} onPress={onRemove}>
+                </Button>
+                <Button type='outline' onPress={onRemove}>
                     <Text style={styles.btnOutlineText}>Видалити</Text>
-                </TouchableOpacity>
+                </Button>
             </View>
         </View>
     );

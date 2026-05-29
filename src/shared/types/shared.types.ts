@@ -63,7 +63,7 @@ export type BtnProps = {
 };
 
 export type TabBtnProps = {
-    icon: IconName;
+    icon?: IconName;
     label?: string;
     href?: string;
     onPress?: () => void;
