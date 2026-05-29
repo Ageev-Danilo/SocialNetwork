@@ -20,13 +20,12 @@ const chatApi = baseApi.injectEndpoints({
             query: (chatId) => ({ url: `/chats/${chatId}/messages` }),
             providesTags: ['Messages'],
         }),
-        addMessage: builder.mutation<MessageDto, { chatId: number; payload: CreateMessagePayload }>({
+        addMessage: builder.mutation<{ message: string }, { chatId: number; payload: CreateMessagePayload }>({
             query: ({ chatId, payload }) => ({
                 url:    `/chats/${chatId}/messages`,
                 method: 'POST',
                 body:   payload,
             }),
-            invalidatesTags: ['Messages'],
         }),
     }),
 });

@@ -15,7 +15,8 @@ import {
     useSendFriendRequestMutation,
     useRejectFriendRequestMutation,
 } from '@/modules/friends';
-import { useCreateChatMutation } from '@/modules/chat/api';
+import { useCreateChatMutation, useGetChatsQuery } from '@/modules/chat/api';
+import type { ChatDto } from '@/modules/chat/api';
 
 
 function HeartIcon() {
@@ -74,11 +75,12 @@ export default function UserProfileScreen() {
     const { data: friendsData  = [] } = useGetFriendsQuery();
     const { data: requestsData = [] } = useGetFriendRequestsQuery();
 
-    const [acceptFriend]        = useAcceptFriendMutation();
-    const [removeFriend]        = useRemoveFriendMutation();
-    const [sendFriendRequest]   = useSendFriendRequestMutation();
+    const [acceptFriend] = useAcceptFriendMutation();
+    const [removeFriend] = useRemoveFriendMutation();
+    const [sendFriendRequest] = useSendFriendRequestMutation();
     const [rejectFriendRequest] = useRejectFriendRequestMutation();
-    const [createChat]          = useCreateChatMutation();
+    const [createChat] = useCreateChatMutation();
+    const { data: existingChats = [] } = useGetChatsQuery();
 
     const displayName     = data?.profile.pseudonym || params.name     || 'Користувач';
     const displayUsername = data?.profile.username  || params.username || 'user';
@@ -98,7 +100,15 @@ export default function UserProfileScreen() {
                 console.warn('[UserProfile] userId not found in profile data');
                 return;
             }
-            const chat = await createChat({ memberIds: [targetUserId] }).unwrap();
+
+            const existingChat = existingChats.find(c =>
+                !c.isGroup && c.users.some(u => u.id === targetUserId),
+            );
+
+            const chat = existingChat
+                ? existingChat
+                : await createChat({ memberIds: [targetUserId] }).unwrap();
+
             router.push({
                 pathname: '/(chat)/conversation/[id]',
                 params: {
@@ -108,7 +118,7 @@ export default function UserProfileScreen() {
                 },
             });
         } catch (e) {
-            console.warn('[UserProfile] createChat error:', e);
+            console.warn('[UserProfile] handleOpenChat error:', e);
         }
     }
 

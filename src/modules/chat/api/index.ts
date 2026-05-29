@@ -4,4 +4,4 @@ export {
     useGetChatMessagesQuery,
     useAddMessageMutation,
 } from './chat-api';
-export type { ChatDto, MessageDto, CreateChatPayload, CreateMessagePayload } from './types';
+export type { ChatDto, MessageDto, ChatUser, CreateChatPayload, CreateMessagePayload } from './types';

@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     ChatTabs,
     ChatListItem,
@@ -15,6 +16,7 @@ import {
     CHAT_TAB_BADGE,
 } from '@/modules/chat';
 import { useGetChatsQuery } from '@/modules/chat/api';
+import type { ChatDto } from '@/modules/chat/api';
 import type { ChatTabId } from '@/modules/chat';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
@@ -23,10 +25,30 @@ import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
 export default function ChatScreen() {
     const [activeTab, setActiveTab]     = useState<ChatTabId>('contacts');
     const [searchQuery, setSearchQuery] = useState('');
+    const [myUserId, setMyUserId]       = useState<number | null>(null);
 
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
 
+    useEffect(() => {
+        async function loadUserId() {
+            const raw = await AsyncStorage.getItem('userId');
+            if (raw) setMyUserId(Number(raw));
+        }
+        loadUserId();
+    }, []);
+
     const q = searchQuery.trim().toLowerCase();
+
+    function getChatTitle(chat: ChatDto): string {
+        if (chat.name) return chat.name;
+        if (myUserId == null) return `Чат #${chat.id}`;
+        const other = chat.users.find(u => u.id !== myUserId);
+        return other?.username ?? other?.email ?? `Чат #${chat.id}`;
+    }
+
+    function getChatAvatarUri(chat: ChatDto): string {
+        return chat.avatar ?? '';
+    }
 
     const filteredContacts = useMemo(() => {
         if (!q) return MOCK_CONTACTS;
@@ -35,16 +57,10 @@ export default function ChatScreen() {
         );
     }, [q]);
 
-    const conversationSource = chats.length > 0 ? chats : MOCK_CONVERSATIONS;
-
-    const filteredConversations = useMemo(() => {
-        if (chats.length > 0) {
-            return chats.filter(c => String(c.id).includes(q));
-        }
-        return MOCK_CONVERSATIONS.filter(c =>
-            c.contactName.toLowerCase().includes(q) || c.lastMessage.toLowerCase().includes(q),
-        );
-    }, [q, chats]);
+    const filteredChats = useMemo(() => {
+        if (!q) return chats;
+        return chats.filter(c => getChatTitle(c).toLowerCase().includes(q));
+    }, [q, chats, myUserId]);
 
     const filteredGroups = useMemo(() => {
         if (!q) return MOCK_GROUP_CHATS;
@@ -106,20 +122,17 @@ export default function ChatScreen() {
                     );
                 }
                 if (chats.length > 0) {
-                    return filteredConversations.map(chat => {
-                        if (!('contactName' in chat)) {
-                            const chatDto = chat as { id: number; createdAt: string };
-                            return (
-                                <ChatListItem
-                                    key={chatDto.id}
-                                    title={`Чат #${chatDto.id}`}
-                                    subtitle=""
-                                    avatarUri=""
-                                    onPress={() => openConversation(String(chatDto.id), `Чат #${chatDto.id}`)}
-                                />
-                            );
-                        }
-                        return null;
+                    return filteredChats.map(chat => {
+                        const chatTitle  = getChatTitle(chat);
+                        const chatAvatar = getChatAvatarUri(chat);
+                        return (
+                            <ChatListItem
+                                key={chat.id}
+                                title={chatTitle}
+                                avatarUri={chatAvatar}
+                                onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)} subtitle={''}                            
+                            />
+                        );
                     });
                 }
                 return MOCK_CONVERSATIONS.filter(c =>

@@ -1,25 +1,23 @@
-export interface SenderDto {
-    id: number;
-    email: string;
-    username: string;
+export interface ChatUser {
+    id:       number;
+    email:    string;
+    username: string | null;
 }
 
 export interface ChatDto {
-    id: number;
-    createdAt: string;
-    updatedAt: string;
+    id:      number;
+    name:    string | null;
+    isGroup: boolean;
+    avatar:  string | null;
+    adminId: number | null;
+    users:   ChatUser[];
 }
 
 export interface MessageDto {
-    id: number;
-    chatId: number;
-    text: string | null;
-    mediaUrl: string | null;
-    type: 'text' | 'media';
-    senderId: number;
-    createdAt: string;
-    updatedAt: string;
-    sender: SenderDto;
+    id:        number;
+    text:      string;
+    createdAt: Date;
+    sender:    ChatUser;
 }
 
 export interface CreateChatPayload {
@@ -27,7 +25,5 @@ export interface CreateChatPayload {
 }
 
 export interface CreateMessagePayload {
-    text?: string;
-    mediaUrl?: string;
-    type: 'text' | 'media';
+    text: string;
 }

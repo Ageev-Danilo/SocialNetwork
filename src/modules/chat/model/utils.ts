@@ -2,42 +2,28 @@ import type { MessageDto } from '../api/types';
 import type { ThreadItem } from './mock-data';
 
 
-export function messageDtoToThreadItem(msg: MessageDto, myProfileId: number): ThreadItem {
-    const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-    const time = new Date(msg.createdAt).toLocaleTimeString('uk-UA', timeOptions);
-    const isMine = msg.senderId === myProfileId;
+const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
 
+export function messageDtoToThreadItem(msg: MessageDto, myUserId: number): ThreadItem {
+    const time   = new Date(msg.createdAt).toLocaleTimeString('uk-UA', TIME_OPTIONS);
+    const isMine = msg.sender.id === myUserId;
     return {
         type: 'message',
-        id: String(msg.id),
+        id:   String(msg.id),
         data: {
-            id: String(msg.id),
-            text: msg.text ?? '',
+            id:         String(msg.id),
+            text:       msg.text ?? '',
             time,
             isMine,
-            senderName: isMine ? undefined : msg.sender.username,
-            status: 'sent',
+            senderName: isMine ? undefined : (msg.sender.username ?? msg.sender.email),
+            status:     'sent',
         },
     };
 }
 
-export function buildOptimisticItem(text: string): ThreadItem {
-    const id = `optimistic-${Date.now()}`;
-    const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-    const time = new Date().toLocaleTimeString('uk-UA', timeOptions);
-
-    return {
-        type: 'message',
-        id,
-        data: { id, text, time, isMine: true, status: 'sent' },
-    };
-}
-
 export function buildIncomingItem(message: string): ThreadItem {
-    const id = `incoming-${Date.now()}`;
-    const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-    const time = new Date().toLocaleTimeString('uk-UA', timeOptions);
-
+    const id   = `incoming-${Date.now()}`;
+    const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
     return {
         type: 'message',
         id,
