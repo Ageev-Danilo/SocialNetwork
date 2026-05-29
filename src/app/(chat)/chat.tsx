@@ -21,6 +21,7 @@ import type { ChatTabId } from '@/modules/chat';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
 
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 
 export default function ChatScreen() {
     const [activeTab, setActiveTab]     = useState<ChatTabId>('contacts');
@@ -39,15 +40,25 @@ export default function ChatScreen() {
 
     const q = searchQuery.trim().toLowerCase();
 
-    function getChatTitle(chat: ChatDto): string {
+    function buildAvatarUri(path: string | null | undefined): string {
+        if (!path) return '';
+        if (path.startsWith('http') || path.startsWith('file')) return path;
+        if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+        return `${BASE_URL}/media/thumbnail/${path}`;
+    }
+
+    function getChatTitle(chat: ChatDto, myUserId: number | null): string {
         if (chat.name) return chat.name;
         if (myUserId == null) return `Чат #${chat.id}`;
         const other = chat.users.find(u => u.id !== myUserId);
         return other?.username ?? other?.email ?? `Чат #${chat.id}`;
     }
 
-    function getChatAvatarUri(chat: ChatDto): string {
-        return chat.avatar ?? '';
+    function getChatAvatarUri(chat: ChatDto, myUserId: number | null): string {
+        if (chat.avatar) return buildAvatarUri(chat.avatar);
+        if (myUserId == null) return '';
+        const other = chat.users.find(u => u.id !== myUserId);
+        return buildAvatarUri(other?.profile?.profileImage); 
     }
 
     const filteredContacts = useMemo(() => {
@@ -59,7 +70,7 @@ export default function ChatScreen() {
 
     const filteredChats = useMemo(() => {
         if (!q) return chats;
-        return chats.filter(c => getChatTitle(c).toLowerCase().includes(q));
+        return chats.filter(c => getChatTitle(c, myUserId).toLowerCase().includes(q));
     }, [q, chats, myUserId]);
 
     const filteredGroups = useMemo(() => {
@@ -123,8 +134,8 @@ export default function ChatScreen() {
                 }
                 if (chats.length > 0) {
                     return filteredChats.map(chat => {
-                        const chatTitle  = getChatTitle(chat);
-                        const chatAvatar = getChatAvatarUri(chat);
+                        const chatTitle  = getChatTitle(chat, myUserId);
+                        const chatAvatar = getChatAvatarUri(chat, myUserId);
                         return (
                             <ChatListItem
                                 key={chat.id}

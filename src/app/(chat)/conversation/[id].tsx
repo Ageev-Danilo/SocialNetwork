@@ -11,6 +11,14 @@ import type { ThreadItem } from '@/modules/chat';
 
 
 const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+
+function buildAvatarUri(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('file')) return path;
+    if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+    return `${BASE_URL}/media/thumbnail/${path}`;
+}
 
 export default function ConversationScreen() {
     const { id, avatarUri } = useLocalSearchParams<{
@@ -97,6 +105,15 @@ export default function ConversationScreen() {
         return other?.username ?? other?.email ?? `Чат #${id}`;
     })();
 
+    const chatAvatarUri = (() => {
+        if (myUserId == null || chats.length === 0) return avatarUri || undefined;
+        const chat = chats.find(c => c.id === chatId);
+        if (!chat) return avatarUri || undefined;
+        if (chat.avatar) return buildAvatarUri(chat.avatar);
+        const other = chat.users.find(u => u.id !== myUserId);
+        return buildAvatarUri(other?.profile?.profileImage) || avatarUri || undefined;
+    })();
+
     if (isLoading || myUserId === null) {
         return (
             <View style={styles.center}>
@@ -111,7 +128,7 @@ export default function ConversationScreen() {
     return (
         <ChatThreadScreen
             title={chatTitle}
-            avatarUri={avatarUri || undefined}
+            avatarUri={chatAvatarUri}
             items={allItems}
             onSendMessage={handleSendMessage}
         />
