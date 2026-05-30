@@ -14,6 +14,7 @@ import ShowSvg from "../../assets/eye.svg";
 import HideSvg from "../../assets/diseye.svg";
 import CameraSvg from "../../assets/camera.svg";
 import SendSvg from "../../assets/send.svg";
+import SmileSvg from "../../assets/smile.svg";
 
 
 export const icons = {
@@ -30,6 +31,7 @@ export const icons = {
     hide: HideSvg,
     camera: CameraSvg,
     send: SendSvg,
+    smile: SmileSvg,
 } as const;
 
 export type IconName = keyof typeof icons;

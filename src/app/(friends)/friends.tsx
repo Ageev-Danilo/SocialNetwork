@@ -65,14 +65,14 @@ export default function FriendsScreen() {
 
     const mappedRequests: FriendCardData[] = requestsData.map(req => ({
         id:       req.sender.id,
-        name:     req.sender.pseudonym || 'Користувач',
+        name:     req.sender.pseudonym || 'Видалений',
         username: req.sender.username  || 'user',
         avatar:   { uri: buildAvatarUri(req.sender.profileImage) },
     }));
 
     const mappedRecommendations: FriendCardData[] = recommendationsData.map(rec => ({
         id:       rec.id,
-        name:     rec.pseudonym || 'Користувач',
+        name:     rec.pseudonym || 'Видалений',
         username: rec.username  || 'user',
         avatar:   { uri: buildAvatarUri(rec.profileImage) },
     }));

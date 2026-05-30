@@ -1,9 +1,11 @@
 import Svg, { Path, Circle, Line } from 'react-native-svg';
 
+
 interface IconProps {
-    size?: number;
+    size?:  number;
     color?: string;
 }
+
 
 export function SearchIcon({ size = 20, color = '#81818D' }: IconProps) {
     return (
@@ -24,20 +26,6 @@ export function UserAddIcon({ size = 22, color = '#543C52' }: IconProps) {
     );
 }
 
-export function SendIcon({ size = 18, color = '#FFFFFF' }: IconProps) {
-    return (
-        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path
-                d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-                stroke={color}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </Svg>
-    );
-}
-
 export function MenuDotsIcon({ size = 20, color = '#070A1C' }: IconProps) {
     return (
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -51,7 +39,13 @@ export function MenuDotsIcon({ size = 20, color = '#070A1C' }: IconProps) {
 export function CheckSingleIcon({ size = 14, color = '#81818D' }: IconProps) {
     return (
         <Svg width={size} height={size} viewBox="0 0 16 16" fill="none">
-            <Path d="M2.5 8.5L6 12l7.5-8" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <Path
+                d="M2.5 8.5L6 12l7.5-8"
+                stroke={color}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
         </Svg>
     );
 }
@@ -59,8 +53,20 @@ export function CheckSingleIcon({ size = 14, color = '#81818D' }: IconProps) {
 export function CheckDoubleIcon({ size = 14, color = '#543C52' }: IconProps) {
     return (
         <Svg width={size} height={size} viewBox="0 0 18 14" fill="none">
-            <Path d="M1 7.5L4.5 11l4-4" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M6 7.5L9.5 11l7.5-8" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <Path
+                d="M1 7.5L4.5 11l4-4"
+                stroke={color}
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <Path
+                d="M6 7.5L9.5 11l7.5-8"
+                stroke={color}
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
         </Svg>
     );
 }
@@ -68,7 +74,13 @@ export function CheckDoubleIcon({ size = 14, color = '#543C52' }: IconProps) {
 export function BackIcon({ size = 22, color = '#070A1C' }: IconProps) {
     return (
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 6l-6 6 6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <Path
+                d="M15 6l-6 6 6 6"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
         </Svg>
     );
 }

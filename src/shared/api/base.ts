@@ -5,7 +5,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 
 export const baseApi = createApi({
     reducerPath: 'api',
-    tagTypes: ['Settings', 'Posts', 'MyPosts', 'Albums', 'Friends', 'FriendRequests'],
+    tagTypes: ['Settings', 'Posts', 'MyPosts', 'Albums', 'Friends', 'FriendRequests', 'Chats', 'Messages'],
     baseQuery: fetchBaseQuery({
         baseUrl: API_URL,
         prepareHeaders: queryBaseHeaders,

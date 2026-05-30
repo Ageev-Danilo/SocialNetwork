@@ -10,7 +10,7 @@ import { postSchema } from '../../model';
 import { useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { PostSchema } from '../../model';
-import { Input } from '@/shared/ui';
+import { Button, Icon, Input } from '@/shared/ui';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 
 const DEFAULT_TAGS = [
@@ -227,18 +227,16 @@ export function PostsForm({ onSuccess, onClose }: Props) {
 
             <View style={styles.footer}>
                 <View style={{ flex: 1 }} />
-                <TouchableOpacity onPress={pickImage}><PhotoIcon /></TouchableOpacity>
-                <TouchableOpacity><SmileIcon /></TouchableOpacity>
-                <TouchableOpacity
+                <Button type='outline' onPress={pickImage}><Icon name='img' /></Button>
+                <Button type='outline'><Icon name='smile' /></Button>
+                <Button
                     onPress={handleSubmit(onSubmit)}
-                    disabled={isLoading}
-                    style={styles.publishBtn}
                 >
                     <Text style={styles.publishText}>
                         {isLoading ? 'Зачекайте' : 'Публікація'}
                     </Text>
-                    <SendIcon />
-                </TouchableOpacity>
+                    <Icon name='send' />
+                </Button>
             </View>
         </View>
     );

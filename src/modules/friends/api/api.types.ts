@@ -1,5 +1,6 @@
 export interface FriendProfile {
     id:               number;
+    userId?:          number;
     username:         string | null;
     pseudonym:        string;
     signature:        string | null;
@@ -13,7 +14,6 @@ export interface CreateFriendRequestPayload   { receiverProfileId: number; }
 export interface AcceptFriendPayload          { senderProfileId:   number; }
 export interface DeleteFriendPayload          { contactProfileId:  number; }
 export interface RejectFriendRequestPayload   { senderProfileId:   number; }
-
 
 export interface PublicAlbum {
     id:     number;
@@ -29,13 +29,16 @@ export interface PublicPost {
     content:   string;
     createdAt: string;
     tags:      { id: number; name: string }[];
-    media:     { id: number; url: string }[];  
+    media:     { id: number; url: string }[];
     likes:     number;
     views:     number;
 }
 
 export interface PublicProfileData {
     profile:  FriendProfile;
+    pseudonym: string;
+    username: string;
+    profileImage: string;
     albums:   PublicAlbum[];
     lastPost: PublicPost | null;
 }

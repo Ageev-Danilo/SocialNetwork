@@ -7,7 +7,14 @@ export { ChatSectionHeader } from './ui/ChatSectionHeader';
 export { ChatSearchBar } from './ui/ChatSearchBar';
 export { CreateGroupModal } from './ui/CreateGroupModal';
 export { ChatThreadScreen } from './ui/ChatThreadScreen';
-export { UserAddIcon, MessagesTabIcon } from './ui/ChatIcons';
+export { UserAddIcon, MessagesTabIcon, ContactsTabIcon, GroupsTabIcon } from './ui/ChatIcons';
+export {
+    useGetChatsQuery,
+    useCreateChatMutation,
+    useGetChatMessagesQuery,
+    useAddMessageMutation,
+} from './api';
+export type { ChatDto, MessageDto, CreateChatPayload, CreateMessagePayload } from './api';
 export {
     MOCK_CONTACTS,
     MOCK_CONVERSATIONS,

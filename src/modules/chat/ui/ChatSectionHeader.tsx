@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
 import { BASE } from '@/shared/consts';
 import { Button } from '@/shared/ui';
+
 
 interface Props {
     title:       string;
@@ -38,6 +39,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop:        16,
         paddingBottom:     12,
+    },
+    left: {
+        flexDirection: 'row',
+        alignItems:    'center',
+        gap:           8,
     },
     title: {
         fontSize:   20,

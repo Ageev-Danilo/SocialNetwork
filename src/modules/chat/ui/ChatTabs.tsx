@@ -63,6 +63,26 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         borderBottomColor: CHAT_COLORS.primary,
     },
+    iconWrap: {
+        position: 'relative',
+    },
+    badge: {
+        position:          'absolute',
+        top:               -4,
+        right:             -8,
+        minWidth:          16,
+        height:            16,
+        borderRadius:      8,
+        backgroundColor:   CHAT_COLORS.badge,
+        justifyContent:    'center',
+        alignItems:        'center',
+        paddingHorizontal: 4,
+    },
+    badgeText: {
+        color:      '#fff',
+        fontSize:   10,
+        fontWeight: '700',
+    },
     text: {
         fontSize: 14,
         color: CHAT_COLORS.textLight,
