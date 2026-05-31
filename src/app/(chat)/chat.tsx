@@ -6,7 +6,6 @@ import {
     ChatTabs,
     ChatListItem,
     ContactListItem,
-    GroupListItem,
     ChatSectionHeader,
     ChatSearchBar,
     MessagesTabIcon,
@@ -16,7 +15,7 @@ import type { ChatDto } from '@/modules/chat/api';
 import type { ChatTabId } from '@/modules/chat';
 import { useGetFriendsQuery } from '@/modules/friends';
 import { useLastMessages } from '@/modules/chat/model/lastMessages.store';
-import { useUnreadFlags, hasAnyUnread, useUnreadMessages, } from '@/modules/chat/model/unread.store';
+import { useUnreadFlags, hasAnyUnread } from '@/modules/chat/model/unread.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
 import type { ContactItemData } from '@/modules/chat/ui/ContactListItem';
@@ -41,7 +40,6 @@ export default function ChatScreen() {
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
     const lastMessages = useLastMessages();
     const unreadFlags  = useUnreadFlags();
-    const unreadMessages = useUnreadMessages();
 
     useEffect(() => {
         async function loadUserId() {
@@ -162,8 +160,7 @@ export default function ChatScreen() {
                     const chatAvatar = getChatAvatarUri(chat);
                     const lastMsg    = getChatLastMessage(chat);
                     const lastTime   = getChatLastTime(chat);
-                    const unread     = useUnreadFlags().get(chat.id) ?? false;
-                    // const unreadMsg   = useUnreadMessages().get(chat.id);
+                    const unread     = unreadFlags.get(chat.id) ?? false;
                     return (
                         <ChatListItem
                             key={chat.id}
@@ -201,7 +198,7 @@ export default function ChatScreen() {
         }
     }
 
-    const anyUnread    = hasAnyUnread();
+    const anyUnread = [...unreadFlags.values()].some(Boolean);
     const messageBadge = anyUnread ? 1 : undefined;
 
     return (
