@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { ClientSocket } from '@/shared/api';
 import { ChatThreadScreen } from '@/modules/chat';
-import { useGetChatMessagesQuery, useAddMessageMutation, useGetChatsQuery } from '@/modules/chat/api';
+import { useGetChatMessagesQuery, useAddMessageMutation, useUploadChatImageMutation, useGetChatsQuery } from '@/modules/chat/api';
 import { messageDtoToThreadItem, buildIncomingItem } from '@/modules/chat/model/utils';
+import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
+import { markRead } from '@/modules/chat/model/unread.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import type { ThreadItem } from '@/modules/chat';
 
@@ -28,25 +31,33 @@ export default function ConversationScreen() {
 
     const chatId = Number(id);
 
-    const [myUserId, setMyUserId]     = useState<number | null>(null);
+    const [myUserId, setMyUserId] = useState<number | null>(null);
     const [extraItems, setExtraItems] = useState<ThreadItem[]>([]);
-    const pendingSent                 = useRef<Set<string>>(new Set());
+    const myUserIdRef = useRef<number | null>(null);
 
-    const { data: chats = [] }       = useGetChatsQuery();
+    const { data: chats = [] } = useGetChatsQuery();
     const { data: messages = [], isLoading } = useGetChatMessagesQuery(chatId, {
-        skip:                      !chatId || isNaN(chatId),
+        skip: !chatId || isNaN(chatId),
         refetchOnMountOrArgChange: true,
     });
     const [addMessage] = useAddMessageMutation();
+    const [uploadChatImage] = useUploadChatImageMutation();
 
     useEffect(() => {
         async function loadUserId() {
             const raw = await AsyncStorage.getItem('userId');
-            if (raw && raw !== 'undefined') setMyUserId(Number(raw));
+            if (raw && raw !== 'undefined') {
+                const parsed = Number(raw);
+                setMyUserId(parsed);
+                myUserIdRef.current = parsed;
+            }
         }
         loadUserId();
         setExtraItems([]);
+        markRead(chatId);
     }, [id]);
+
+    useEffect(() => { myUserIdRef.current = myUserId; }, [myUserId]);
 
     useEffect(() => {
         ClientSocket.emit('chat:join', id, (response) => {
@@ -54,12 +65,11 @@ export default function ConversationScreen() {
         });
 
         function onNewMessage(data: { userId: string; message: string }) {
-            const key = `${data.userId}:${data.message}`;
-            if (pendingSent.current.has(key)) {
-                pendingSent.current.delete(key);
-                return;
-            }
-            setExtraItems(prev => [...prev, buildIncomingItem(data.message)]);
+            if (myUserIdRef.current != null && String(data.userId) === String(myUserIdRef.current)) return;
+            const item = buildIncomingItem(data.message);
+            setExtraItems(prev => [...prev, item]);
+            const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
+            setLastMessage(chatId, data.message, time);
         }
 
         ClientSocket.on('chat:new-message', onNewMessage);
@@ -71,31 +81,6 @@ export default function ConversationScreen() {
             ClientSocket.off('chat:new-message', onNewMessage);
         };
     }, [id]);
-
-    async function handleSendMessage(text: string) {
-        const tempId = `optimistic-${Date.now()}`;
-        const time   = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
-        const optimistic: ThreadItem = {
-            type: 'message',
-            id:   tempId,
-            data: { id: tempId, text, time, isMine: true, status: 'sent' },
-        };
-
-        const myId = await AsyncStorage.getItem('userId');
-        const key  = `${myId}:${text}`;
-        pendingSent.current.add(key);
-        setExtraItems(prev => [...prev, optimistic]);
-
-        ClientSocket.emit('chat:message', { chatId: id, message: text }, () => {});
-
-        try {
-            await addMessage({ chatId, payload: { text } }).unwrap();
-        } catch (e) {
-            console.warn('addMessage error:', e);
-            pendingSent.current.delete(key);
-            setExtraItems(prev => prev.filter(item => item.id !== tempId));
-        }
-    }
 
     const chatTitle = (() => {
         if (myUserId == null || chats.length === 0) return `Чат #${id}`;
@@ -114,6 +99,61 @@ export default function ConversationScreen() {
         return buildAvatarUri(other?.profile?.profileImage) || avatarUri || undefined;
     })();
 
+    async function sendText(text: string) {
+        const tempId = `optimistic-${Date.now()}`;
+        const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
+        const optimistic: ThreadItem = {
+            type: 'message',
+            id: tempId,
+            data: { id: tempId, text, time, isMine: true, status: 'sent' },
+        };
+
+        setExtraItems(prev => [...prev, optimistic]);
+        setLastMessage(chatId, text, time);
+        
+        ClientSocket.emit('chat:message', { chatId: id, message: text }, () => {});
+
+        try {
+            await addMessage({ chatId, payload: { text } }).unwrap();
+        } catch (e) {
+            console.warn('addMessage error:', e);
+            setExtraItems(prev => prev.filter(item => item.id !== tempId));
+        }
+    }
+
+    async function handleAttachPress() {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            quality: 0.8,
+        });
+        if (result.canceled) return;
+
+        const { uri } = result.assets[0];
+        const tempId = `img-optimistic-${Date.now()}`;
+        const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
+        const placeholder: ThreadItem = {
+            type: 'message',
+            id: tempId,
+            data: { id: tempId, text: uri, time, isMine: true, status: 'sent' },
+        };
+        setExtraItems(prev => [...prev, placeholder]);
+
+        try {
+            const { path } = await uploadChatImage({ uri }).unwrap();
+            await addMessage({ chatId, payload: { text: path } }).unwrap();
+            ClientSocket.emit('chat:message', { chatId: id, message: path }, () => {});
+            setLastMessage(chatId, '📷 Фото', time);
+            setExtraItems(prev => prev.map(item =>
+                item.id === tempId && item.type === 'message'
+                    ? { ...item, data: { ...item.data, text: path } }
+                    : item,
+            ));
+        } catch (e) {
+            console.warn('uploadChatImage error:', e);
+            setExtraItems(prev => prev.filter(item => item.id !== tempId));
+        }
+    }
+
     if (isLoading || myUserId === null) {
         return (
             <View style={styles.center}>
@@ -130,16 +170,17 @@ export default function ConversationScreen() {
             title={chatTitle}
             avatarUri={chatAvatarUri}
             items={allItems}
-            onSendMessage={handleSendMessage}
+            onSendMessage={sendText}
+            onAttachPress={handleAttachPress}
         />
     );
 }
 
 const styles = StyleSheet.create({
     center: {
-        flex:            1,
-        justifyContent:  'center',
-        alignItems:      'center',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: CHAT_COLORS.screenBg,
     },
 });

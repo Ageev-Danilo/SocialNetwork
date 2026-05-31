@@ -7,6 +7,8 @@ import { CHAT_COLORS } from './chat-theme';
 import { BackIcon, MenuDotsIcon, CheckSingleIcon, CheckDoubleIcon } from './ChatIcons';
 
 
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+
 interface Props {
     title:          string;
     subtitle?:      string;
@@ -14,6 +16,18 @@ interface Props {
     initials?:      string;
     items:          ThreadItem[];
     onSendMessage?: (text: string) => void;
+    onAttachPress?: () => void;
+}
+
+function isImageMessage(text: string): boolean {
+    const t = text.toLowerCase();
+    const hasExt = /\.(jpg|jpeg|png|webp|gif)/.test(t);
+    return hasExt && (t.startsWith('/media') || t.startsWith('http'));
+}
+
+function getImageUri(text: string): string {
+    if (text.startsWith('/media')) return `${BASE_URL}${text}`;
+    return text;
 }
 
 function MessageStatusIcon({ status }: { status?: MessageStatus }) {
@@ -53,7 +67,9 @@ function SendButton() {
     );
 }
 
-export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items, onSendMessage }: Props) {
+export function ChatThreadScreen({
+    title, subtitle, avatarUri, initials, items, onSendMessage, onAttachPress,
+}: Props) {
     const [inputText, setInputText] = useState('');
     const avatarLabel = initials ?? title.slice(0, 2).toUpperCase();
 
@@ -62,6 +78,19 @@ export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items, 
         if (!trimmed) return;
         onSendMessage?.(trimmed);
         setInputText('');
+    }
+
+    function renderMessageContent(text: string) {
+        if (isImageMessage(text)) {
+            return (
+                <Image
+                    source={{ uri: getImageUri(text) }}
+                    style={styles.messageImage}
+                    resizeMode="cover"
+                />
+            );
+        }
+        return <Text style={styles.bubbleText}>{text}</Text>;
     }
 
     function renderItem({ item }: { item: ThreadItem }) {
@@ -91,7 +120,7 @@ export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items, 
             return (
                 <View style={styles.mineWrap}>
                     <View style={styles.bubbleMine}>
-                        <Text style={styles.bubbleText}>{msg.text}</Text>
+                        {renderMessageContent(msg.text)}
                         <View style={styles.metaRow}>
                             <Text style={styles.metaTime}>{msg.time}</Text>
                             <MessageStatusIcon status={msg.status} />
@@ -111,7 +140,7 @@ export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items, 
                 <View style={styles.bubbleOtherCol}>
                     {msg.senderName ? <Text style={styles.senderName}>{msg.senderName}</Text> : null}
                     <View style={styles.bubbleOther}>
-                        <Text style={styles.bubbleText}>{msg.text}</Text>
+                        {renderMessageContent(msg.text)}
                         <View style={styles.metaRow}>
                             <Text style={styles.metaTime}>{msg.time}</Text>
                             <MessageStatusIcon status={msg.status} />
@@ -160,7 +189,7 @@ export function ChatThreadScreen({ title, subtitle, avatarUri, initials, items, 
                     onChangeText={setInputText}
                     multiline
                 />
-                <Pressable style={styles.attachBtn}>
+                <Pressable style={styles.attachBtn} onPress={onAttachPress}>
                     <AttachIcon />
                 </Pressable>
                 <Pressable style={styles.sendBtn} onPress={handleSend}>
@@ -197,6 +226,7 @@ const styles = StyleSheet.create({
     senderName:           { fontSize: 10, fontWeight: '400', color: CHAT_COLORS.primary },
     bubbleOther:          { backgroundColor: CHAT_COLORS.bubbleOther, borderWidth: 1, borderColor: CHAT_COLORS.bubbleOtherBorder, borderRadius: 16, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, gap: 4 },
     bubbleText:           { fontSize: 15, color: CHAT_COLORS.text },
+    messageImage:         { width: 200, height: 150, borderRadius: 8 },
     metaRow:              { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
     metaTime:             { fontSize: 11, color: CHAT_COLORS.textMuted },
     inputBar:             { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10, backgroundColor: CHAT_COLORS.cardBg, borderTopWidth: 1, borderTopColor: CHAT_COLORS.border, gap: 8 },

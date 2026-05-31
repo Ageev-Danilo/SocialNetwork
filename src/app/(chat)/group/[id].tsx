@@ -1,19 +1,17 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import {
-    ChatThreadScreen,
-    getGroupChatById,
-    getGroupThread,
-    getGroupSubtitle,
-} from '@/modules/chat';
+import { ChatThreadScreen } from '@/modules/chat';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 
-export default function GroupChatScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
-    const group    = getGroupChatById(id);
-    const items    = getGroupThread(id);
 
-    if (!group) {
+export default function GroupChatScreen() {
+    const { id, title, initials } = useLocalSearchParams<{
+        id:       string;
+        title:    string;
+        initials: string;
+    }>();
+
+    if (!title) {
         return (
             <View style={styles.error}>
                 <Text style={styles.errorText}>Груповий чат не знайдено</Text>
@@ -23,11 +21,9 @@ export default function GroupChatScreen() {
 
     return (
         <ChatThreadScreen
-            title={group.name}
-            subtitle={getGroupSubtitle(group)}
-            initials={group.initials}
-            avatarUri={group.avatarUri}
-            items={items}
+            title={title}
+            initials={initials}
+            items={[]}
         />
     );
 }

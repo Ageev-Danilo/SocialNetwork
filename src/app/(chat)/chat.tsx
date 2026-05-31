@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -10,75 +10,88 @@ import {
     ChatSectionHeader,
     ChatSearchBar,
     MessagesTabIcon,
-    MOCK_CONTACTS,
-    MOCK_CONVERSATIONS,
-    MOCK_GROUP_CHATS,
-    CHAT_TAB_BADGE,
 } from '@/modules/chat';
 import { useGetChatsQuery } from '@/modules/chat/api';
 import type { ChatDto } from '@/modules/chat/api';
 import type { ChatTabId } from '@/modules/chat';
+import { useGetFriendsQuery } from '@/modules/friends';
+import { useLastMessages } from '@/modules/chat/model/lastMessages.store';
+import { useUnreadFlags, hasAnyUnread, useUnreadMessages, } from '@/modules/chat/model/unread.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
+import type { ContactItemData } from '@/modules/chat/ui/ContactListItem';
+
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
+
+function buildAvatarUri(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('file')) return path;
+    if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+    return `${BASE_URL}/media/thumbnail/${path}`;
+}
 
 export default function ChatScreen() {
     const [activeTab, setActiveTab]     = useState<ChatTabId>('contacts');
     const [searchQuery, setSearchQuery] = useState('');
     const [myUserId, setMyUserId]       = useState<number | null>(null);
 
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { data: chats   = [], isLoading: isChatsLoading }   = useGetChatsQuery();
+    const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
+    const lastMessages = useLastMessages();
+    const unreadFlags  = useUnreadFlags();
+    const unreadMessages = useUnreadMessages();
 
     useEffect(() => {
         async function loadUserId() {
             const raw = await AsyncStorage.getItem('userId');
-            if (raw) setMyUserId(Number(raw));
+            if (raw && raw !== 'undefined') setMyUserId(Number(raw));
         }
         loadUserId();
     }, []);
 
     const q = searchQuery.trim().toLowerCase();
 
-    function buildAvatarUri(path: string | null | undefined): string {
-        if (!path) return '';
-        if (path.startsWith('http') || path.startsWith('file')) return path;
-        if (path.startsWith('/media')) return `${BASE_URL}${path}`;
-        return `${BASE_URL}/media/thumbnail/${path}`;
-    }
-
-    function getChatTitle(chat: ChatDto, myUserId: number | null): string {
+    function getChatTitle(chat: ChatDto): string {
         if (chat.name) return chat.name;
         if (myUserId == null) return `Чат #${chat.id}`;
         const other = chat.users.find(u => u.id !== myUserId);
         return other?.username ?? other?.email ?? `Чат #${chat.id}`;
     }
 
-    function getChatAvatarUri(chat: ChatDto, myUserId: number | null): string {
+    function getChatAvatarUri(chat: ChatDto): string {
         if (chat.avatar) return buildAvatarUri(chat.avatar);
         if (myUserId == null) return '';
         const other = chat.users.find(u => u.id !== myUserId);
-        return buildAvatarUri(other?.profile?.profileImage); 
+        return buildAvatarUri(other?.profile?.profileImage ?? null);
     }
 
-    const filteredContacts = useMemo(() => {
-        if (!q) return MOCK_CONTACTS;
-        return MOCK_CONTACTS.filter(c =>
-            c.name.toLowerCase().includes(q) || c.username.toLowerCase().includes(q),
+    function getChatLastMessage(chat: ChatDto): string {
+        return lastMessages.get(chat.id)?.text ?? '';
+    }
+
+    function getChatLastTime(chat: ChatDto): string {
+        return lastMessages.get(chat.id)?.time ?? '';
+    }
+
+    const contactItems = useMemo((): ContactItemData[] => {
+        const mapped = friends.map(f => ({
+            id:        f.contactProfile.id,
+            name:      f.contactProfile.pseudonym,
+            username:  f.contactProfile.username,
+            avatarUri: buildAvatarUri(f.contactProfile.profileImage),
+        }));
+        if (!q) return mapped;
+        return mapped.filter(c =>
+            c.name.toLowerCase().includes(q) || (c.username ?? '').toLowerCase().includes(q),
         );
-    }, [q]);
+    }, [friends, q]);
 
     const filteredChats = useMemo(() => {
         if (!q) return chats;
-        return chats.filter(c => getChatTitle(c, myUserId).toLowerCase().includes(q));
+        return chats.filter(c => getChatTitle(c).toLowerCase().includes(q));
     }, [q, chats, myUserId]);
-
-    const filteredGroups = useMemo(() => {
-        if (!q) return MOCK_GROUP_CHATS;
-        return MOCK_GROUP_CHATS.filter(g =>
-            g.name.toLowerCase().includes(q) || g.lastMessage.toLowerCase().includes(q),
-        );
-    }, [q]);
 
     function handleTabChange(id: ChatTabId) {
         setActiveTab(id);
@@ -92,8 +105,17 @@ export default function ChatScreen() {
         });
     }
 
-    function openGroup(id: string) {
-        router.push(`/(chat)/group/${id}` as any);
+    function openContactProfile(contact: ContactItemData) {
+        router.push({
+            pathname: '/(friends)/user-profile' as any,
+            params: {
+                profileId: String(contact.id),
+                name:      contact.name,
+                username:  contact.username ?? '',
+                avatarUrl: contact.avatarUri ?? '',
+                mode:      'friend',
+            },
+        });
     }
 
     function renderSectionHeader() {
@@ -132,64 +154,62 @@ export default function ChatScreen() {
                         </View>
                     );
                 }
-                if (chats.length > 0) {
-                    return filteredChats.map(chat => {
-                        const chatTitle  = getChatTitle(chat, myUserId);
-                        const chatAvatar = getChatAvatarUri(chat, myUserId);
-                        return (
-                            <ChatListItem
-                                key={chat.id}
-                                title={chatTitle}
-                                avatarUri={chatAvatar}
-                                onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)} subtitle={''}                            
-                            />
-                        );
-                    });
+                if (chats.length === 0) {
+                    return <Text style={styles.emptyText}>У вас немає жодного чату</Text>;
                 }
-                return MOCK_CONVERSATIONS.filter(c =>
-                    !q || c.contactName.toLowerCase().includes(q) || c.lastMessage.toLowerCase().includes(q),
-                ).map(conv => (
-                    <ChatListItem
-                        key={conv.id}
-                        title={conv.contactName}
-                        subtitle={conv.lastMessage}
-                        time={conv.lastMessageTime}
-                        avatarUri={conv.avatarUri}
-                        highlighted={conv.highlighted}
-                        isOnline={conv.isOnline}
-                        onPress={() => openConversation(conv.id, conv.contactName, conv.avatarUri)}
-                    />
-                ));
+                return filteredChats.map(chat => {
+                    const chatTitle  = getChatTitle(chat);
+                    const chatAvatar = getChatAvatarUri(chat);
+                    const lastMsg    = getChatLastMessage(chat);
+                    const lastTime   = getChatLastTime(chat);
+                    const unread     = useUnreadFlags().get(chat.id) ?? false;
+                    // const unreadMsg   = useUnreadMessages().get(chat.id);
+                    return (
+                        <ChatListItem
+                            key={chat.id}
+                            title={chatTitle}
+                            avatarUri={chatAvatar || undefined}
+                            subtitle={lastMsg}
+                            time={lastMsg ? lastTime : undefined}
+                            hasUnread={unread}
+                            onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)}
+                        />
+                    );
+                });
 
             case 'groups':
-                return filteredGroups.map(group => (
-                    <GroupListItem
-                        key={group.id}
-                        group={group}
-                        onPress={() => openGroup(group.id)}
-                    />
-                ));
+                return <Text style={styles.emptyText}>У вас немає жодної групи</Text>;
 
             default:
-                return filteredContacts.map(contact => (
+                if (isFriendsLoading) {
+                    return (
+                        <View style={styles.loader}>
+                            <ActivityIndicator color={CHAT_COLORS.primary} />
+                        </View>
+                    );
+                }
+                if (contactItems.length === 0) {
+                    return <Text style={styles.emptyText}>Список контактів порожній</Text>;
+                }
+                return contactItems.map(contact => (
                     <ContactListItem
                         key={contact.id}
                         contact={contact}
-                        onPress={() => {
-                            const conv = MOCK_CONVERSATIONS.find(c => c.contactId === contact.id);
-                            if (conv) openConversation(conv.id, conv.contactName, conv.avatarUri);
-                        }}
+                        onPress={() => openContactProfile(contact)}
                     />
                 ));
         }
     }
+
+    const anyUnread    = hasAnyUnread();
+    const messageBadge = anyUnread ? 1 : undefined;
 
     return (
         <View style={styles.screen}>
             <ChatTabs
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
-                messageBadge={CHAT_TAB_BADGE}
+                messageBadge={messageBadge}
             />
             <View style={styles.panel}>
                 {renderSectionHeader()}
@@ -215,9 +235,13 @@ const styles = StyleSheet.create({
         flex:            1,
         backgroundColor: CHAT_COLORS.cardBg,
     },
-    list:   { flex: 1 },
-    loader: {
-        paddingVertical: 40,
-        alignItems:      'center',
+    list:      { flex: 1 },
+    loader:    { paddingVertical: 40, alignItems: 'center' },
+    emptyText: {
+        textAlign:         'center',
+        color:             CHAT_COLORS.textMuted,
+        fontSize:          15,
+        paddingVertical:   40,
+        paddingHorizontal: 20,
     },
 });

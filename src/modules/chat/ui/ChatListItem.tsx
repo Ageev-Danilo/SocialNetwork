@@ -3,16 +3,17 @@ import { CHAT_COLORS } from './chat-theme';
 
 
 interface Props {
-    title:        string;
-    subtitle?:    string;
-    time?:        string;
-    avatarUri?:   string;
+    title: string;
+    subtitle?: string;
+    time?: string;
+    avatarUri?: string;
     highlighted?: boolean;
-    isOnline?:    boolean;
-    onPress:      () => void;
+    isOnline?: boolean;
+    hasUnread?: boolean;
+    onPress: () => void;
 }
 
-export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, isOnline, onPress }: Props) {
+export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, isOnline, hasUnread, onPress }: Props) {
     const initials = title.slice(0, 2).toUpperCase();
 
     return (
@@ -33,7 +34,10 @@ export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, is
             <View style={styles.body}>
                 <View style={styles.topRow}>
                     <Text style={styles.title} numberOfLines={1}>{title}</Text>
-                    {time ? <Text style={styles.time}>{time}</Text> : null}
+                    <View style={styles.rightMeta}>
+                        {time ? <Text style={styles.time}>{time}</Text> : null}
+                        {hasUnread && <View style={styles.unreadDot} />}
+                    </View>
                 </View>
                 {subtitle ? <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text> : null}
             </View>
@@ -43,32 +47,39 @@ export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, is
 
 const styles = StyleSheet.create({
     row: {
-        flexDirection:     'row',
-        alignItems:        'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical:   14,
-        backgroundColor:   CHAT_COLORS.cardBg,
-        gap:               12,
+        paddingVertical: 14,
+        backgroundColor: CHAT_COLORS.cardBg,
+        gap: 12,
     },
-    rowHighlighted:  { backgroundColor: CHAT_COLORS.highlight },
-    avatarWrap:      { position: 'relative' },
-    avatar:          { width: 52, height: 52, borderRadius: 26 },
-    avatarFallback:  { backgroundColor: CHAT_COLORS.highlight, justifyContent: 'center', alignItems: 'center' },
-    avatarInitials:  { fontSize: 16, fontWeight: '700', color: CHAT_COLORS.primary },
+    rowHighlighted: { backgroundColor: CHAT_COLORS.highlight },
+    avatarWrap: { position: 'relative' },
+    avatar: { width: 52, height: 52, borderRadius: 26 },
+    avatarFallback: { backgroundColor: CHAT_COLORS.highlight, justifyContent: 'center', alignItems: 'center' },
+    avatarInitials: { fontSize: 16, fontWeight: '700', color: CHAT_COLORS.primary },
     onlineDot: {
-        position:        'absolute',
-        bottom:          2,
-        right:           2,
-        width:           12,
-        height:          12,
-        borderRadius:    6,
+        position: 'absolute',
+        bottom: 2,
+        right: 2,
+        width: 12,
+        height: 12,
+        borderRadius: 6,
         backgroundColor: CHAT_COLORS.online,
-        borderWidth:     2,
-        borderColor:     '#fff',
+        borderWidth: 2,
+        borderColor: '#fff',
     },
-    body:    { flex: 1, gap: 4 },
-    topRow:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-    title:   { flex: 1, fontSize: 16, fontWeight: '700', color: CHAT_COLORS.text },
-    subtitle: { fontSize: 14, color: CHAT_COLORS.textMuted },
-    time:    { fontSize: 13, color: CHAT_COLORS.textMuted },
+    body:      { flex: 1, gap: 4 },
+    topRow:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    rightMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    title:     { flex: 1, fontSize: 16, fontWeight: '700', color: CHAT_COLORS.text },
+    subtitle:  { fontSize: 14, color: CHAT_COLORS.textMuted },
+    time:      { fontSize: 13, color: CHAT_COLORS.textMuted },
+    unreadDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#E53935',
+    },
 });

@@ -17,8 +17,8 @@ interface Props {
 
 export function FriendCard({ data, mode, onConfirm, onRemove }: Props) {
     const confirmLabel =
-        mode === 'request'        ? 'Підтвердити' :
-        mode === 'recommendation' ? 'Додати'       : 'Повідомлення';
+        mode === 'request' ? 'Підтвердити' :
+        mode === 'recommendation' ? 'Додати' : 'Повідомлення';
 
     return (
         <View style={styles.card}>

@@ -5,18 +5,18 @@ import type { ThreadItem } from './mock-data';
 const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
 
 export function messageDtoToThreadItem(msg: MessageDto, myUserId: number): ThreadItem {
-    const time   = new Date(msg.createdAt).toLocaleTimeString('uk-UA', TIME_OPTIONS);
+    const time = new Date(msg.createdAt).toLocaleTimeString('uk-UA', TIME_OPTIONS);
     const isMine = msg.sender.id === myUserId;
     return {
         type: 'message',
-        id:   String(msg.id),
+        id: String(msg.id),
         data: {
-            id:         String(msg.id),
-            text:       msg.text ?? '',
+            id: String(msg.id),
+            text: msg.text ?? '',
             time,
             isMine,
             senderName: isMine ? undefined : (msg.sender.username ?? msg.sender.email),
-            status:     'sent',
+            status: 'sent',
         },
     };
 }
