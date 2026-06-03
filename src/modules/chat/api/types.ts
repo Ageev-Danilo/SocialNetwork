@@ -25,8 +25,9 @@ export interface MessageDto {
 
 export interface CreateChatPayload {
     memberIds: number[];
+    isGroup?:  boolean;
+    name?:     string;
 }
-
 export interface CreateMessagePayload {
     text: string;
 }
