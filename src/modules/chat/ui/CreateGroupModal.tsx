@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Modal, View, TouchableOpacity, Text, StyleSheet, Dimensions, ScrollView, Alert, Image, TextInput, ActivityIndicator } from 'react-native';
 import { Button } from '@/shared/ui';
-import { SearchIcon } from './ChatIcons';
+import { SearchIcon, CheckSingleIcon } from './ChatIcons';
 import { CHAT_COLORS } from './chat-theme';
 import { useGetFriendsQuery } from '@/modules/friends';
 import { useCreateChatMutation } from '@/modules/chat/api';
@@ -175,7 +175,7 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                                         ) : null}
                                                     </View>
                                                     <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                                                        {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                                                        {isSelected && <CheckSingleIcon size={13} color="#fff" />}
                                                     </View>
                                                 </TouchableOpacity>
                                             );
@@ -284,7 +284,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     checkboxSelected: { backgroundColor: COLOR_PRIMARY },
-    checkmark: { color: COLOR_WHITE, fontSize: 16, fontWeight: '800' },
     footer: {
         flexDirection: 'row',
         justifyContent: 'flex-end',

@@ -11,6 +11,12 @@ export interface NewMessageData {
     userId:  string;
     message: string;
     chatId:  string;
+    sender?: {
+        firstName?: string;
+        lastName?: string;
+        username?: string;
+        email?: string;
+    };
 }
 
 export interface ServerEvents {

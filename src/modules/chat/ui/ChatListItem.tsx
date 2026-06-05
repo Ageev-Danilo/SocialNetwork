@@ -1,19 +1,20 @@
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
-
+import { MessagesTabIcon } from './ChatIcons';
 
 interface Props {
-    title: string;
-    subtitle?: string;
-    time?: string;
-    avatarUri?: string;
+    title:        string;
+    subtitle?:    string;
+    time?:        string;
+    avatarUri?:   string;
     highlighted?: boolean;
-    isOnline?: boolean;
-    hasUnread?: boolean;
-    onPress: () => void;
+    isOnline?:    boolean;
+    hasUnread?:   boolean;
+    isGroup?:     boolean;   
+    onPress:      () => void;
 }
 
-export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, isOnline, hasUnread, onPress }: Props) {
+export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, isOnline, hasUnread, isGroup, onPress }: Props) {
     const initials = title.slice(0, 2).toUpperCase();
 
     return (
@@ -24,6 +25,10 @@ export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, is
             <View style={styles.avatarWrap}>
                 {avatarUri ? (
                     <Image source={{ uri: avatarUri }} style={styles.avatar} />
+                ) : isGroup ? (
+                    <View style={[styles.avatar, styles.avatarFallback]}>
+                        <MessagesTabIcon size={24} color={CHAT_COLORS.primary} />
+                    </View>
                 ) : (
                     <View style={[styles.avatar, styles.avatarFallback]}>
                         <Text style={styles.avatarInitials}>{initials}</Text>

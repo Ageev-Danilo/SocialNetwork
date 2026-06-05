@@ -41,7 +41,7 @@ export default function ConversationScreen() {
 
     const { data: chats    = [] }            = useGetChatsQuery();
     const { data: messages = [], isLoading } = useGetChatMessagesQuery(chatId, {
-        skip:                      !chatId || isNaN(chatId),
+        skip:                       !chatId || isNaN(chatId),
         refetchOnMountOrArgChange: true,
     });
     const [addMessage]      = useAddMessageMutation();
@@ -74,7 +74,13 @@ export default function ConversationScreen() {
         function onNewMessage(data: NewMessageData) {
             if (Number(data.chatId) !== chatId) return;
             if (myUserIdRef.current != null && data.userId === myUserIdRef.current) return;
-            setExtraItems(prev => [...prev, buildIncomingItem(data.message)]);
+            
+            const senderName = data.sender
+                ? ([data.sender.firstName, data.sender.lastName].filter(Boolean).join(' ')
+                    || data.sender.username
+                    || data.sender.email)
+                : undefined;
+            setExtraItems(prev => [...prev, buildIncomingItem(data.message, senderName)]);
         }
 
         ClientSocket.on('chat:new-message', onNewMessage);
@@ -89,17 +95,19 @@ export default function ConversationScreen() {
 
     const chatTitle = (() => {
         if (myUserId == null || chats.length === 0) return `Чат #${id}`;
-        const chat  = chats.find(c => c.id === chatId);
+        const chat = chats.find(c => c.id === chatId);
         if (!chat) return `Чат #${id}`;
+        if (chat.isGroup) return chat.name ?? 'Група';                             
         const other = chat.users.find(u => u.id !== myUserId);
-        return other?.username ?? other?.email ?? `Чат #${id}`;
+        const fullName = [other?.firstName, other?.lastName].filter(Boolean).join(' ');
+        return fullName || other?.username || other?.email || `Чат #${id}`;
     })();
 
     const chatAvatarUri = (() => {
         if (myUserId == null || chats.length === 0) return avatarUri || undefined;
-        const chat  = chats.find(c => c.id === chatId);
+        const chat = chats.find(c => c.id === chatId);
         if (!chat) return avatarUri || undefined;
-        if (chat.avatar) return buildAvatarUri(chat.avatar);
+        if (chat.isGroup) return chat.avatar ? buildAvatarUri(chat.avatar) : undefined; 
         const other = chat.users.find(u => u.id !== myUserId);
         return buildAvatarUri(other?.profileImage) || avatarUri || undefined;
     })();

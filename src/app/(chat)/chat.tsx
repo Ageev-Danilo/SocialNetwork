@@ -201,6 +201,7 @@ export default function ChatScreen() {
                             subtitle={lastMsg}
                             time={lastMsg ? lastTime : undefined}
                             hasUnread={unread}
+                            isGroup
                             onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)}
                         />
                     );
@@ -227,8 +228,10 @@ export default function ChatScreen() {
         }
     }
 
-    const anyUnread = [...unreadFlags.values()].some(Boolean);
-    const messageBadge = anyUnread ? 1 : undefined;
+    const anyDmUnread = chats.filter(c => !c.isGroup).some(c => unreadFlags.get(c.id));
+    const anyGroupUnread = chats.filter(c => c.isGroup).some(c => unreadFlags.get(c.id));
+    const messageBadge = anyDmUnread ? 1 : undefined;
+    const groupBadge = anyGroupUnread ? 1 : undefined;
 
     return (
         <View style={styles.screen}>
@@ -236,6 +239,7 @@ export default function ChatScreen() {
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
                 messageBadge={messageBadge}
+                groupBadge={groupBadge}
             />
             <View style={styles.panel}>
                 {renderSectionHeader()}
