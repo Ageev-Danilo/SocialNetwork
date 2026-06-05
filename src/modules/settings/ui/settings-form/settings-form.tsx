@@ -46,7 +46,7 @@ export function SettingsForm() {
     const lastName  = watch('lastName');
 
     const displayName = `${firstName ?? ''} ${lastName ?? ''}`.trim();
-    const username    = data?.username ?? '';
+    const pseudonym = watch('pseudonym');
 
     const { dirtyFields } = formState;
 
@@ -71,7 +71,6 @@ export function SettingsForm() {
             const form = new FormData();
             form.append('firstName',        values.firstName);
             form.append('lastName',         values.lastName);
-            form.append('username',         data?.username ?? '');
             form.append('pseudonym',        values.pseudonym);
             form.append('date',             values.date);
             form.append('signature',        values.signature ?? '');
@@ -134,7 +133,7 @@ export function SettingsForm() {
 
                 <View style={{ alignItems: 'center', gap: 5 }}>
                     <Text style={styles.displayName}>{displayName || 'Не вказано'}</Text>
-                    <Text style={styles.usernameText}>{username ? `@${username}` : '@username'}</Text>
+                    <Text style={styles.usernameText}>{pseudonym ? `@${pseudonym}` : '@pseudonym'}</Text>
                 </View>
             </Card>
 

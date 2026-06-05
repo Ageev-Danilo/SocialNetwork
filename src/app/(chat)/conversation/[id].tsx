@@ -101,7 +101,7 @@ export default function ConversationScreen() {
         if (!chat) return avatarUri || undefined;
         if (chat.avatar) return buildAvatarUri(chat.avatar);
         const other = chat.users.find(u => u.id !== myUserId);
-        return buildAvatarUri(other?.profile?.profileImage) || avatarUri || undefined;
+        return buildAvatarUri(other?.profileImage) || avatarUri || undefined;
     })();
 
     async function sendText(text: string) {

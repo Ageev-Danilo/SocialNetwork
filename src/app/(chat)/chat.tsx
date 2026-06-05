@@ -51,18 +51,18 @@ export default function ChatScreen() {
 
     const q = searchQuery.trim().toLowerCase();
 
-    function getChatTitle(chat: ChatDto): string {
-        if (chat.name) return chat.name;
-        if (myUserId == null) return `Чат #${chat.id}`;
+    function getChatTitle(chat: ChatDto, myUserId: number): string {
+        if (chat.isGroup) return chat.name ?? 'Група';
         const other = chat.users.find(u => u.id !== myUserId);
-        return other?.username ?? other?.email ?? `Чат #${chat.id}`;
+        if (!other) return 'Чат';
+        const fullName = [other.firstName, other.lastName].filter(Boolean).join(' ');
+        return fullName || other.username || other.email;
     }
 
-    function getChatAvatarUri(chat: ChatDto): string {
-        if (chat.avatar) return buildAvatarUri(chat.avatar);
-        if (myUserId == null) return '';
+    function getChatAvatar(chat: ChatDto, myUserId: number): string | undefined {
+        if (chat.isGroup) return chat.avatar ? buildAvatarUri(chat.avatar) : undefined;
         const other = chat.users.find(u => u.id !== myUserId);
-        return buildAvatarUri(other?.profile?.profileImage ?? null);
+        return other?.profileImage ? buildAvatarUri(other.profileImage) : undefined;
     }
 
     function getChatLastMessage(chat: ChatDto): string {
@@ -87,8 +87,8 @@ export default function ChatScreen() {
     }, [friends, q]);
 
     const filteredChats = useMemo(() => {
-        if (!q) return chats;
-        return chats.filter(c => getChatTitle(c).toLowerCase().includes(q));
+        if (!q || myUserId === null) return chats;
+        return chats.filter(c => getChatTitle(c, myUserId).toLowerCase().includes(q));
     }, [q, chats, myUserId]);
 
     function handleTabChange(id: ChatTabId) {
@@ -152,12 +152,13 @@ export default function ChatScreen() {
                         </View>
                     );
                 }
-                if (chats.length === 0) {
+                const dmChats = filteredChats.filter(c => !c.isGroup);
+                if (dmChats.length === 0) {
                     return <Text style={styles.emptyText}>У вас немає жодного чату</Text>;
                 }
-                return filteredChats.map(chat => {
-                    const chatTitle  = getChatTitle(chat);
-                    const chatAvatar = getChatAvatarUri(chat);
+                return dmChats.map(chat => {
+                    const chatTitle  = myUserId !== null ? getChatTitle(chat, myUserId) : '';
+                    const chatAvatar = myUserId !== null ? getChatAvatar(chat, myUserId) : undefined;
                     const lastMsg    = getChatLastMessage(chat);
                     const lastTime   = getChatLastTime(chat);
                     const unread     = unreadFlags.get(chat.id) ?? false;
@@ -175,7 +176,35 @@ export default function ChatScreen() {
                 });
 
             case 'groups':
-                return <Text style={styles.emptyText}>У вас немає жодної групи</Text>;
+                if (isChatsLoading) {
+                    return (
+                        <View style={styles.loader}>
+                            <ActivityIndicator color={CHAT_COLORS.primary} />
+                        </View>
+                    );
+                }
+                const groupChats = filteredChats.filter(c => c.isGroup);
+                if (groupChats.length === 0) {
+                    return <Text style={styles.emptyText}>У вас немає жодної групи</Text>;
+                }
+                return groupChats.map(chat => {
+                    const chatTitle  = chat.name ?? 'Група';
+                    const chatAvatar = chat.avatar ? buildAvatarUri(chat.avatar) : undefined;
+                    const lastMsg    = getChatLastMessage(chat);
+                    const lastTime   = getChatLastTime(chat);
+                    const unread     = unreadFlags.get(chat.id) ?? false;
+                    return (
+                        <ChatListItem
+                            key={chat.id}
+                            title={chatTitle}
+                            avatarUri={chatAvatar}
+                            subtitle={lastMsg}
+                            time={lastMsg ? lastTime : undefined}
+                            hasUnread={unread}
+                            onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)}
+                        />
+                    );
+                });
 
             default:
                 if (isFriendsLoading) {

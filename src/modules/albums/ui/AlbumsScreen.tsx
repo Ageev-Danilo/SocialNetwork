@@ -24,10 +24,11 @@ const MY_PHOTO_SIZE = 200;
 
 const BASE_URL = 'http://10.0.2.2:3000';
 
-function getImageUrl(path: string): string {
+function getImageUrl(path: string | null | undefined): string {
     if (!path) return '';
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
+    if (path.startsWith('http') || path.startsWith('file')) return path;
+    if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+    return `${BASE_URL}/media/thumbnail/${path}`;
 }
 
 function CustomCloseIcon() {

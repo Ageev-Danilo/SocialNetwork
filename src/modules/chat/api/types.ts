@@ -1,10 +1,10 @@
 export interface ChatUser {
     id:           number;
     email:        string;
+    firstName:    string | null;
+    lastName:     string | null;
     username:     string | null;
-    profile: {
-        profileImage: string | null;
-    } | null;
+    profileImage: string | null;  
 }
 
 export interface ChatDto {
