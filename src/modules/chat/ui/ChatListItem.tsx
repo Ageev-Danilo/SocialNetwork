@@ -3,16 +3,17 @@ import { CHAT_COLORS } from './chat-theme';
 import { MessagesTabIcon } from './ChatIcons';
 
 interface Props {
-    title:        string;
-    subtitle?:    string;
-    time?:        string;
-    avatarUri?:   string;
+    title: string;
+    subtitle?: string;
+    time?: string;
+    avatarUri?: string;
     highlighted?: boolean;
-    isOnline?:    boolean;
-    hasUnread?:   boolean;
-    isGroup?:     boolean;   
-    onPress:      () => void;
+    isOnline?: boolean;
+    hasUnread?: boolean;
+    isGroup?: boolean;
+    onPress: () => void;
 }
+
 
 export function ChatListItem({ title, subtitle, time, avatarUri, highlighted, isOnline, hasUnread, isGroup, onPress }: Props) {
     const initials = title.slice(0, 2).toUpperCase();
@@ -75,12 +76,12 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#fff',
     },
-    body:      { flex: 1, gap: 4 },
-    topRow:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    body: { flex: 1, gap: 4 },
+    topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
     rightMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    title:     { flex: 1, fontSize: 16, fontWeight: '700', color: CHAT_COLORS.text },
-    subtitle:  { fontSize: 14, color: CHAT_COLORS.textMuted },
-    time:      { fontSize: 13, color: CHAT_COLORS.textMuted },
+    title: { flex: 1, fontSize: 16, fontWeight: '700', color: CHAT_COLORS.text },
+    subtitle: { fontSize: 14, color: CHAT_COLORS.textMuted },
+    time: { fontSize: 13, color: CHAT_COLORS.textMuted },
     unreadDot: {
         width: 10,
         height: 10,

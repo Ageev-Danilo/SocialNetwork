@@ -10,7 +10,7 @@ const chatApi = baseApi.injectEndpoints({
         }),
         createChat: builder.mutation<ChatDto, CreateChatPayload>({
             query: (body) => ({
-                url:    '/chats',
+                url: '/chats',
                 method: 'POST',
                 body,
             }),
@@ -22,22 +22,22 @@ const chatApi = baseApi.injectEndpoints({
         }),
         addMessage: builder.mutation<{ message: string }, { chatId: number; payload: CreateMessagePayload }>({
             query: ({ chatId, payload }) => ({
-                url:    `/chats/${chatId}/messages`,
+                url: `/chats/${chatId}/messages`,
                 method: 'POST',
-                body:   payload,
+                body: payload,
             }),
         }),
         uploadChatImage: builder.mutation<{ path: string }, { uri: string }>({
             async queryFn({ uri }, _api, _extraOptions, baseQuery) {
                 const filename = uri.split('/').pop() ?? 'image.jpg';
-                const ext      = filename.split('.').pop()?.toLowerCase() ?? 'jpg';
+                const ext = filename.split('.').pop()?.toLowerCase() ?? 'jpg';
                 const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
                 const formData = new FormData();
                 formData.append('photo', { uri, name: filename, type: mimeType } as any);
                 const result = await baseQuery({
-                    url:    '/albums/upload-photo',
+                    url: '/albums/upload-photo',
                     method: 'POST',
-                    body:   formData,
+                    body: formData,
                 });
                 if (result.error) return { error: result.error };
                 return { data: result.data as { path: string } };

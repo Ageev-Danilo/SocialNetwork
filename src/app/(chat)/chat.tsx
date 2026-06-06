@@ -14,15 +14,15 @@ import { useGetChatsQuery } from '@/modules/chat/api';
 import type { ChatDto } from '@/modules/chat/api';
 import type { ChatTabId } from '@/modules/chat';
 import { useGetFriendsQuery } from '@/modules/friends';
-import { useLastMessages } from '@/modules/chat/model/lastMessages.store';
-import { useUnreadFlags, hasAnyUnread } from '@/modules/chat/model/unread.store';
+import { useLastMessages, initLastMessages } from '@/modules/chat/model/lastMessages.store';
+import { useUnreadFlags } from '@/modules/chat/model/unread.store';
+import { useActiveChatId, setActiveChatId } from '@/modules/chat/model/activeChat.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon, GroupsTabIcon } from '@/modules/chat/ui/ChatIcons';
 import type { ContactItemData } from '@/modules/chat/ui/ContactListItem';
 
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
-const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
 
 function buildAvatarUri(path: string | null | undefined): string {
     if (!path) return '';
@@ -32,36 +32,38 @@ function buildAvatarUri(path: string | null | undefined): string {
 }
 
 export default function ChatScreen() {
-    const [activeTab, setActiveTab]     = useState<ChatTabId>('contacts');
+    const [activeTab, setActiveTab] = useState<ChatTabId>('contacts');
     const [searchQuery, setSearchQuery] = useState('');
-    const [myUserId, setMyUserId]       = useState<number | null>(null);
+    const [myUserId, setMyUserId] = useState<number | null>(null);
 
-    const { data: chats   = [], isLoading: isChatsLoading }   = useGetChatsQuery();
+    const { data: chats = [], isLoading: isChatsLoading }   = useGetChatsQuery();
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
     const lastMessages = useLastMessages();
-    const unreadFlags  = useUnreadFlags();
+    const unreadFlags = useUnreadFlags();
+    const activeChatId = useActiveChatId();
 
     useEffect(() => {
-        async function loadUserId() {
+        async function init() {
+            await initLastMessages();
             const raw = await AsyncStorage.getItem('userId');
             if (raw && raw !== 'undefined') setMyUserId(Number(raw));
         }
-        loadUserId();
+        init();
     }, []);
 
     const q = searchQuery.trim().toLowerCase();
 
-    function getChatTitle(chat: ChatDto, myUserId: number): string {
+    function getChatTitle(chat: ChatDto, userId: number): string {
         if (chat.isGroup) return chat.name ?? 'Група';
-        const other = chat.users.find(u => u.id !== myUserId);
+        const other = chat.users.find(u => u.id !== userId);
         if (!other) return 'Чат';
         const fullName = [other.firstName, other.lastName].filter(Boolean).join(' ');
         return fullName || other.username || other.email;
     }
 
-    function getChatAvatar(chat: ChatDto, myUserId: number): string | undefined {
+    function getChatAvatar(chat: ChatDto, userId: number): string | undefined {
         if (chat.isGroup) return chat.avatar ? buildAvatarUri(chat.avatar) : undefined;
-        const other = chat.users.find(u => u.id !== myUserId);
+        const other = chat.users.find(u => u.id !== userId);
         return other?.profileImage ? buildAvatarUri(other.profileImage) : undefined;
     }
 
@@ -75,9 +77,9 @@ export default function ChatScreen() {
 
     const contactItems = useMemo((): ContactItemData[] => {
         const mapped = friends.map(f => ({
-            id:        f.contactProfile.id,
-            name:      f.contactProfile.pseudonym,
-            username:  f.contactProfile.username,
+            id: f.contactProfile.id,
+            name: f.contactProfile.pseudonym,
+            username: f.contactProfile.username,
             avatarUri: buildAvatarUri(f.contactProfile.profileImage),
         }));
         if (!q) return mapped;
@@ -96,10 +98,11 @@ export default function ChatScreen() {
         setSearchQuery('');
     }
 
-    function openConversation(id: string, title?: string, avatarUri?: string) {
+    function openConversation(id: number, title?: string, avatarUri?: string) {
+        setActiveChatId(id);
         router.push({
             pathname: `/(chat)/conversation/${id}` as any,
-            params:   { title: title ?? 'Чат', avatarUri: avatarUri ?? '' },
+            params: { title: title ?? 'Чат', avatarUri: avatarUri ?? '' },
         });
     }
 
@@ -108,10 +111,10 @@ export default function ChatScreen() {
             pathname: '/(friends)/user-profile' as any,
             params: {
                 profileId: String(contact.id),
-                name:      contact.name,
-                username:  contact.username ?? '',
+                name: contact.name,
+                username: contact.username ?? '',
                 avatarUrl: contact.avatarUri ?? '',
-                mode:      'friend',
+                mode: 'friend',
             },
         });
     }
@@ -144,7 +147,7 @@ export default function ChatScreen() {
 
     function renderContent() {
         switch (activeTab) {
-            case 'messages':
+            case 'messages': {
                 if (isChatsLoading) {
                     return (
                         <View style={styles.loader}>
@@ -157,11 +160,11 @@ export default function ChatScreen() {
                     return <Text style={styles.emptyText}>У вас немає жодного чату</Text>;
                 }
                 return dmChats.map(chat => {
-                    const chatTitle  = myUserId !== null ? getChatTitle(chat, myUserId) : '';
+                    const chatTitle = myUserId !== null ? getChatTitle(chat, myUserId) : '';
                     const chatAvatar = myUserId !== null ? getChatAvatar(chat, myUserId) : undefined;
-                    const lastMsg    = getChatLastMessage(chat);
-                    const lastTime   = getChatLastTime(chat);
-                    const unread     = unreadFlags.get(chat.id) ?? false;
+                    const lastMsg = getChatLastMessage(chat);
+                    const lastTime = getChatLastTime(chat);
+                    const unread = unreadFlags.get(chat.id) ?? false;
                     return (
                         <ChatListItem
                             key={chat.id}
@@ -170,12 +173,13 @@ export default function ChatScreen() {
                             subtitle={lastMsg}
                             time={lastMsg ? lastTime : undefined}
                             hasUnread={unread}
-                            onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)}
+                            highlighted={chat.id === activeChatId}
+                            onPress={() => openConversation(chat.id, chatTitle, chatAvatar)}
                         />
                     );
                 });
-
-            case 'groups':
+            }
+            case 'groups': {
                 if (isChatsLoading) {
                     return (
                         <View style={styles.loader}>
@@ -188,11 +192,11 @@ export default function ChatScreen() {
                     return <Text style={styles.emptyText}>У вас немає жодної групи</Text>;
                 }
                 return groupChats.map(chat => {
-                    const chatTitle  = chat.name ?? 'Група';
+                    const chatTitle = chat.name ?? 'Група';
                     const chatAvatar = chat.avatar ? buildAvatarUri(chat.avatar) : undefined;
-                    const lastMsg    = getChatLastMessage(chat);
-                    const lastTime   = getChatLastTime(chat);
-                    const unread     = unreadFlags.get(chat.id) ?? false;
+                    const lastMsg = getChatLastMessage(chat);
+                    const lastTime = getChatLastTime(chat);
+                    const unread = unreadFlags.get(chat.id) ?? false;
                     return (
                         <ChatListItem
                             key={chat.id}
@@ -201,13 +205,14 @@ export default function ChatScreen() {
                             subtitle={lastMsg}
                             time={lastMsg ? lastTime : undefined}
                             hasUnread={unread}
+                            highlighted={chat.id === activeChatId}
                             isGroup
-                            onPress={() => openConversation(String(chat.id), chatTitle, chatAvatar)}
+                            onPress={() => openConversation(chat.id, chatTitle, chatAvatar)}
                         />
                     );
                 });
-
-            default:
+            }
+            default: {
                 if (isFriendsLoading) {
                     return (
                         <View style={styles.loader}>
@@ -225,6 +230,7 @@ export default function ChatScreen() {
                         onPress={() => openContactProfile(contact)}
                     />
                 ));
+            }
         }
     }
 
@@ -241,37 +247,54 @@ export default function ChatScreen() {
                 messageBadge={messageBadge}
                 groupBadge={groupBadge}
             />
-            <View style={styles.panel}>
-                {renderSectionHeader()}
-                <ChatSearchBar value={searchQuery} onChangeText={setSearchQuery} />
-                <ScrollView
-                    style={styles.list}
-                    showsVerticalScrollIndicator
-                    keyboardShouldPersistTaps="handled"
-                >
-                    {renderContent()}
-                </ScrollView>
-            </View>
+            <ScrollView
+                style={styles.scrollArea}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.panel}>
+                    {renderSectionHeader()}
+                    <ChatSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+                    <View style={styles.itemsArea}>
+                        {renderContent()}
+                    </View>
+                </View>
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        flex:            1,
+        flex: 1,
         backgroundColor: CHAT_COLORS.screenBg,
     },
-    panel: {
-        flex:            1,
-        backgroundColor: CHAT_COLORS.cardBg,
+    scrollArea: {
+        flex: 1,
     },
-    list:      { flex: 1 },
-    loader:    { paddingVertical: 40, alignItems: 'center' },
+    scrollContent: {
+        paddingTop: 6,
+        paddingBottom: 24,
+    },
+    panel: {
+        backgroundColor: CHAT_COLORS.cardBg,
+        borderRadius: 16,
+        overflow: 'hidden',
+        paddingBottom: 15,
+    },
+    itemsArea: {
+        paddingTop: 15,
+    },
+    loader: {
+        paddingVertical: 40,
+        alignItems: 'center',
+    },
     emptyText: {
-        textAlign:         'center',
-        color:             CHAT_COLORS.textMuted,
-        fontSize:          15,
-        paddingVertical:   40,
+        textAlign: 'center',
+        color: CHAT_COLORS.textMuted,
+        fontSize: 15,
+        paddingVertical: 40,
         paddingHorizontal: 20,
     },
 });

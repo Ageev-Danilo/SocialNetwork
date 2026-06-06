@@ -1,19 +1,19 @@
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
 
-
 export interface ContactItemData {
-    id:        number;
-    name:      string;
+    id: number;
+    name: string;
     username?: string | null;
     avatarUri?: string;
-    isOnline?:  boolean;
+    isOnline?: boolean;
 }
 
 interface Props {
     contact: ContactItemData;
     onPress: () => void;
 }
+
 
 export function ContactListItem({ contact, onPress }: Props) {
     const initials = contact.name.slice(0, 2).toUpperCase();
@@ -41,36 +41,37 @@ export function ContactListItem({ contact, onPress }: Props) {
 
 const styles = StyleSheet.create({
     row: {
-        flexDirection:     'row',
-        alignItems:        'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical:   12,
-        gap:               14,
+        paddingVertical: 12,
+        backgroundColor: CHAT_COLORS.cardBg,
+        gap: 14,
     },
-    avatarWrap:    { position: 'relative' },
-    avatar:        { width: 48, height: 48, borderRadius: 24 },
+    avatarWrap: { position: 'relative' },
+    avatar: { width: 48, height: 48, borderRadius: 24 },
     avatarFallback: {
         backgroundColor: CHAT_COLORS.highlight,
-        justifyContent:  'center',
-        alignItems:      'center',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     initials: {
-        fontSize:   15,
+        fontSize: 15,
         fontWeight: '700',
-        color:      CHAT_COLORS.primary,
+        color: CHAT_COLORS.primary,
     },
     onlineDot: {
-        position:        'absolute',
-        bottom:          0,
-        right:           0,
-        width:           12,
-        height:          12,
-        borderRadius:    6,
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: 12,
+        height: 12,
+        borderRadius: 6,
         backgroundColor: CHAT_COLORS.online,
-        borderWidth:     2,
-        borderColor:     '#fff',
+        borderWidth: 2,
+        borderColor: '#fff',
     },
-    body:     { flex: 1 },
-    name:     { fontSize: 16, fontWeight: '600', color: CHAT_COLORS.text },
+    body: { flex: 1 },
+    name: { fontSize: 16, fontWeight: '600', color: CHAT_COLORS.text },
     username: { fontSize: 13, color: CHAT_COLORS.textMuted, marginTop: 2 },
 });

@@ -9,7 +9,7 @@ export function Bottom() {
     const chatBadge = [...flags.values()].some(Boolean) ? 1 : undefined;
 
     return (
-        <SafeAreaView style={[BASE.center, BASE.bottomBar]} edges={['bottom']}>
+        <SafeAreaView style={[BASE.center, BASE.bottomBar, { backgroundColor: '#fff' }]} edges={['bottom']}>
             <TabBtn icon="home" label="Головна" href="/home" />
             <TabBtn icon="img" label="Мої публікації" href="/posts" />
             <TabBtn icon="group" label="Друзі" href="/friends" />

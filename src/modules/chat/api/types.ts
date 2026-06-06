@@ -1,32 +1,32 @@
 export interface ChatUser {
-    id:           number;
-    email:        string;
-    firstName:    string | null;
-    lastName:     string | null;
-    username:     string | null;
+    id: number;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    username: string | null;
     profileImage: string | null;  
 }
 
 export interface ChatDto {
-    id:      number;
-    name:    string | null;
+    id: number;
+    name: string | null;
     isGroup: boolean;
-    avatar:  string | null;
+    avatar: string | null;
     adminId: number | null;
-    users:   ChatUser[];
+    users: ChatUser[];
 }
 
 export interface MessageDto {
-    id:        number;
-    text:      string;
+    id: number;
+    text: string;
     createdAt: Date;
-    sender:    ChatUser;
+    sender: ChatUser;
 }
 
 export interface CreateChatPayload {
     memberIds: number[];
-    isGroup?:  boolean;
-    name?:     string;
+    isGroup?: boolean;
+    name?: string;
 }
 export interface CreateMessagePayload {
     text: string;
