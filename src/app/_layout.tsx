@@ -14,6 +14,7 @@ import { markUnread, markRead } from '@/modules/chat/model/unread.store';
 import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
 import { getActiveChatId } from '@/modules/chat/model/activeChat.store';
 import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
+import { initLastMessages } from '@/modules/chat/model/lastMessages.store';
 
 
 const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
@@ -47,7 +48,9 @@ function AppContent() {
         }
 
         async function init() {
+            await initLastMessages();
             const token = await AsyncStorage.getItem('token');
+            
             if (!token) return;
 
             const payload = decodeJwtPayload(token);

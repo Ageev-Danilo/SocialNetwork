@@ -1,8 +1,10 @@
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
 
+
 export interface ContactItemData {
     id: number;
+    userId?: number;
     name: string;
     username?: string | null;
     avatarUri?: string;
@@ -13,7 +15,6 @@ interface Props {
     contact: ContactItemData;
     onPress: () => void;
 }
-
 
 export function ContactListItem({ contact, onPress }: Props) {
     const initials = contact.name.slice(0, 2).toUpperCase();
@@ -45,7 +46,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: CHAT_COLORS.cardBg,
         gap: 14,
     },
     avatarWrap: { position: 'relative' },

@@ -39,14 +39,11 @@ export function buildThreadItemsWithDates(msgs: MessageDto[], myUserId: number):
     const result: ThreadItem[] = [];
     let lastDateStr = '';
     for (const msg of msgs) {
-        const dateStr = new Date(msg.createdAt).toLocaleDateString('uk-UA', DATE_OPTIONS);
+        const raw = new Date(msg.createdAt).toLocaleDateString('uk-UA', DATE_OPTIONS);
+        const dateStr = raw.replace(/\s*р\.$/, '').trim();
         if (dateStr !== lastDateStr) {
             lastDateStr = dateStr;
-            result.push({
-                type: 'date',
-                id: `date-sep-${msg.id}`,
-                label: dateStr,
-            } as ThreadItem);
+            result.push({ type: 'date', id: `date-sep-${msg.id}`, label: dateStr } as ThreadItem);
         }
         result.push(messageDtoToThreadItem(msg, myUserId));
     }

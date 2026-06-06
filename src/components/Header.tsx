@@ -13,19 +13,23 @@ import { useUserContext } from '@/modules/auth/context';
 
 const CREATE_POST_ROUTES = ['/home', '/posts'];
 const SETTINGS_ROUTES    = ['/settings', '/settings/albums'];
-const CHAT_MAIN_ROUTE    = '/chat';
 
 export function Header() {
     const dispatch  = useDispatch<AppDispatch>();
     const pathname  = usePathname();
     const isOpen    = useSelector((state: RootState) => state.modal.isCreatePostOpen);
     const { setToken, setUser } = useUserContext();
-
+ 
     const showCreatePostButton = CREATE_POST_ROUTES.some(r => pathname === r);
-    const showCreateGroupButton = pathname === CHAT_MAIN_ROUTE;
-    const isChatSection         = pathname === CHAT_MAIN_ROUTE || pathname.startsWith('/chat/');
-    const showSettingsButton    = !isChatSection;
     const isSettingsActive      = SETTINGS_ROUTES.some(r => pathname === r);
+ 
+    const isChatSection = 
+        pathname === '/chat' || 
+        pathname.startsWith('/conversation/') || 
+        pathname.startsWith('/group/');
+ 
+    const showCreateGroupButton = isChatSection; 
+    const showSettingsButton    = !isChatSection;
 
     async function handleLogout() {
         await AsyncStorage.removeItem('token');
@@ -64,8 +68,7 @@ export function Header() {
                             >
                                 <Icon name="settings" />
                             </Button>
-                        )}
-
+                        )} 
                         <Button
                             type="outline"
                             onPress={handleLogout}

@@ -1,6 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { CHAT_COLORS } from './chat-theme';
-import { ContactsTabIcon, MessagesTabIcon, GroupsTabIcon } from './ChatIcons';
+import { ContactsTabIcon, MessagesTabIcon } from './ChatIcons';
 
 
 export type ChatTabId = 'contacts' | 'messages' | 'groups';
@@ -21,7 +21,6 @@ interface Props {
 function TabIcon({ id, active }: { id: ChatTabId; active: boolean }) {
     const color = active ? CHAT_COLORS.primary : CHAT_COLORS.textLight;
     if (id === 'contacts') return <ContactsTabIcon color={color} size={20} />;
-    if (id === 'groups')   return <GroupsTabIcon color={color} size={20} />;
     return <MessagesTabIcon color={color} size={20} />;
 }
 
@@ -61,34 +60,32 @@ export function ChatTabs({ activeTab, onTabChange, messageBadge, groupBadge }: P
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection:     'row',
-        backgroundColor:   CHAT_COLORS.cardBg,
+        flexDirection:   'row',
+        backgroundColor: CHAT_COLORS.cardBg,
     },
     tab: {
-        flex: 1,
+        flex:           1,
         paddingVertical: 10,
-        alignItems: 'center',
-        gap: 4,
+        alignItems:     'center',
+        gap:            4,
         borderTopWidth: 2,
         borderTopColor: 'transparent',
     },
-    tabActive: {
-        borderTopColor: CHAT_COLORS.primary,
-    },
-    iconWrap: { position: 'relative' },
+    tabActive:  { borderTopColor: CHAT_COLORS.primary },
+    iconWrap:   { position: 'relative' },
     badge: {
-        position: 'absolute',
-        top: -4,
-        right: -8,
-        minWidth: 16,
-        height: 16,
-        borderRadius: 8,
-        backgroundColor: CHAT_COLORS.badge,
-        justifyContent: 'center',
-        alignItems: 'center',
+        position:          'absolute',
+        top:               -4,
+        right:             -8,
+        minWidth:          16,
+        height:            16,
+        borderRadius:      8,
+        backgroundColor:   CHAT_COLORS.badge,
+        justifyContent:    'center',
+        alignItems:        'center',
         paddingHorizontal: 4,
     },
-    badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
-    text: { fontSize: 12, color: CHAT_COLORS.textLight, fontWeight: '600' },
+    badgeText:  { color: '#fff', fontSize: 10, fontWeight: '700' },
+    text:       { fontSize: 12, color: CHAT_COLORS.textLight, fontWeight: '600' },
     textActive: { color: CHAT_COLORS.primary, fontWeight: '700' },
 });

@@ -1,26 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { router } from 'expo-router';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { View, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { ClientSocket } from '@/shared/api';
 import { ChatThreadScreen } from '@/modules/chat';
+import type { MenuAction } from '@/modules/chat/ui/ChatThreadScreen';
 import {
     useGetChatMessagesQuery,
     useAddMessageMutation,
     useUploadChatImageMutation,
     useGetChatsQuery,
 } from '@/modules/chat/api';
-import {
-    buildThreadItemsWithDates,
-    buildIncomingItem,
-} from '@/modules/chat/model/utils';
-import { setLastMessage }    from '@/modules/chat/model/lastMessages.store';
-import { markRead }          from '@/modules/chat/model/unread.store';
-import { setActiveChatId }   from '@/modules/chat/model/activeChat.store';
-import { CHAT_COLORS }       from '@/modules/chat/ui/chat-theme';
-import type { ThreadItem }   from '@/modules/chat';
+import { buildThreadItemsWithDates, buildIncomingItem } from '@/modules/chat/model/utils';
+import { setLastMessage }  from '@/modules/chat/model/lastMessages.store';
+import { markRead }        from '@/modules/chat/model/unread.store';
+import { setActiveChatId } from '@/modules/chat/model/activeChat.store';
+import { CHAT_COLORS }     from '@/modules/chat/ui/chat-theme';
+import { MediaIcon, PencilIcon, TrashIcon, LeaveIcon } from '@/modules/chat/ui/ChatIcons';
+import type { ThreadItem }     from '@/modules/chat';
 import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
 
 
@@ -38,13 +36,13 @@ export default function ConversationScreen() {
     const { id, avatarUri } = useLocalSearchParams<{ id: string; avatarUri: string }>();
     const chatId = Number(id);
 
-    const [myUserId, setMyUserId] = useState<number | null>(null);
+    const [myUserId, setMyUserId]     = useState<number | null>(null);
     const [extraItems, setExtraItems] = useState<ThreadItem[]>([]);
     const myUserIdRef = useRef<string | null>(null);
 
     const { data: chats = [] } = useGetChatsQuery();
     const { data: messages = [], isLoading } = useGetChatMessagesQuery(chatId, {
-        skip:                      !chatId || isNaN(chatId),
+        skip: !chatId || isNaN(chatId),
         refetchOnMountOrArgChange: true,
     });
     const [addMessage]      = useAddMessageMutation();
@@ -69,7 +67,6 @@ export default function ConversationScreen() {
         ClientSocket.emit('chat:join', id, (response) => {
             if (response.joined) console.log('Joined chat:', id);
         });
-
         function onNewMessage(data: NewMessageData) {
             if (Number(data.chatId) !== chatId) return;
             if (myUserIdRef.current != null && data.userId === myUserIdRef.current) return;
@@ -79,7 +76,6 @@ export default function ConversationScreen() {
                 : undefined;
             setExtraItems(prev => [...prev, buildIncomingItem(data.message, senderName)]);
         }
-
         ClientSocket.on('chat:new-message', onNewMessage);
         return () => {
             ClientSocket.emit('chat:leave', id, (response) => {
@@ -96,7 +92,14 @@ export default function ConversationScreen() {
         if (chat.isGroup) return chat.name ?? 'Група';
         const other = chat.users.find(u => u.id !== myUserId);
         const fullName = [other?.firstName, other?.lastName].filter(Boolean).join(' ');
-        return fullName || other?.username || other?.email || `Чат #${id}`;
+        if (fullName.trim()) return fullName;
+        if (other?.username) {
+            const clean = other.username.includes('@')
+                ? other.username.split('@')[0]
+                : other.username;
+            return clean || 'Користувач';
+        }
+        return 'Користувач';
     })();
 
     const chatAvatarUri = (() => {
@@ -112,12 +115,48 @@ export default function ConversationScreen() {
         return count > 0 ? `${count} учасників, 0 в мережі` : undefined;
     })();
 
+    const isGroupAdmin = chat?.isGroup ? chat.adminId === myUserId : false;
+
+    const menuActions = useMemo((): MenuAction[] | undefined => {
+        if (!chat?.isGroup) return undefined;
+        const media: MenuAction = {
+            label:   'Медіа',
+            icon:    <MediaIcon size={20} />,
+            onPress: () => Alert.alert('Медіа', 'скоро'),
+        };
+        if (isGroupAdmin) {
+            return [
+                media,
+                {
+                    label:   'Редагувати групу',
+                    icon:    <PencilIcon size={20} />,
+                    onPress: () => Alert.alert('Редагування', 'скоро'),
+                },
+                {
+                    label:   'Видалити чат',
+                    icon:    <TrashIcon size={20} />,
+                    onPress: () => Alert.alert('Видалити чат', 'скоро'),
+                    danger:  true,
+                },
+            ];
+        }
+        return [
+            media,
+            {
+                label:   'Покинути групу',
+                icon:    <LeaveIcon size={20} />,
+                onPress: () => Alert.alert('Покинути групу', 'скоро'),
+                danger:  true,
+            },
+        ];
+    }, [chat, isGroupAdmin]);
+
     async function sendText(text: string) {
         const tempId = `optimistic-${Date.now()}`;
         const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
         const optimistic: ThreadItem = {
             type: 'message',
-            id: tempId,
+            id:   tempId,
             data: { id: tempId, text, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, optimistic]);
@@ -139,7 +178,7 @@ export default function ConversationScreen() {
         const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
         const placeholder: ThreadItem = {
             type: 'message',
-            id: tempId,
+            id:   tempId,
             data: { id: tempId, text: uri, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, placeholder]);
@@ -169,7 +208,6 @@ export default function ConversationScreen() {
 
     const historyItems = buildThreadItemsWithDates(messages, myUserId);
     const allItems = [...historyItems, ...extraItems];
-
     const isGroup = chat?.isGroup ?? false;
     const activeTab = isGroup ? 'groups' : 'messages';
 
@@ -183,15 +221,16 @@ export default function ConversationScreen() {
             onAttachPress={handleAttachPress}
             activeTab={activeTab}
             onTabChange={() => router.back()}
+            menuActions={menuActions}
         />
     );
 }
 
 const styles = StyleSheet.create({
     center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        flex:            1,
+        justifyContent:  'center',
+        alignItems:      'center',
         backgroundColor: CHAT_COLORS.screenBg,
     },
 });

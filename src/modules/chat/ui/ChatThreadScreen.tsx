@@ -1,40 +1,37 @@
-import { useState, useRef } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, Pressable, TextInput } from 'react-native';
+import { type ReactNode, useRef, useState } from 'react';
+import { FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { router } from 'expo-router';
-import Svg, { Rect, Path } from 'react-native-svg';
-import type { ThreadItem, MessageStatus } from '../model/mock-data';
+import type { MessageStatus, ThreadItem } from '../model/mock-data';
 import { CHAT_COLORS } from './chat-theme';
-import { BackIcon, MenuDotsIcon, CheckSingleIcon, CheckDoubleIcon } from './ChatIcons';
-import { ChatTabs } from './ChatTabs';
+import { BackIcon, CheckDoubleIcon, CheckSingleIcon, MenuDotsIcon } from './ChatIcons';
 import type { ChatTabId } from './ChatTabs';
+import { ChatTabs } from './ChatTabs';
 
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+const IMAGE_REGEX = /\.(jpg|jpeg|png|webp|gif)/;
+
+export interface MenuAction {
+    label:   string;
+    icon:    ReactNode;
+    onPress: () => void;
+    danger?: boolean;
+}
 
 interface Props {
-    title: string;
-    subtitle?: string;
-    avatarUri?: string;
-    initials?: string;
-    items: ThreadItem[];
+    title:          string;
+    subtitle?:      string;
+    avatarUri?:     string;
+    initials?:      string;
+    items:          ThreadItem[];
     onSendMessage?: (text: string) => void;
     onAttachPress?: () => void;
-    activeTab?: ChatTabId;
-    onTabChange?: (id: ChatTabId) => void;
-    messageBadge?: number;
-    groupBadge?: number;
-}
-
-function isImageMessage(text: string): boolean {
-    const t = text.toLowerCase();
-    return /\.(jpg|jpeg|png|webp|gif)/.test(t) && (t.startsWith('/media') || t.startsWith('http'));
-}
-function getImageUri(text: string): string {
-    return text.startsWith('/media') ? `${BASE_URL}${text}` : text;
-}
-function MessageStatusIcon({ status }: { status?: MessageStatus }) {
-    if (status === 'read' || status === 'delivered') return <CheckDoubleIcon />;
-    return <CheckSingleIcon />;
+    activeTab?:     ChatTabId;
+    onTabChange?:   (id: ChatTabId) => void;
+    messageBadge?:  number;
+    groupBadge?:    number;
+    menuActions?:   MenuAction[];
 }
 
 function AttachIcon() {
@@ -51,21 +48,49 @@ function AttachIcon() {
 function SendButton() {
     return (
         <Svg width={40} height={40} viewBox="0 0 40 40" fill="none">
-            <Rect x={0.5} y={0.5} width={39} height={39} rx={19.5} fill="#543C52" stroke="#543C52" />
-            <Path d="M27.3316 18.63L14.2019 11.1378C13.9251 10.9827 13.6076 10.9156 13.2917 10.9454C12.9758 10.9751 12.6764 11.1004 12.4335 11.3044C12.1905 11.5085 12.0154 11.7817 11.9314 12.0877C11.8475 12.3937 11.8587 12.718 11.9636 13.0175L14.3214 19.9987L11.9636 26.98C11.8807 27.2155 11.8555 27.4674 11.89 27.7147C11.9245 27.962 12.0178 28.1974 12.162 28.4012C12.3062 28.6051 12.4972 28.7713 12.7189 28.8862C12.9406 29.001 13.1866 29.061 13.4363 29.0612C13.7048 29.0607 13.9687 28.9913 14.2027 28.8597L14.2097 28.855L27.3347 21.3495C27.5754 21.2133 27.7756 21.0156 27.9148 20.7767C28.0541 20.5378 28.1275 20.2663 28.1275 19.9897C28.1275 19.7132 28.0541 19.4416 27.9148 19.2027C27.7756 18.9638 27.5754 18.7662 27.3347 18.63H27.3316Z" fill="white" />
+            <Rect x={0.5} y={0.5} width={39} height={39} rx={19.5} fill="#543C52" />
+            <Rect x={0.5} y={0.5} width={39} height={39} rx={19.5} stroke="#543C52" />
+            <Path d="M27.3316 18.63L14.2019 11.1378C13.9251 10.9827 13.6076 10.9156 13.2917 10.9454C12.9758 10.9751 12.6764 11.1004 12.4335 11.3044C12.1905 11.5085 12.0154 11.7817 11.9314 12.0877C11.8475 12.3937 11.8587 12.718 11.9636 13.0175L14.3214 19.9987L11.9636 26.98C11.8807 27.2155 11.8555 27.4674 11.89 27.7147C11.9245 27.962 12.0178 28.1974 12.162 28.4012C12.3062 28.6051 12.4972 28.7713 12.7189 28.8862C12.9406 29.001 13.1866 29.061 13.4363 29.0612C13.7048 29.0607 13.9687 28.9913 14.2027 28.8597L14.2097 28.855L27.3347 21.3495C27.5754 21.2133 27.7756 21.0156 27.9148 20.7767C28.0541 20.5378 28.1275 20.2663 28.1275 19.9897C28.1275 19.7132 28.0541 19.4416 27.9148 19.2027C27.7756 18.9638 27.5754 18.7662 27.3347 18.63H27.3316ZM13.998 26.8159L15.9839 20.9362H20.3113C20.5599 20.9362 20.7984 20.8374 20.9742 20.6616C21.15 20.4858 21.2488 20.2474 21.2488 19.9987C21.2488 19.7501 21.15 19.5116 20.9742 19.3358C20.7984 19.16 20.5599 19.0612 20.3113 19.0612H15.9839L13.9972 13.18L25.9316 19.9901L13.998 26.8159Z" fill="white" />
         </Svg>
     );
 }
 
+function isImageMessage(text: string): boolean {
+    const t = text.toLowerCase();
+    return IMAGE_REGEX.test(t) && (t.startsWith('/media') || t.startsWith('http'));
+}
+
+function getImageUri(text: string): string {
+    return text.startsWith('/media') ? `${BASE_URL}${text}` : text;
+}
+
+function MessageStatusIcon({ status }: { status?: MessageStatus }) {
+    if (status === 'read' || status === 'delivered') return <CheckDoubleIcon />;
+    return <CheckSingleIcon />;
+}
+
+function getInitials(text: string): string {
+    const clean = text.trim().replace(/^@/, '');
+    const noEmail = clean.includes('@') ? clean.split('@')[0] : clean;
+    const words = noEmail.split(/[\s._-]+/).filter(Boolean);
+    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+    return (noEmail.slice(0, 2) || 'U').toUpperCase();
+}
 
 export function ChatThreadScreen({
     title, subtitle, avatarUri, initials, items,
     onSendMessage, onAttachPress,
-    activeTab, onTabChange, messageBadge, groupBadge,
+    activeTab, onTabChange,
+    messageBadge, groupBadge,
+    menuActions,
 }: Props) {
     const [inputText, setInputText] = useState('');
+    const [menuOpen, setMenuOpen]   = useState(false);
     const listRef = useRef<FlatList>(null);
-    const avatarLabel = initials ?? title.slice(0, 2).toUpperCase();
+
+    const displayTitle = title || 'Користувач';
+    const avatarLabel  = initials ?? getInitials(displayTitle);
+    const hasMenu      = (menuActions?.length ?? 0) > 0;
 
     function handleSend() {
         const trimmed = inputText.trim();
@@ -83,10 +108,11 @@ export function ChatThreadScreen({
 
     function renderItem({ item }: { item: ThreadItem }) {
         if (item.type === 'date') {
+            const cleanLabel = item.label.replace(/\s*р\.?$/, '');
             return (
                 <View style={styles.dateWrap}>
                     <View style={styles.dateBox}>
-                        <Text style={styles.dateText}>{item.label}</Text>
+                        <Text style={styles.dateText}>{cleanLabel}</Text>
                     </View>
                 </View>
             );
@@ -117,12 +143,18 @@ export function ChatThreadScreen({
             );
         }
 
+        const senderDisplay = msg.senderName || 'Користувач';
+        const msgInitials   = getInitials(senderDisplay);
+
         return (
             <View style={styles.otherWrap}>
-                {msg.senderAvatarUri
-                    ? <Image source={{ uri: msg.senderAvatarUri }} style={styles.msgAvatar} />
-                    : <View style={[styles.msgAvatar, styles.msgAvatarPlaceholder]} />
-                }
+                {msg.senderAvatarUri ? (
+                    <Image source={{ uri: msg.senderAvatarUri }} style={styles.msgAvatar} />
+                ) : (
+                    <View style={[styles.msgAvatar, styles.msgAvatarFallback]}>
+                        <Text style={styles.msgAvatarInitials}>{msgInitials}</Text>
+                    </View>
+                )}
                 <View style={styles.bubbleOtherCol}>
                     <View style={styles.bubbleOther}>
                         {msg.senderName ? <Text style={styles.senderName}>{msg.senderName}</Text> : null}
@@ -138,25 +170,20 @@ export function ChatThreadScreen({
     }
 
     return (
-        <View style={styles.screen}> 
+        <View style={styles.screen}>
             {activeTab !== undefined && (
-                <>
-                    <ChatTabs
-                        activeTab={activeTab}
-                        onTabChange={onTabChange ?? (() => router.back())}
-                        messageBadge={messageBadge}
-                        groupBadge={groupBadge}
-                    /> 
-                    <View style={styles.tabGap} />
-                </>
-            )} 
+                <ChatTabs
+                    activeTab={activeTab}
+                    onTabChange={onTabChange ?? (() => router.back())}
+                    messageBadge={messageBadge}
+                    groupBadge={groupBadge}
+                />
+            )}
             <View style={styles.card}>
- 
                 <View style={styles.topBar}>
                     <Pressable onPress={() => router.back()} style={styles.iconBtn}>
                         <BackIcon />
                     </Pressable>
-
                     {avatarUri ? (
                         <Image source={{ uri: avatarUri }} style={styles.headerAvatar} />
                     ) : (
@@ -164,22 +191,44 @@ export function ChatThreadScreen({
                             <Text style={styles.headerInitialsText}>{avatarLabel}</Text>
                         </View>
                     )}
-
                     <View style={styles.headerInfo}>
-                        <Text style={styles.headerTitle} numberOfLines={1}>{title}</Text>
-                        {subtitle
-                            ? <Text style={styles.headerSubtitle} numberOfLines={1}>{subtitle}</Text>
-                            : null
-                        }
+                        <Text style={styles.headerTitle} numberOfLines={1}>{displayTitle}</Text>
+                        {subtitle ? <Text style={styles.headerSubtitle} numberOfLines={1}>{subtitle}</Text> : null}
                     </View>
-
-                    <Pressable style={styles.iconBtn}>
+                    <Pressable
+                        style={styles.iconBtn}
+                        onPress={hasMenu ? () => setMenuOpen(v => !v) : undefined}
+                    >
                         <MenuDotsIcon />
                     </Pressable>
                 </View>
- 
+
                 <View style={styles.headerSeparator} />
- 
+
+                {menuOpen && (
+                    <>
+                        <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)} />
+                        <View style={styles.menuDropdown}>
+                            {menuActions?.map((action, i) => {
+                                const isFirstDanger = action.danger &&
+                                    menuActions.findIndex(a => a.danger) === i;
+                                return (
+                                    <View key={i}>
+                                        {isFirstDanger && <View style={styles.menuSeparator} />}
+                                        <Pressable
+                                            style={styles.menuItem}
+                                            onPress={() => { setMenuOpen(false); action.onPress(); }}
+                                        >
+                                            <View style={styles.menuIconWrap}>{action.icon}</View>
+                                            <Text style={styles.menuLabel}>{action.label}</Text>
+                                        </Pressable>
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    </>
+                )}
+
                 <FlatList
                     ref={listRef}
                     data={items}
@@ -190,7 +239,7 @@ export function ChatThreadScreen({
                     onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
                     onLayout={() => listRef.current?.scrollToEnd({ animated: false })}
                 />
- 
+
                 <View style={styles.inputBar}>
                     <TextInput
                         style={styles.inputField}
@@ -208,115 +257,131 @@ export function ChatThreadScreen({
                     </Pressable>
                 </View>
             </View>
- 
-            <View style={styles.footerGap} />
-
         </View>
     );
 }
- 
 
-const styles = StyleSheet.create({ 
-    screen: { flex: 1, backgroundColor: CHAT_COLORS.screenBg }, 
-    tabGap: { height: 8, backgroundColor: CHAT_COLORS.screenBg }, 
-    card: {
-        flex: 1,
-        backgroundColor: CHAT_COLORS.cardBg,
-        borderRadius: 20,
-        overflow: 'hidden',    
-        borderWidth: 2,
-        borderColor: CHAT_COLORS.border, 
-    },
+const styles = StyleSheet.create({
+    screen:               { flex: 1, backgroundColor: CHAT_COLORS.cardBg },
+    card:                 { flex: 1, backgroundColor: CHAT_COLORS.cardBg },
     topBar: {
         flexDirection:     'row',
         alignItems:        'center',
         paddingHorizontal: 8,
         paddingVertical:   12,
         backgroundColor:   CHAT_COLORS.cardBg,
-        gap:               10, 
+        gap:               10,
+        zIndex:            1,
     },
-    iconBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }, 
-    headerAvatar:        { width: 52, height: 52, borderRadius: 26 },
-    headerAvatarFallback: {
-        backgroundColor: CHAT_COLORS.primary,
-        justifyContent:  'center',
-        alignItems:      'center',
+    iconBtn:              { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+    headerAvatar:         { width: 52, height: 52, borderRadius: 26 },
+    headerAvatarFallback: { backgroundColor: '#543C52', justifyContent: 'center', alignItems: 'center' },
+    headerInitialsText:   { fontSize: 15, fontWeight: '700', color: '#fff' },
+    headerInfo:           { flex: 1 },
+    headerTitle:          { fontSize: 19, fontWeight: '700', color: CHAT_COLORS.text },
+    headerSubtitle:       { fontSize: 13, color: CHAT_COLORS.textMuted, marginTop: 2 },
+    headerSeparator:      { height: 1, backgroundColor: CHAT_COLORS.border, marginHorizontal: 16 },
+    menuBackdrop: {
+        position:          'absolute',
+        top:               0,
+        left:              0,
+        right:             0,
+        bottom:            0,
+        zIndex:            10,
     },
-    headerInitialsText: { fontSize: 15, fontWeight: '700', color: '#fff' },
-    headerInfo:         { flex: 1 },
-    headerTitle:        { fontSize: 19, fontWeight: '700', color: CHAT_COLORS.text },
-    headerSubtitle:     { fontSize: 13, color: CHAT_COLORS.textMuted, marginTop: 2 }, 
-    headerSeparator: {
-        height:           1,
-        backgroundColor:  CHAT_COLORS.border,
-        marginHorizontal: 16,   
-    }, 
-    list: {
-        flex:            1,
-        backgroundColor: CHAT_COLORS.cardBg,
+    menuDropdown: {
+        position:          'absolute',
+        top:               72,
+        right:             8,
+        backgroundColor:   '#EDE8F2',
+        borderRadius:      16,
+        paddingVertical:   8,
+        minWidth:          220,
+        shadowColor:       '#000',
+        shadowOffset:      { width: 0, height: 4 },
+        shadowOpacity:     0.12,
+        shadowRadius:      12,
+        elevation:         8,
+        zIndex:            11,
     },
-    messagesList: { paddingHorizontal: 16, paddingVertical: 16, gap: 12 },  
-    dateWrap: { alignItems: 'center', marginVertical: 8 },
-    dateBox:  {
-        paddingHorizontal: 14,
-        paddingVertical:   6,
-        borderRadius:      12,
-        backgroundColor:   CHAT_COLORS.dateBg,
+    menuSeparator: {
+        height:          1,
+        backgroundColor: '#D1C9DB',
+        marginHorizontal: 12,
+        marginVertical:  4,
     },
-    dateText: { fontSize: 13, color: CHAT_COLORS.textMuted },  
-    dividerWrap: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
-    dividerLine: { flex: 1, height: 1, backgroundColor: CHAT_COLORS.border },
-    dividerText: { fontSize: 13, color: CHAT_COLORS.textMuted }, 
-    mineWrap: { alignItems: 'flex-end' },
+    menuItem: {
+        flexDirection:     'row',
+        alignItems:        'center',
+        paddingHorizontal: 16,
+        paddingVertical:   14,
+        gap:               14,
+    },
+    menuIconWrap: {
+        width:          24,
+        height:         24,
+        justifyContent: 'center',
+        alignItems:     'center',
+    },
+    menuLabel:            { fontSize: 16, fontWeight: '500', color: '#0A0A14' },
+    list:                 { flex: 1, backgroundColor: CHAT_COLORS.cardBg },
+    messagesList:         { paddingHorizontal: 16, paddingVertical: 16, gap: 12 },
+    dateWrap:             { alignItems: 'center', marginVertical: 8 },
+    dateBox:              { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 12, backgroundColor: '#E9E5EE' },
+    dateText:             { fontSize: 13, color: CHAT_COLORS.textMuted },
+    dividerWrap:          { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 12 },
+    dividerLine:          { flex: 1, height: 1, backgroundColor: CHAT_COLORS.border },
+    dividerText:          { fontSize: 13, color: CHAT_COLORS.textMuted },
+    mineWrap:             { alignItems: 'flex-end' },
     bubbleMine: {
-        maxWidth: '78%',
-        backgroundColor: CHAT_COLORS.bubbleMine,
-        borderRadius: 16,
+        maxWidth:                '78%',
+        backgroundColor:         '#CDCED2',
+        borderRadius:            16,
         borderBottomRightRadius: 4,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        gap: 4,
-    }, 
-    otherWrap: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: '88%' },
-    msgAvatar: { width: 36, height: 36, borderRadius: 18 },
-    msgAvatarPlaceholder: { backgroundColor: CHAT_COLORS.highlight },
-    bubbleOtherCol: { flex: 1 },
-    bubbleOther: {
-        backgroundColor: CHAT_COLORS.bubbleOther,
-        borderWidth: 1,
-        borderColor: CHAT_COLORS.bubbleOtherBorder,
-        borderRadius: 16,
-        borderBottomLeftRadius: 4,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        gap: 4,
+        paddingHorizontal:       14,
+        paddingVertical:         10,
+        gap:                     4,
     },
-    senderName: { fontSize: 12, fontWeight: '600', color: CHAT_COLORS.primary, marginBottom: 2 },
-    bubbleText: { fontSize: 15, color: CHAT_COLORS.text },
-    messageImage: { width: 200, height: 150, borderRadius: 8 },
-    metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
-    metaTime: { fontSize: 11, color: CHAT_COLORS.textMuted }, 
+    otherWrap:            { flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: '88%' },
+    msgAvatar:            { width: 36, height: 36, borderRadius: 18 },
+    msgAvatarFallback:    { backgroundColor: '#543C52', justifyContent: 'center', alignItems: 'center' },
+    msgAvatarInitials:    { fontSize: 12, fontWeight: '700', color: '#fff' },
+    bubbleOtherCol:       { flex: 1 },
+    bubbleOther: {
+        backgroundColor:       CHAT_COLORS.bubbleOther,
+        borderWidth:           1,
+        borderColor:           CHAT_COLORS.bubbleOtherBorder,
+        borderRadius:          16,
+        borderBottomLeftRadius: 4,
+        paddingHorizontal:     14,
+        paddingVertical:       10,
+        gap:                   4,
+    },
+    senderName:           { fontSize: 12, fontWeight: '600', color: '#543C52', marginBottom: 2 },
+    bubbleText:           { fontSize: 15, color: CHAT_COLORS.text },
+    messageImage:         { width: 200, height: 150, borderRadius: 8 },
+    metaRow:              { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
+    metaTime:             { fontSize: 11, color: CHAT_COLORS.textMuted },
     inputBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection:     'row',
+        alignItems:        'center',
         paddingHorizontal: 12,
-        paddingVertical: 10,
-        backgroundColor: CHAT_COLORS.cardBg,
-        gap: 8,
+        paddingVertical:   10,
+        backgroundColor:   CHAT_COLORS.cardBg,
+        gap:               8,
     },
     inputField: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: CHAT_COLORS.border,
-        borderRadius: 24,
+        flex:              1,
+        borderWidth:       1,
+        borderColor:       CHAT_COLORS.border,
+        borderRadius:      24,
         paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: CHAT_COLORS.cardBg,
-        fontSize: 15,
-        color: CHAT_COLORS.text,
-        maxHeight: 100,
+        paddingVertical:   12,
+        backgroundColor:   CHAT_COLORS.cardBg,
+        fontSize:          15,
+        color:             CHAT_COLORS.text,
+        maxHeight:         100,
     },
-    attachBtn: { justifyContent: 'center', alignItems: 'center' },
-    sendBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }, 
-    footerGap: { height: 8, backgroundColor: CHAT_COLORS.screenBg },
+    attachBtn:            { justifyContent: 'center', alignItems: 'center' },
+    sendBtn:              { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
 });

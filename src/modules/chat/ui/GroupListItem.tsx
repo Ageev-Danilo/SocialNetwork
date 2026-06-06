@@ -38,15 +38,15 @@ const styles = StyleSheet.create({
     avatar: {
         width: 52,
         height: 52,
-        borderRadius: 26,
-        backgroundColor: CHAT_COLORS.highlight,
+        borderRadius: 26, 
+        backgroundColor: '#543C52',
         justifyContent: 'center',
         alignItems: 'center',
     },
     initials: {
         fontSize: 16,
         fontWeight: '700',
-        color: CHAT_COLORS.primary,
+        color: '#fff',  
     },
     body: { flex: 1, gap: 4 },
     topRow: {
