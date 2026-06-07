@@ -3,9 +3,9 @@ import { SearchIcon } from './ChatIcons';
 import { CHAT_COLORS } from './chat-theme';
 
 interface Props {
-    value:         string;
-    onChangeText:  (text: string) => void;
-    placeholder?:  string;
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder?: string;
 }
 
 export function ChatSearchBar({ value, onChangeText, placeholder = 'Пошук' }: Props) {
@@ -25,22 +25,22 @@ export function ChatSearchBar({ value, onChangeText, placeholder = 'Пошук' 
 
 const styles = StyleSheet.create({
     wrap: {
-        flexDirection:     'row',
-        alignItems:        'center',
-        marginHorizontal:  16,
-        marginBottom:      12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 16,
+        marginBottom: 12,
         paddingHorizontal: 14,
-        paddingVertical:   10,
-        borderRadius:      24,
-        borderWidth:       1,
-        borderColor:       CHAT_COLORS.border,
-        backgroundColor:   CHAT_COLORS.cardBg,
-        gap:               10,
+        paddingVertical: 10,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: CHAT_COLORS.border,
+        backgroundColor: CHAT_COLORS.cardBg,
+        gap: 10,
     },
     input: {
-        flex:     1,
+        flex: 1,
         fontSize: 15,
-        color:    CHAT_COLORS.text,
-        padding:  0,
+        color: CHAT_COLORS.text,
+        padding: 0,
     },
 });

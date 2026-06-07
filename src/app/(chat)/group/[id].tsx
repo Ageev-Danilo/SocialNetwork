@@ -13,11 +13,12 @@ import {
     useGetChatsQuery,
 } from '@/modules/chat/api';
 import { messageDtoToThreadItem, buildIncomingItem, buildThreadItemsWithDates } from '@/modules/chat/model/utils';
-import { setLastMessage }  from '@/modules/chat/model/lastMessages.store';
+import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
 import { markRead } from '@/modules/chat/model/unread.store';
 import { setActiveChatId } from '@/modules/chat/model/activeChat.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { MediaIcon, PencilIcon, TrashIcon, LeaveIcon } from '@/modules/chat/ui/ChatIcons';
+import { EditGroupModal } from '@/modules/chat/ui/EditGroupModal';
 import type { ThreadItem } from '@/modules/chat';
 import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
 
@@ -30,6 +31,7 @@ export default function GroupChatScreen() {
 
     const [myUserId, setMyUserId] = useState<number | null>(null);
     const [extraItems, setExtraItems] = useState<ThreadItem[]>([]);
+    const [editModalVisible, setEditModalVisible] = useState(false);
     const myUserIdRef = useRef<string | null>(null);
 
     const { data: chats = [] } = useGetChatsQuery();
@@ -37,7 +39,7 @@ export default function GroupChatScreen() {
         skip: !chatId || isNaN(chatId),
         refetchOnMountOrArgChange: true,
     });
-    const [addMessage]      = useAddMessageMutation();
+    const [addMessage] = useAddMessageMutation();
     const [uploadChatImage] = useUploadChatImageMutation();
 
     useEffect(() => {
@@ -88,7 +90,7 @@ export default function GroupChatScreen() {
                 {
                     label: 'Редагувати групу',
                     icon: <PencilIcon size={20} />,
-                    onPress: () => Alert.alert('Редагування', 'скоро'),
+                    onPress: () => setEditModalVisible(true),
                 },
                 {
                     label: 'Видалити чат',
@@ -136,7 +138,7 @@ export default function GroupChatScreen() {
         const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
         const placeholder: ThreadItem = {
             type: 'message',
-            id:   tempId,
+            id: tempId,
             data: { id: tempId, text: uri, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, placeholder]);
@@ -165,29 +167,36 @@ export default function GroupChatScreen() {
     }
 
     const historyItems = buildThreadItemsWithDates(messages, myUserId);
-    const allItems     = [...historyItems, ...extraItems];
+    const allItems = [...historyItems, ...extraItems];
     const groupInitials = (title ?? 'G').slice(0, 2).toUpperCase();
 
     return (
-        <ChatThreadScreen
-            title={title ?? 'Група'}
-            subtitle={chat ? `${chat.users.length} учасників, 0 в мережі` : undefined}
-            initials={groupInitials}
-            items={allItems}
-            onSendMessage={sendText}
-            onAttachPress={handleAttachPress}
-            activeTab="groups"
-            onTabChange={() => router.back()}
-            menuActions={menuActions}
-        />
+        <>
+            <ChatThreadScreen
+                title={title ?? 'Група'}
+                subtitle={chat ? `${chat.users.length} учасників, 0 в мережі` : undefined}
+                initials={groupInitials}
+                items={allItems}
+                onSendMessage={sendText}
+                onAttachPress={handleAttachPress}
+                activeTab="groups"
+                onTabChange={() => router.back()}
+                menuActions={menuActions}
+            />
+            <EditGroupModal
+                visible={editModalVisible}
+                onClose={() => setEditModalVisible(false)}
+                chatId={chatId}
+            />
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     center: {
-        flex:            1,
-        justifyContent:  'center',
-        alignItems:      'center',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: CHAT_COLORS.screenBg,
     },
 });

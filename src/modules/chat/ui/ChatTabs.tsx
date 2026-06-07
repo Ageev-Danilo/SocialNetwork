@@ -6,16 +6,16 @@ import { ContactsTabIcon, MessagesTabIcon } from './ChatIcons';
 export type ChatTabId = 'contacts' | 'messages' | 'groups';
 
 const CHAT_TABS: { label: string; id: ChatTabId }[] = [
-    { label: 'Контакти',     id: 'contacts' },
+    { label: 'Контакти', id: 'contacts' },
     { label: 'Повідомлення', id: 'messages' },
     { label: 'Групові чати', id: 'groups'   },
 ];
 
 interface Props {
-    activeTab:     ChatTabId;
-    onTabChange:   (id: ChatTabId) => void;
+    activeTab: ChatTabId;
+    onTabChange: (id: ChatTabId) => void;
     messageBadge?: number;
-    groupBadge?:   number;
+    groupBadge?: number;
 }
 
 function TabIcon({ id, active }: { id: ChatTabId; active: boolean }) {
@@ -31,7 +31,7 @@ export function ChatTabs({ activeTab, onTabChange, messageBadge, groupBadge }: P
                 const isActive = activeTab === tab.id;
                 const badge =
                     tab.id === 'messages' ? messageBadge :
-                    tab.id === 'groups'   ? groupBadge   : undefined;
+                    tab.id === 'groups' ? groupBadge   : undefined;
                 const hasBadge = badge != null && badge > 0;
 
                 return (
@@ -60,32 +60,32 @@ export function ChatTabs({ activeTab, onTabChange, messageBadge, groupBadge }: P
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection:   'row',
+        flexDirection: 'row',
         backgroundColor: CHAT_COLORS.cardBg,
     },
     tab: {
-        flex:           1,
+        flex: 1,
         paddingVertical: 10,
-        alignItems:     'center',
-        gap:            4,
+        alignItems: 'center',
+        gap: 4,
         borderTopWidth: 2,
         borderTopColor: 'transparent',
     },
-    tabActive:  { borderTopColor: CHAT_COLORS.primary },
-    iconWrap:   { position: 'relative' },
+    tabActive: { borderTopColor: CHAT_COLORS.primary },
+    iconWrap: { position: 'relative' },
     badge: {
-        position:          'absolute',
-        top:               -4,
-        right:             -8,
-        minWidth:          16,
-        height:            16,
-        borderRadius:      8,
-        backgroundColor:   CHAT_COLORS.badge,
-        justifyContent:    'center',
-        alignItems:        'center',
+        position: 'absolute',
+        top: -4,
+        right: -8,
+        minWidth: 16,
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: CHAT_COLORS.badge,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 4,
     },
-    badgeText:  { color: '#fff', fontSize: 10, fontWeight: '700' },
-    text:       { fontSize: 12, color: CHAT_COLORS.textLight, fontWeight: '600' },
+    badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+    text: { fontSize: 12, color: CHAT_COLORS.textLight, fontWeight: '600' },
     textActive: { color: CHAT_COLORS.primary, fontWeight: '700' },
 });

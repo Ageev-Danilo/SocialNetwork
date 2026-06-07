@@ -4,10 +4,10 @@ import { CHAT_COLORS } from './chat-theme';
 
 
 interface Props {
-    title:         string;
-    icon?:         ReactNode;
-    rightIcon?:    ReactNode;
-    badge?:        number;
+    title: string;
+    icon?: ReactNode;
+    rightIcon?: ReactNode;
+    badge?: number;
     onRightPress?: () => void;
 }
 
@@ -38,40 +38,40 @@ export function ChatSectionHeader({ title, icon, rightIcon, badge, onRightPress 
 
 const styles = StyleSheet.create({
     row: {
-        flexDirection:     'row',
-        alignItems:        'center',
-        justifyContent:    'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop:        16,
-        paddingBottom:     12,
+        paddingTop: 16,
+        paddingBottom: 12,
     },
     left: {
         flexDirection: 'row',
-        alignItems:    'center',
-        gap:           8,
+        alignItems: 'center',
+        gap: 8,
     },
     title: {
-        fontSize:   20,
+        fontSize: 20,
         fontWeight: '500',
-        color:      CHAT_COLORS.textMuted,
+        color: CHAT_COLORS.textMuted,
     },
     right: {
         flexDirection: 'row',
-        alignItems:    'center',
-        gap:           6,
+        alignItems: 'center',
+        gap: 6,
     },
     badge: {
-        minWidth:          20,
-        height:            20,
-        borderRadius:      10,
-        backgroundColor:   CHAT_COLORS.badge,
-        justifyContent:    'center',
-        alignItems:        'center',
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: CHAT_COLORS.badge,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 5,
     },
     badgeText: {
-        color:      '#fff',
-        fontSize:   12,
+        color: '#fff',
+        fontSize: 12,
         fontWeight: '700',
     },
 });

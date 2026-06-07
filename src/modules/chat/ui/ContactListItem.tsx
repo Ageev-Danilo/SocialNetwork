@@ -16,8 +16,28 @@ interface Props {
     onPress: () => void;
 }
 
+function getInitials(name: string, username?: string | null): string {
+    const trimmed = name.trim();
+    if (trimmed && trimmed !== 'Користувач') {
+        const words = trimmed.split(/\s+/).filter(Boolean);
+        if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+        return trimmed.slice(0, 2).toUpperCase();
+    }
+    if (username) {
+        const clean = username.replace(/^@/, '').split('@')[0];
+        return clean.slice(0, 2).toUpperCase();
+    }
+    return 'КO';
+}
+
+function getDisplayName(name: string): string {
+    return name.trim() || 'Користувач';
+}
+
 export function ContactListItem({ contact, onPress }: Props) {
-    const initials = contact.name.slice(0, 2).toUpperCase();
+    const displayName = getDisplayName(contact.name);
+    const initials = getInitials(contact.name, contact.username);
+
     return (
         <Pressable style={styles.row} onPress={onPress}>
             <View style={styles.avatarWrap}>
@@ -31,7 +51,7 @@ export function ContactListItem({ contact, onPress }: Props) {
                 {contact.isOnline && <View style={styles.onlineDot} />}
             </View>
             <View style={styles.body}>
-                <Text style={styles.name}>{contact.name}</Text>
+                <Text style={styles.name}>{displayName}</Text>
                 {contact.username ? (
                     <Text style={styles.username}>@{contact.username}</Text>
                 ) : null}
@@ -51,14 +71,14 @@ const styles = StyleSheet.create({
     avatarWrap: { position: 'relative' },
     avatar: { width: 48, height: 48, borderRadius: 24 },
     avatarFallback: {
-        backgroundColor: CHAT_COLORS.highlight,
+        backgroundColor: '#543C52',
         justifyContent: 'center',
         alignItems: 'center',
     },
     initials: {
         fontSize: 15,
         fontWeight: '700',
-        color: CHAT_COLORS.primary,
+        color: '#fff',
     },
     onlineDot: {
         position: 'absolute',

@@ -13,12 +13,13 @@ import {
     useGetChatsQuery,
 } from '@/modules/chat/api';
 import { buildThreadItemsWithDates, buildIncomingItem } from '@/modules/chat/model/utils';
-import { setLastMessage }  from '@/modules/chat/model/lastMessages.store';
-import { markRead }        from '@/modules/chat/model/unread.store';
+import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
+import { markRead } from '@/modules/chat/model/unread.store';
 import { setActiveChatId } from '@/modules/chat/model/activeChat.store';
-import { CHAT_COLORS }     from '@/modules/chat/ui/chat-theme';
+import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { MediaIcon, PencilIcon, TrashIcon, LeaveIcon } from '@/modules/chat/ui/ChatIcons';
-import type { ThreadItem }     from '@/modules/chat';
+import { EditGroupModal } from '@/modules/chat/ui/EditGroupModal';
+import type { ThreadItem } from '@/modules/chat';
 import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
 
 
@@ -36,8 +37,9 @@ export default function ConversationScreen() {
     const { id, avatarUri } = useLocalSearchParams<{ id: string; avatarUri: string }>();
     const chatId = Number(id);
 
-    const [myUserId, setMyUserId]     = useState<number | null>(null);
+    const [myUserId, setMyUserId] = useState<number | null>(null);
     const [extraItems, setExtraItems] = useState<ThreadItem[]>([]);
+    const [editModalVisible, setEditModalVisible] = useState(false);
     const myUserIdRef = useRef<string | null>(null);
 
     const { data: chats = [] } = useGetChatsQuery();
@@ -45,7 +47,7 @@ export default function ConversationScreen() {
         skip: !chatId || isNaN(chatId),
         refetchOnMountOrArgChange: true,
     });
-    const [addMessage]      = useAddMessageMutation();
+    const [addMessage] = useAddMessageMutation();
     const [uploadChatImage] = useUploadChatImageMutation();
 
     useEffect(() => {
@@ -120,33 +122,33 @@ export default function ConversationScreen() {
     const menuActions = useMemo((): MenuAction[] | undefined => {
         if (!chat?.isGroup) return undefined;
         const media: MenuAction = {
-            label:   'Медіа',
-            icon:    <MediaIcon size={20} />,
+            label: 'Медіа',
+            icon: <MediaIcon size={20} />,
             onPress: () => Alert.alert('Медіа', 'скоро'),
         };
         if (isGroupAdmin) {
             return [
                 media,
                 {
-                    label:   'Редагувати групу',
-                    icon:    <PencilIcon size={20} />,
-                    onPress: () => Alert.alert('Редагування', 'скоро'),
+                    label: 'Редагувати групу',
+                    icon: <PencilIcon size={20} />,
+                    onPress: () => setEditModalVisible(true),
                 },
                 {
-                    label:   'Видалити чат',
-                    icon:    <TrashIcon size={20} />,
+                    label: 'Видалити чат',
+                    icon: <TrashIcon size={20} />,
                     onPress: () => Alert.alert('Видалити чат', 'скоро'),
-                    danger:  true,
+                    danger: true,
                 },
             ];
         }
         return [
             media,
             {
-                label:   'Покинути групу',
-                icon:    <LeaveIcon size={20} />,
+                label: 'Покинути групу',
+                icon: <LeaveIcon size={20} />,
                 onPress: () => Alert.alert('Покинути групу', 'скоро'),
-                danger:  true,
+                danger: true,
             },
         ];
     }, [chat, isGroupAdmin]);
@@ -156,7 +158,7 @@ export default function ConversationScreen() {
         const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
         const optimistic: ThreadItem = {
             type: 'message',
-            id:   tempId,
+            id: tempId,
             data: { id: tempId, text, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, optimistic]);
@@ -178,7 +180,7 @@ export default function ConversationScreen() {
         const time = new Date().toLocaleTimeString('uk-UA', TIME_OPTIONS);
         const placeholder: ThreadItem = {
             type: 'message',
-            id:   tempId,
+            id: tempId,
             data: { id: tempId, text: uri, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, placeholder]);
@@ -212,25 +214,34 @@ export default function ConversationScreen() {
     const activeTab = isGroup ? 'groups' : 'messages';
 
     return (
-        <ChatThreadScreen
-            title={chatTitle}
-            subtitle={chatSubtitle}
-            avatarUri={chatAvatarUri}
-            items={allItems}
-            onSendMessage={sendText}
-            onAttachPress={handleAttachPress}
-            activeTab={activeTab}
-            onTabChange={() => router.back()}
-            menuActions={menuActions}
-        />
+        <>
+            <ChatThreadScreen
+                title={chatTitle}
+                subtitle={chatSubtitle}
+                avatarUri={chatAvatarUri}
+                items={allItems}
+                onSendMessage={sendText}
+                onAttachPress={handleAttachPress}
+                activeTab={activeTab}
+                onTabChange={() => router.back()}
+                menuActions={menuActions}
+            />
+            {chat?.isGroup && (
+                <EditGroupModal
+                    visible={editModalVisible}
+                    onClose={() => setEditModalVisible(false)}
+                    chatId={chatId}
+                />
+            )}
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     center: {
-        flex:            1,
-        justifyContent:  'center',
-        alignItems:      'center',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: CHAT_COLORS.screenBg,
     },
 });
