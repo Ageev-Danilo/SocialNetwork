@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 
+
 const FRIENDS_TABS = [
     { label: 'Головна', id: 'main' },
     { label: 'Запити', id: 'requests' },
@@ -20,12 +21,13 @@ export function FriendsTabs({ activeTab, onTabChange }: Props) {
                 return (
                     <Pressable
                         key={tab.id}
-                        style={[styles.tab, isActive && styles.tabActive]}
+                        style={styles.tab}
                         onPress={() => onTabChange(tab.id)}
                     >
                         <Text style={[styles.text, isActive && styles.textActive]}>
                             {tab.label}
                         </Text>
+                        {isActive && <View style={styles.underline} />}
                     </Pressable>
                 );
             })}
@@ -37,18 +39,24 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: '#F3F4F6',
+        paddingTop: 25,
+        gap: 18,
+        paddingLeft: 19,
+        paddingRight: 16,
     },
     tab: {
-        flex: 1,
-        paddingVertical: 10,
         alignItems: 'center',
+        paddingBottom: 10,
     },
-    tabActive: {
-        borderBottomWidth: 2,
-        borderBottomColor: '#543C52',
+    underline: {
+        height: 2,
+        width: '100%',
+        backgroundColor: '#543C52',
+        marginTop: 6,
+        borderRadius: 1,
     },
     text: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#81818D',
         fontWeight: '500',
     },

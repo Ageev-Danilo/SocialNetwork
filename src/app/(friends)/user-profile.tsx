@@ -1,4 +1,5 @@
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Icon } from '@/shared/ui';
@@ -73,6 +74,8 @@ export default function UserProfileScreen() {
     const profileId = Number(params.profileId);
     const incomingMode = params.mode as 'request' | 'recommendation' | 'friend' | undefined;
 
+    const [confirmVisible, setConfirmVisible] = useState(false);
+
     const { data, isLoading, isError } = useGetPublicProfileQuery(profileId, {
         skip: !profileId || isNaN(profileId),
     });
@@ -95,7 +98,7 @@ export default function UserProfileScreen() {
     const hasPendingRequest = requestsData.some(r => r.sender.id === profileId);
 
     let relationStatus: RelationStatus = 'none';
-    if (isFriend)                                             relationStatus = 'friend';
+    if (isFriend)                                                             relationStatus = 'friend';
     else if (hasPendingRequest || incomingMode === 'request') relationStatus = 'request_received';
 
     async function handleOpenChat() {
@@ -135,12 +138,24 @@ export default function UserProfileScreen() {
         try {
             if (relationStatus === 'request_received') {
                 await rejectFriendRequest({ senderProfileId: profileId }).unwrap();
-            } else if (relationStatus === 'friend') {
-                await removeFriend({ contactProfileId: profileId }).unwrap();
+                router.back();
+            } else if (relationStatus === 'friend') { 
+                setConfirmVisible(true);
+            } else {
+                router.back();
             }
-            router.back();
         } catch (e) {
             console.warn('[UserProfile] secondaryAction error:', e);
+        }
+    }
+
+    async function handleConfirmRemove() {
+        try {
+            setConfirmVisible(false);
+            await removeFriend({ contactProfileId: profileId }).unwrap();
+            router.back();
+        } catch (e) {
+            console.warn('[UserProfile] confirmRemove error:', e);
         }
     }
 
@@ -152,7 +167,7 @@ export default function UserProfileScreen() {
         relationStatus === 'request_received' ? 'Відхилити' :
         relationStatus === 'friend' ? 'Видалити'  : 'Назад';
 
-    const hasAlbums  = (data?.albums.length ?? 0) > 0;
+    const hasAlbums   = (data?.albums.length ?? 0) > 0;
     const hasLastPost = !isLoading && data?.lastPost;
 
     return (
@@ -305,6 +320,34 @@ export default function UserProfileScreen() {
                     </View>
                 )}
             </ScrollView>
+
+            <Modal
+                visible={confirmVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setConfirmVisible(false)}
+            >
+                <Pressable style={styles.overlay} onPress={() => setConfirmVisible(false)}>
+                    <Pressable style={styles.dialog} onPress={() => {}}>
+                        <Text style={styles.dialogTitle}>Підтвердити дію</Text>
+                        <Text style={styles.dialogText}>Ви дійсно хочете видалити користувача?</Text>
+                        <View style={styles.dialogActions}>
+                            <TouchableOpacity
+                                style={styles.dialogBtnOutline}
+                                onPress={() => setConfirmVisible(false)}
+                            >
+                                <Text style={styles.dialogBtnOutlineText}>Скасувати</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.dialogBtnFill}
+                                onPress={handleConfirmRemove}
+                            >
+                                <Text style={styles.dialogBtnFillText}>Підтвердити</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </View>
     );
 }
@@ -406,4 +449,57 @@ const styles = StyleSheet.create({
     postStats: { flexDirection: 'row', gap: 20, marginTop: 4 },
     statChip: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     statChipText: { fontSize: 13, color: '#070A1C' },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 32,
+    },
+    dialog: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 28,
+        width: '100%',
+        alignItems: 'center',
+        gap: 12,
+    },
+    dialogTitle: {
+        fontSize: 24,
+        fontWeight: '500',
+        color: '#070A1C',
+        textAlign: 'center',
+        lineHeight: 24,
+    },
+    dialogText: {
+        fontSize: 16,
+        fontWeight: '400',
+        color: '#070A1C',
+        textAlign: 'center',
+        lineHeight: 16,
+    },
+    dialogActions: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 8,
+    },
+    dialogBtnOutline: {
+        borderWidth: 1,
+        borderColor: '#543C52',
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 24,
+    },
+    dialogBtnOutlineText: { 
+        color: '#543C52', 
+        fontWeight: '600', 
+        fontSize: 15,
+    },
+    dialogBtnFill: {
+        backgroundColor: '#543C52',
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 24,
+    },
+    dialogBtnFillText: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });

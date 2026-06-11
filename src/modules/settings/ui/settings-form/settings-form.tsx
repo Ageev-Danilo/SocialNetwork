@@ -69,13 +69,13 @@ export function SettingsForm() {
     async function onSubmit(values: SettingsSchema) {
         try {
             const form = new FormData();
-            form.append('firstName',        values.firstName);
-            form.append('lastName',         values.lastName);
-            form.append('pseudonym',        values.pseudonym);
-            form.append('date',             values.date);
-            form.append('signature',        values.signature ?? '');
+            form.append('firstName', values.firstName);
+            form.append('lastName', values.lastName);
+            form.append('pseudonym', values.pseudonym);
+            form.append('date', values.date);
+            form.append('signature', values.signature ?? '');
             form.append('isImageSignature', String(data?.isImageSignature ?? false));
-            form.append('isTextSignature',  String(data?.isTextSignature  ?? true));
+            form.append('isTextSignature', String(data?.isTextSignature  ?? true));
 
             if (localImageUri) {
                 form.append('profileImage', {
