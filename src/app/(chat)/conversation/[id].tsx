@@ -11,6 +11,8 @@ import {
     useAddMessageMutation,
     useUploadChatImageMutation,
     useGetChatsQuery,
+    useDeleteChatMutation,
+    useUpdateChatMutation,
 } from '@/modules/chat/api';
 import { buildThreadItemsWithDates, buildIncomingItem } from '@/modules/chat/model/utils';
 import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
@@ -49,6 +51,8 @@ export default function ConversationScreen() {
     });
     const [addMessage] = useAddMessageMutation();
     const [uploadChatImage] = useUploadChatImageMutation();
+    const [deleteChat] = useDeleteChatMutation();
+    const [updateChat] = useUpdateChatMutation();
 
     useEffect(() => {
         setActiveChatId(chatId);
@@ -119,6 +123,26 @@ export default function ConversationScreen() {
 
     const isGroupAdmin = chat?.isGroup ? chat.adminId === myUserId : false;
 
+    async function handleDeleteChat() {
+        try {
+            await deleteChat(chatId).unwrap();
+            router.back();
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося видалити чат');
+        }
+    }
+
+    async function handleLeaveGroup() {
+        if (!chat || myUserId == null) return;
+        try {
+            const memberIds = chat.users.map(u => u.id).filter(id => id !== myUserId);
+            await updateChat({ chatId, payload: { memberIds } }).unwrap();
+            router.back();
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося покинути групу');
+        }
+    }
+
     const menuActions = useMemo((): MenuAction[] | undefined => {
         if (!chat?.isGroup) return undefined;
         const media: MenuAction = {
@@ -137,7 +161,10 @@ export default function ConversationScreen() {
                 {
                     label: 'Видалити чат',
                     icon: <TrashIcon size={20} />,
-                    onPress: () => Alert.alert('Видалити чат', 'скоро'),
+                    onPress: () => Alert.alert('Видалити чат', 'Ви дійсно хочете видалити цей чат?', [
+                        { text: 'Скасувати', style: 'cancel' },
+                        { text: 'Видалити', style: 'destructive', onPress: handleDeleteChat },
+                    ]),
                     danger: true,
                 },
             ];
@@ -147,11 +174,14 @@ export default function ConversationScreen() {
             {
                 label: 'Покинути групу',
                 icon: <LeaveIcon size={20} />,
-                onPress: () => Alert.alert('Покинути групу', 'скоро'),
+                onPress: () => Alert.alert('Покинути групу', 'Ви дійсно хочете покинути цю групу?', [
+                    { text: 'Скасувати', style: 'cancel' },
+                    { text: 'Покинути', style: 'destructive', onPress: handleLeaveGroup },
+                ]),
                 danger: true,
             },
         ];
-    }, [chat, isGroupAdmin]);
+    }, [chat, isGroupAdmin, myUserId]);
 
     async function sendText(text: string) {
         const tempId = `optimistic-${Date.now()}`;

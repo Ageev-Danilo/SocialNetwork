@@ -9,7 +9,7 @@ import { Button } from '@/shared/ui';
 import { SearchIcon, TrashIcon, MediaIcon } from './ChatIcons';
 import { CHAT_COLORS } from './chat-theme';
 import { useGetFriendsQuery } from '@/modules/friends';
-import { useGetChatsQuery } from '@/modules/chat/api';
+import { useGetChatsQuery, useUpdateChatMutation, useUploadChatImageMutation } from '@/modules/chat/api';
 
 interface Props {
     visible: boolean;
@@ -60,6 +60,8 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
 
     const { data: chats = [] } = useGetChatsQuery();
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
+    const [updateChat] = useUpdateChatMutation();
+    const [uploadChatImage] = useUploadChatImageMutation();
 
     const chat = chats.find(c => c.id === chatId);
 
@@ -146,16 +148,40 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
         if (!result.canceled) setGroupImageUri(result.assets[0].uri);
     }
 
-    function handleSaveEdit() {
-        Alert.alert('Скоро', 'Редагування групи буде доступне пізніше');
-        handleClose();
+    async function handleSaveEdit() {
+        try {
+            const payload: { name?: string; avatar?: string } = {};
+            if (groupName) payload.name = groupName;
+            if (groupImageUri) {
+                const { path } = await uploadChatImage({ uri: groupImageUri }).unwrap();
+                payload.avatar = path;
+            }
+            await updateChat({ chatId, payload }).unwrap();
+            handleClose();
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося оновити групу');
+        }
     }
 
-    function handleSaveParticipants() {
-        Alert.alert('Скоро', 'Додавання учасників буде доступне пізніше');
-        setSearch('');
-        setNewParticipantIds(new Set());
-        setView('edit');
+    async function handleRemoveParticipant(userId: number) {
+        try {
+            const memberIds = [...existingUserIds].filter(id => id !== userId);
+            await updateChat({ chatId, payload: { memberIds } }).unwrap();
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося видалити учасника');
+        }
+    }
+
+    async function handleSaveParticipants() {
+        try {
+            const memberIds = [...existingUserIds, ...newParticipantIds];
+            await updateChat({ chatId, payload: { memberIds } }).unwrap();
+            setSearch('');
+            setNewParticipantIds(new Set());
+            setView('edit');
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося додати учасників');
+        }
     }
 
     return (
@@ -231,7 +257,7 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
                                                 <Text style={styles.participantName}>{participant.name}</Text>
                                                 <TouchableOpacity
                                                     style={styles.removeBtn}
-                                                    onPress={() => Alert.alert('Скоро', 'Видалення учасника буде доступне пізніше')}
+                                                    onPress={() => handleRemoveParticipant(participant.id)}
                                                 >
                                                     <TrashIcon size={18} color={COLOR_DARK} />
                                                 </TouchableOpacity>
