@@ -84,7 +84,6 @@ export function SettingsForm() {
                     name: `${Date.now()}.jpeg`,
                 } as any);
             }
-
             await updateSettings(form).unwrap();
             setLocalImageUri(null);
             Alert.alert('Готово', 'Налаштування збережено');
