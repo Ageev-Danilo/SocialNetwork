@@ -31,3 +31,9 @@ export interface CreateChatPayload {
 export interface CreateMessagePayload {
     text: string;
 }
+
+export interface UpdateChatPayload {
+    name?: string | null;
+    avatar?: string | null;
+    memberIds?: number[];
+}

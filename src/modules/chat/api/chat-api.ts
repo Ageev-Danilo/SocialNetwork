@@ -1,5 +1,5 @@
 import { baseApi } from '@/shared/api';
-import type { ChatDto, MessageDto, CreateChatPayload, CreateMessagePayload } from './types';
+import type { ChatDto, MessageDto, CreateChatPayload, UpdateChatPayload, CreateMessagePayload } from './types';
 
 
 const chatApi = baseApi.injectEndpoints({
@@ -9,11 +9,19 @@ const chatApi = baseApi.injectEndpoints({
             providesTags: ['Chats'],
         }),
         createChat: builder.mutation<ChatDto, CreateChatPayload>({
-            query: (body) => ({
-                url: '/chats',
-                method: 'POST',
-                body,
+            query: (body) => ({ url: '/chats', method: 'POST', body }),
+            invalidatesTags: ['Chats'],
+        }),
+        updateChat: builder.mutation<ChatDto, { chatId: number; payload: UpdateChatPayload }>({
+            query: ({ chatId, payload }) => ({
+                url: `/chats/${chatId}`,
+                method: 'PUT',
+                body: payload,
             }),
+            invalidatesTags: ['Chats'],
+        }),
+        deleteChat: builder.mutation<{ message: string }, number>({
+            query: (chatId) => ({ url: `/chats/${chatId}`, method: 'DELETE' }),
             invalidatesTags: ['Chats'],
         }),
         getChatMessages: builder.query<MessageDto[], number>({
@@ -34,11 +42,7 @@ const chatApi = baseApi.injectEndpoints({
                 const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
                 const formData = new FormData();
                 formData.append('photo', { uri, name: filename, type: mimeType } as any);
-                const result = await baseQuery({
-                    url: '/albums/upload-photo',
-                    method: 'POST',
-                    body: formData,
-                });
+                const result = await baseQuery({ url: '/albums/upload-photo', method: 'POST', body: formData });
                 if (result.error) return { error: result.error };
                 return { data: result.data as { path: string } };
             },
@@ -49,6 +53,8 @@ const chatApi = baseApi.injectEndpoints({
 export const {
     useGetChatsQuery,
     useCreateChatMutation,
+    useUpdateChatMutation,
+    useDeleteChatMutation,
     useGetChatMessagesQuery,
     useAddMessageMutation,
     useUploadChatImageMutation,
