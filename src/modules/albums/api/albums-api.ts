@@ -1,6 +1,7 @@
 import { baseApi } from "@/shared/api/base";
 import type { AlbumResponse, CreateAlbumPayload, UpdateAlbumPayload } from "./api.types";
 
+
 const albumsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getMyAlbums: builder.query<AlbumResponse[], void>({
@@ -9,7 +10,7 @@ const albumsApi = baseApi.injectEndpoints({
         }),
         createAlbum: builder.mutation<{ message: string }, CreateAlbumPayload>({
             query: (body) => ({
-                url:    '/albums/create-album',
+                url: '/albums/create-album',
                 method: 'POST',
                 body,
             }),
@@ -17,7 +18,7 @@ const albumsApi = baseApi.injectEndpoints({
         }),
         updateAlbum: builder.mutation<{ message: string }, UpdateAlbumPayload>({
             query: ({ id, ...body }) => ({
-                url:    `/albums/update/${id}`,
+                url: `/albums/update/${id}`,
                 method: 'PATCH',
                 body,
             }),

@@ -34,7 +34,7 @@ const chatApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: payload,
             }),
-        }),   
+        }),
     }),
 });
 

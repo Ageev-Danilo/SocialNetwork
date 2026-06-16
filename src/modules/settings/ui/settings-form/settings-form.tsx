@@ -6,7 +6,6 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as ImagePicker from 'expo-image-picker';
-import Constants from 'expo-constants';
 import { Button, Icon } from '@/shared/ui';
 import { COLORS, settingFields } from '@/shared/consts';
 import { useGetSettingsQuery, useUpdateSettingsMutation } from '../../api';
@@ -15,22 +14,28 @@ import type { SettingsSchema, PasswordSchema } from '../../model';
 import { Card } from '@/components/Settings/Card';
 import { SettingField } from './field';
 
-const BASE_URL = Constants.expoConfig?.extra?.apiUrl ?? 'http://10.0.2.2:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+
+function buildAvatarUri(path: string | null | undefined): string | null {
+    if (!path) return null;
+    if (path.startsWith('http') || path.startsWith('file')) return path;
+    return `${BASE_URL}/media/thumbnail/${path}`;
+}
 
 export function SettingsForm() {
-    const { data, isLoading }                         = useGetSettingsQuery();
+    const { data, isLoading } = useGetSettingsQuery();
     const [updateSettings, { isLoading: isUpdating }] = useUpdateSettingsMutation();
 
-    const [localImageUri,   setLocalImageUri]   = useState<string | null>(null);
+    const [localImageUri, setLocalImageUri] = useState<string | null>(null);
     const [editingPassword, setEditingPassword] = useState(false);
-    const [showPassword,    setShowPassword]    = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { control, formState, handleSubmit, watch } = useForm<SettingsSchema>({
         values: {
             firstName: data?.firstName ?? '',
-            lastName:  data?.lastName  ?? '',
+            lastName: data?.lastName ?? '',
             pseudonym: data?.pseudonym ?? '',
-            date:      data?.date      ?? '',
+            date: data?.date ?? '',
             signature: data?.signature ?? '',
         },
         resolver: yupResolver(settingsSchema),
@@ -43,48 +48,41 @@ export function SettingsForm() {
         });
 
     const firstName = watch('firstName');
-    const lastName  = watch('lastName');
+    const lastName = watch('lastName');
 
     const displayName = `${firstName ?? ''} ${lastName ?? ''}`.trim();
     const pseudonym = watch('pseudonym');
 
     const { dirtyFields } = formState;
 
-    const personalFields:  (keyof SettingsSchema)[] = ['firstName', 'lastName', 'date'];
+    const personalFields: (keyof SettingsSchema)[] = ['firstName', 'lastName', 'date'];
     const signatureFields: (keyof SettingsSchema)[] = ['pseudonym', 'signature'];
 
-    const isPersonalEdited  = personalFields.some(f  => dirtyFields[f]);
+    const isPersonalEdited = personalFields.some(f => dirtyFields[f]);
     const isSignatureEdited = signatureFields.some(f => dirtyFields[f]);
-    const isProfileEdited   = !!localImageUri;
+    const isProfileEdited = !!localImageUri;
 
     async function pickImage() {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes:    ['images'],
+            mediaTypes: ['images'],
             allowsEditing: true,
-            quality:       0.8,
+            quality: 0.8,
         });
         if (!result.canceled) setLocalImageUri(result.assets[0].uri);
     }
 
     async function onSubmit(values: SettingsSchema) {
         try {
-            const form = new FormData();
-            form.append('firstName', values.firstName);
-            form.append('lastName', values.lastName);
-            form.append('pseudonym', values.pseudonym);
-            form.append('date', values.date);
-            form.append('signature', values.signature ?? '');
-            form.append('isImageSignature', String(data?.isImageSignature ?? false));
-            form.append('isTextSignature', String(data?.isTextSignature  ?? true));
-
-            if (localImageUri) {
-                form.append('profileImage', {
-                    uri:  localImageUri,
-                    type: 'image/jpeg',
-                    name: `${Date.now()}.jpeg`,
-                } as any);
-            }
-            await updateSettings(form).unwrap();
+            await updateSettings({
+                firstName: values.firstName,
+                lastName: values.lastName,
+                pseudonym: values.pseudonym,
+                date: values.date,
+                signature: values.signature ?? '',
+                isImageSignature: data?.isImageSignature ?? false,
+                isTextSignature: data?.isTextSignature ?? true,
+                profileImage: localImageUri ?? data?.profileImage ?? undefined,
+            }).unwrap();
             setLocalImageUri(null);
             Alert.alert('Готово', 'Налаштування збережено');
         } catch {
@@ -106,11 +104,8 @@ export function SettingsForm() {
         );
     }
 
-    const imageSource = localImageUri
-        ? { uri: localImageUri }
-        : data?.profileImage
-            ? { uri: `${BASE_URL}/media/thumbnail/${data.profileImage}` }
-            : null;
+    const avatarUri = localImageUri ?? buildAvatarUri(data?.profileImage);
+    const imageSource = avatarUri ? { uri: avatarUri } : null;
 
     return (
         <ScrollView contentContainerStyle={styles.scroll}>
@@ -200,7 +195,7 @@ export function SettingsForm() {
                                         style={styles.fieldInput}
                                         value={editingPassword ? field.value : '••••••••••'}
                                         onChangeText={field.onChange}
-                                        editable={editingPassword} 
+                                        editable={editingPassword}
                                         secureTextEntry={!showPassword}
                                         placeholder={editingPassword ? "Введіть новий пароль" : "Пароль"}
                                         placeholderTextColor="#aaa"
@@ -248,70 +243,70 @@ export function SettingsForm() {
 
 const styles = StyleSheet.create({
     scroll: {
-        paddingTop:    16, 
+        paddingTop: 16,
         paddingBottom: 40,
-        gap:           12,
+        gap: 12,
     },
 
     avatar: {
-        width:        90,
-        height:       90,
+        width: 90,
+        height: 90,
         borderRadius: 45,
     },
     avatarPlaceholder: {
         backgroundColor: '#E9E5EE',
-        justifyContent:  'center',
-        alignItems:      'center',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     displayName: {
-        fontSize:   24,
+        fontSize: 24,
         fontWeight: '700',
-        color:      '#1a1a1a',
+        color: '#1a1a1a',
     },
     usernameText: {
-        fontSize:   16,
+        fontSize: 16,
         fontWeight: '500',
-        color:      '#81818D',
+        color: '#81818D',
     },
 
     readonlyField: { gap: 4 },
-    fieldLabel:    { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
+    fieldLabel: { fontSize: 14, fontWeight: '500', color: '#1a1a1a' },
     fieldRow: {
-        flexDirection:  'row',
-        alignItems:     'center',
-        borderWidth:    1,
-        borderColor:    '#CDCED2',
-        borderRadius:   10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#CDCED2',
+        borderRadius: 10,
         paddingHorizontal: 14,
         backgroundColor: '#fff',
     },
     fieldInput: {
-        flex:       1,
-        height:     46,
-        fontSize:   15,
-        color:      '#1a1a1a',
+        flex: 1,
+        height: 46,
+        fontSize: 15,
+        color: '#1a1a1a',
     },
     eyeBtn: {
         padding: 8,
     },
 
     passwordHeader: {
-        flexDirection:  'row',
+        flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems:     'center',
-        marginBottom:   4,
+        alignItems: 'center',
+        marginBottom: 4,
     },
     editBtnSpec: {
-        width:  40,
+        width: 40,
         height: 40,
     },
     saveBtnSpec: {
         flexDirection: 'row',
-        alignItems:    'center',
+        alignItems: 'center',
         backgroundColor: '#E9E5EE',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius:  20,
-        gap:           8,
+        borderRadius: 20,
+        gap: 8,
     },
 });

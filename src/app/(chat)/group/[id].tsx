@@ -13,7 +13,7 @@ import {
     useDeleteChatMutation,
     useUpdateChatMutation,
 } from '@/modules/chat/api';
-import { messageDtoToThreadItem, buildIncomingItem, buildThreadItemsWithDates } from '@/modules/chat/model/utils';
+import { buildIncomingItem, buildThreadItemsWithDates } from '@/modules/chat/model/utils';
 import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
 import { markRead } from '@/modules/chat/model/unread.store';
 import { setActiveChatId } from '@/modules/chat/model/activeChat.store';
@@ -42,7 +42,6 @@ export default function GroupChatScreen() {
     });
 
     const [addMessage] = useAddMessageMutation();
-    //const [uploadChatImage] = useUploadChatImageMutation();
     const [deleteChat] = useDeleteChatMutation();
     const [updateChat] = useUpdateChatMutation();
 

@@ -61,7 +61,6 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
     const { data: chats = [] } = useGetChatsQuery();
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
     const [updateChat] = useUpdateChatMutation();
-    //const [uploadChatImage] = useUploadChatImageMutation();
 
     const chat = chats.find(c => c.id === chatId);
 

@@ -49,7 +49,6 @@ export default function ConversationScreen() {
         refetchOnMountOrArgChange: true,
     });
     const [addMessage] = useAddMessageMutation();
-    //const [uploadChatImage] = useUploadChatImageMutation();
     const [deleteChat] = useDeleteChatMutation();
     const [updateChat] = useUpdateChatMutation();
 
