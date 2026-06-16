@@ -9,7 +9,6 @@ import type { MenuAction } from '@/modules/chat/ui/ChatThreadScreen';
 import {
     useGetChatMessagesQuery,
     useAddMessageMutation,
-    useUploadChatImageMutation,
     useGetChatsQuery,
     useDeleteChatMutation,
     useUpdateChatMutation,
@@ -50,7 +49,7 @@ export default function ConversationScreen() {
         refetchOnMountOrArgChange: true,
     });
     const [addMessage] = useAddMessageMutation();
-    const [uploadChatImage] = useUploadChatImageMutation();
+    //const [uploadChatImage] = useUploadChatImageMutation();
     const [deleteChat] = useDeleteChatMutation();
     const [updateChat] = useUpdateChatMutation();
 
@@ -214,18 +213,12 @@ export default function ConversationScreen() {
             data: { id: tempId, text: uri, time, isMine: true, status: 'sent' },
         };
         setExtraItems(prev => [...prev, placeholder]);
+        setLastMessage(chatId, '📷 Фото', time);
         try {
-            const { path } = await uploadChatImage({ uri }).unwrap();
-            await addMessage({ chatId, payload: { text: path } }).unwrap();
-            ClientSocket.emit('chat:message', { chatId: id, message: path }, () => {});
-            setLastMessage(chatId, '📷 Фото', time);
-            setExtraItems(prev => prev.map(item =>
-                item.id === tempId && item.type === 'message'
-                    ? { ...item, data: { ...item.data, text: path } }
-                    : item,
-            ));
+            await addMessage({ chatId, payload: { text: uri } }).unwrap();
+            ClientSocket.emit('chat:message', { chatId: id, message: uri }, () => {});
         } catch (e) {
-            console.warn('uploadChatImage error:', e);
+            console.warn('handleAttachPress error:', e);
             setExtraItems(prev => prev.filter(item => item.id !== tempId));
         }
     }

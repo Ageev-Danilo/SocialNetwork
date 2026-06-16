@@ -57,7 +57,7 @@ function SendButton() {
 
 function isImageMessage(text: string): boolean {
     const t = text.toLowerCase();
-    return IMAGE_REGEX.test(t) && (t.startsWith('/media') || t.startsWith('http'));
+    return IMAGE_REGEX.test(t) && (t.startsWith('/media') || t.startsWith('http') || t.startsWith('file'));
 }
 
 function getImageUri(text: string): string {

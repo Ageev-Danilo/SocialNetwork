@@ -9,7 +9,7 @@ import { Button } from '@/shared/ui';
 import { SearchIcon, TrashIcon, MediaIcon } from './ChatIcons';
 import { CHAT_COLORS } from './chat-theme';
 import { useGetFriendsQuery } from '@/modules/friends';
-import { useGetChatsQuery, useUpdateChatMutation, useUploadChatImageMutation } from '@/modules/chat/api';
+import { useGetChatsQuery, useUpdateChatMutation } from '@/modules/chat/api';
 
 interface Props {
     visible: boolean;
@@ -61,7 +61,7 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
     const { data: chats = [] } = useGetChatsQuery();
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
     const [updateChat] = useUpdateChatMutation();
-    const [uploadChatImage] = useUploadChatImageMutation();
+    //const [uploadChatImage] = useUploadChatImageMutation();
 
     const chat = chats.find(c => c.id === chatId);
 
@@ -152,10 +152,7 @@ export function EditGroupModal({ visible, onClose, chatId }: Props) {
         try {
             const payload: { name?: string; avatar?: string } = {};
             if (groupName) payload.name = groupName;
-            if (groupImageUri) {
-                const { path } = await uploadChatImage({ uri: groupImageUri }).unwrap();
-                payload.avatar = path;
-            }
+            if (groupImageUri) payload.avatar = groupImageUri;
             await updateChat({ chatId, payload }).unwrap();
             handleClose();
         } catch (e) {
