@@ -64,8 +64,13 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
         }
     };
 
+    const showBadge = badge != null && badge !== 0 && badge !== '0';
+
     return (
-        <Ripple onPress={handlePress} style={{ flex: 1, borderRadius: 5, overflow: 'hidden' }}>
+        <Ripple
+            onPress={handlePress}
+            style={{ flex: 1, borderRadius: 5, overflow: 'hidden' }}
+        >
             {isActive && (
                 <View
                     style={{
@@ -78,10 +83,18 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
                     }}
                 />
             )}
-            <View style={[BASE.column, BASE.tab, { height: 60, justifyContent: 'center' }]}>
+
+            <View
+                style={[
+                    BASE.column,
+                    BASE.tab,
+                    { height: 60, justifyContent: 'center' },
+                ]}
+            >
                 <View>
                     {CurrentIcon && <CurrentIcon />}
-                    {badge != null && (
+
+                    {showBadge && (
                         <View
                             style={{
                                 position: 'absolute',
@@ -96,17 +109,28 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
                                 paddingHorizontal: 4,
                             }}
                         >
-                            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+                            <Text
+                                style={{
+                                    color: '#fff',
+                                    fontSize: 10,
+                                    fontWeight: '700',
+                                }}
+                            >
                                 {badge}
                             </Text>
                         </View>
                     )}
                 </View>
+
                 {label && (
                     <Text
+                        numberOfLines={1}
                         style={[
                             BASE.tabText,
-                            { fontSize: 11, textAlign: 'center' },
+                            {
+                                fontSize: 10,
+                                textAlign: 'center',
+                            },
                         ]}
                     >
                         {label}
