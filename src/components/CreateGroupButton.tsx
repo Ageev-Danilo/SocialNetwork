@@ -8,7 +8,7 @@ export function CreateGroupButton() {
     return (
         <>
             <Button type="outline" onPress={() => setVisible(true)}>
-                <Icon name="add" />
+                <Icon.add />
             </Button>
             <CreateGroupModal
                 visible={visible}

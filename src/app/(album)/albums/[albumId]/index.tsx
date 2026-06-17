@@ -55,7 +55,7 @@ export default function AlbumDetailScreen() {
                         router.push(`/(album)/albums/${albumId}/edit` as any)
                     }
                 >
-                    <Icon name="edit" size={18} />
+                    <Icon.edit size={18} />
                 </Button>
             </View>
 
@@ -80,13 +80,13 @@ export default function AlbumDetailScreen() {
                             />
                             <View style={styles.photoOverlay}>
                                 <TouchableOpacity style={styles.photoBtn}>
-                                    <Icon name="visible" size={14} />
+                                    <Icon.visible size={14} />
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.photoBtn}
                                     onPress={() => removePhoto(photo.id)}
                                 >
-                                    <Icon name="close" size={14} />
+                                    <Icon.close size={14} />
                                 </TouchableOpacity>
                             </View>
                         </View>

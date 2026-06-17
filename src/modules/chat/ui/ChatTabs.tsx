@@ -13,13 +13,22 @@ const CHAT_TABS: { label: string; id: ChatTabId }[] = [
 interface Props {
     activeTab: ChatTabId;
     onTabChange: (id: ChatTabId) => void;
+    messageBadge?: number;
+    groupBadge?: number;
 }
 
-export function ChatTabs({ activeTab, onTabChange }: Props) {
+export function ChatTabs({ activeTab, onTabChange, messageBadge, groupBadge }: Props) {
     return (
         <View style={styles.container}>
             {CHAT_TABS.map(tab => {
                 const isActive = activeTab === tab.id;
+                const SelectedIcon =
+                    tab.id === 'contacts'
+                        ? Icon.group
+                        : tab.id === 'messages'
+                          ? Icon.chat
+                          : Icon.chat;
+
                 return (
                     <Button
                         type="borderless"
@@ -28,15 +37,7 @@ export function ChatTabs({ activeTab, onTabChange }: Props) {
                         onPress={() => onTabChange(tab.id)}
                     >
                         <View style={{ flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                            <Icon
-                                name={
-                                    tab.id === 'contacts'
-                                        ? 'group'
-                                        : tab.id === 'messages'
-                                          ? 'chat'
-                                          : 'chat'
-                                }
-                            />
+                            <SelectedIcon />
                             <Text style={[styles.text, isActive && styles.textActive]}>
                                 {tab.label}
                             </Text>
@@ -67,20 +68,20 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     badge: {
-        position:          'absolute',
-        top:               -4,
-        right:             -8,
-        minWidth:          16,
-        height:            16,
-        borderRadius:      8,
-        backgroundColor:   CHAT_COLORS.badge,
-        justifyContent:    'center',
-        alignItems:        'center',
+        position: 'absolute',
+        top: -4,
+        right: -8,
+        minWidth: 16,
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: CHAT_COLORS.badge,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 4,
     },
     badgeText: {
-        color:      '#fff',
-        fontSize:   10,
+        color: '#fff',
+        fontSize: 10,
         fontWeight: '700',
     },
     text: {

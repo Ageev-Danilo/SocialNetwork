@@ -1,5 +1,5 @@
-export type JoinChatCallback  = (response: { joined: boolean }) => void;
-export type LeaveChatCallback = (response: { left: boolean }) => void;
+export type JoinChatCallback    = (response: { joined: boolean }) => void;
+export type LeaveChatCallback   = (response: { left: boolean }) => void;
 export type SendMessageCallback = (response: { delivered: boolean }) => void;
 
 export interface SendMessagePayload {
@@ -7,8 +7,20 @@ export interface SendMessagePayload {
     message: string;
 }
 
+export interface NewMessageData {
+    userId:  string;
+    message: string;
+    chatId:  string;
+    sender?: {
+        firstName?: string;
+        lastName?: string;
+        username?: string;
+        email?: string;
+    };
+}
+
 export interface ServerEvents {
-    'chat:new-message':  (data: { userId: string; message: string }) => void;
+    'chat:new-message':  (data: NewMessageData) => void;
     'user:connected':    (userId: string) => void;
     'user:disconnected': (userId: string) => void;
 }

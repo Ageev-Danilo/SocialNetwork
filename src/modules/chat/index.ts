@@ -11,10 +11,13 @@ export { UserAddIcon, MessagesTabIcon, ContactsTabIcon, GroupsTabIcon } from './
 export {
     useGetChatsQuery,
     useCreateChatMutation,
+    useUpdateChatMutation,
+    useDeleteChatMutation,
     useGetChatMessagesQuery,
     useAddMessageMutation,
+    useUploadChatImageMutation,
 } from './api';
-export type { ChatDto, MessageDto, CreateChatPayload, CreateMessagePayload } from './api';
+export type { ChatDto, MessageDto, ChatUser, CreateChatPayload, UpdateChatPayload, CreateMessagePayload } from './api';
 export {
     MOCK_CONTACTS,
     MOCK_CONVERSATIONS,

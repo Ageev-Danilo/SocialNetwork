@@ -1,5 +1,6 @@
 import { baseApi } from '@/shared/api/base';
-import type { SettingsResponse } from './api.types';
+import type { SettingsResponse, UpdateSettingsPayload } from './api.types';
+
 
 const settingsApi = baseApi.injectEndpoints({
     endpoints: builder => ({
@@ -7,12 +8,11 @@ const settingsApi = baseApi.injectEndpoints({
             query: () => ({ url: 'settings' }),
             providesTags: ['Settings'],
         }),
-        updateSettings: builder.mutation<{ message: string }, FormData>({
+        updateSettings: builder.mutation<{ message: string }, UpdateSettingsPayload>({
             query: body => ({
                 url: 'settings',
                 method: 'POST',
                 body,
-                formData: true,
             }),
             invalidatesTags: ['Settings'],
         }),

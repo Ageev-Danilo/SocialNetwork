@@ -3,7 +3,7 @@ import type { GroupChat } from '../model/mock-data';
 import { CHAT_COLORS } from './chat-theme';
 
 interface Props {
-    group:   GroupChat;
+    group: GroupChat;
     onPress: () => void;
 }
 
@@ -28,45 +28,45 @@ export function GroupListItem({ group, onPress }: Props) {
 
 const styles = StyleSheet.create({
     row: {
-        flexDirection:     'row',
-        alignItems:        'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical:   14,
-        backgroundColor:   CHAT_COLORS.cardBg,
-        gap:               12,
+        paddingVertical: 14,
+        backgroundColor: CHAT_COLORS.cardBg,
+        gap: 12,
     },
     avatar: {
-        width:           52,
-        height:          52,
-        borderRadius:    26,
-        backgroundColor: CHAT_COLORS.highlight,
-        justifyContent:  'center',
-        alignItems:      'center',
+        width: 52,
+        height: 52,
+        borderRadius: 26, 
+        backgroundColor: '#543C52',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     initials: {
-        fontSize:   16,
+        fontSize: 16,
         fontWeight: '700',
-        color:      CHAT_COLORS.primary,
+        color: '#fff',  
     },
     body: { flex: 1, gap: 4 },
     topRow: {
-        flexDirection:  'row',
+        flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems:     'center',
-        gap:            8,
+        alignItems: 'center',
+        gap: 8,
     },
     title: {
-        flex:       1,
-        fontSize:   16,
+        flex: 1,
+        fontSize: 16,
         fontWeight: '700',
-        color:      CHAT_COLORS.text,
+        color: CHAT_COLORS.text,
     },
     subtitle: {
         fontSize: 14,
-        color:    CHAT_COLORS.textMuted,
+        color: CHAT_COLORS.textMuted,
     },
     time: {
         fontSize: 13,
-        color:    CHAT_COLORS.textMuted,
+        color: CHAT_COLORS.textMuted,
     },
 });

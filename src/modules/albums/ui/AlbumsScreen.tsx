@@ -24,10 +24,11 @@ const MY_PHOTO_SIZE = 200;
 
 const BASE_URL = 'http://10.0.2.2:3000';
 
-function getImageUrl(path: string): string {
+function getImageUrl(path: string | null | undefined): string {
     if (!path) return '';
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
+    if (path.startsWith('http') || path.startsWith('file')) return path;
+    if (path.startsWith('/media')) return `${BASE_URL}${path}`;
+    return `${BASE_URL}/media/thumbnail/${path}`;
 }
 
 function CustomCloseIcon() {
@@ -172,7 +173,7 @@ export function AlbumsScreen() {
                     <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 16 }]}>
                         <Text style={styles.cardTitle}>Мої фото</Text>
                         <TouchableOpacity onPress={addMyPhoto} style={styles.addPhotoBtn}>
-                            <Icon name="img" size={16} />
+                            <Icon.img size={16} />
                             <Text style={styles.addPhotoBtnText}>Додати фото</Text>
                         </TouchableOpacity>
                     </View>
@@ -360,7 +361,7 @@ function AlbumBlock({
                         <EyeIcon />
                     </TouchableOpacity>
                     <TouchableOpacity style={album_s.iconCircle} onPress={onEdit}>
-                        <Icon name="edit" size={17} />
+                        <Icon.edit size={17} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -528,7 +529,7 @@ function AlbumFormModal({
                     <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 20 }]}>
                         <Text style={modal.title}>{title}</Text>
                         <TouchableOpacity onPress={onClose} style={modal.closeBtn}>
-                            <Icon name="close" size={18} />
+                            <Icon.close size={18} />
                         </TouchableOpacity>
                     </View>
 

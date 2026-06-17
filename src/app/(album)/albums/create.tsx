@@ -26,7 +26,7 @@ export default function CreateAlbumScreen() {
                 <View style={[BASE.yc, { justifyContent: 'space-between', marginBottom: 20 }]}>
                     <Text style={styles.title}>Створити альбом</Text>
                     <TouchableOpacity onPress={() => router.back()}>
-                        <Icon name="close" size={20} />
+                        <Icon.close size={20} />
                     </TouchableOpacity>
                 </View>
 

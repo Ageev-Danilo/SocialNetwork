@@ -6,10 +6,10 @@ import { Button } from '@/shared/ui';
 
 
 interface Props {
-    title:       string;
-    icon?:  ReactNode;
+    title: string;
+    icon?: ReactNode;
     rightIcon?: ReactNode;
-    badge?:      number;
+    badge?: number;
     onRightPress?: () => void;
 }
 
@@ -33,47 +33,42 @@ export function ChatSectionHeader({ title, icon, rightIcon, badge, onRightPress 
 
 const styles = StyleSheet.create({
     row: {
-        flexDirection:     'row',
-        alignItems:        'center',
-        justifyContent:    'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop:        16,
-        paddingBottom:     12,
+        paddingTop: 16,
+        paddingBottom: 12,
     },
     left: {
         flexDirection: 'row',
-        alignItems:    'center',
-        gap:           8,
+        alignItems: 'center',
+        gap: 8,
     },
     title: {
-        fontSize:   20,
-        fontWeight: '700',
-        color:      CHAT_COLORS.textMuted,
+        fontSize: 20,
+        fontWeight: '500',
+        color: CHAT_COLORS.textMuted,
     },
     right: {
         flexDirection: 'row',
-        alignItems:    'center',
-        gap:           6,
-    },
-    badgeCon: {
-        position: 'absolute',
-        top: 11,
-        left: 23,
+        alignItems: 'center',
+        gap: 6,
     },
     badge: {
-        minWidth:          16,
-        minHeight:            16,
-        borderRadius:      10,
-        backgroundColor:   CHAT_COLORS.badge,
-        justifyContent:    'center',
-        alignItems:        'center',
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: CHAT_COLORS.badge,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 5,
         borderWidth: 2,
         borderColor: 'white'
     },
     badgeText: {
-        color:      '#fff',
-        fontSize:   12,
+        color: '#fff',
+        fontSize: 12,
         fontWeight: '700',
     },
 });

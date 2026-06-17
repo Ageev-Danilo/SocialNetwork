@@ -209,8 +209,8 @@ export default function FriendsScreen() {
 
     return (
         <View style={styles.screen}>
+            <FriendsTabs activeTab={activeTab} onTabChange={setActiveTab} />
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-                <FriendsTabs activeTab={activeTab} onTabChange={setActiveTab} />
                 {renderContent()}
             </ScrollView>
         </View>

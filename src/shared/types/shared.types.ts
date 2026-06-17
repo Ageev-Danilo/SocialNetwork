@@ -37,7 +37,7 @@ export const icons = {
 export type IconName = keyof typeof icons;
 
 export type IconProps = {
-    name: IconName;
+    name?: IconName;
     size?: number;
     fill?: string;
     stroke?: string;
@@ -65,7 +65,7 @@ export type BtnProps = {
 };
 
 export type TabBtnProps = {
-    icon?: IconName;
+    icon: IconName;
     label?: string;
     href?: string;
     onPress?: () => void;

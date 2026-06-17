@@ -53,6 +53,8 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
     const pathname = usePathname();
     const isActive = href ? pathname === href || pathname.startsWith(href + '/') : false;
 
+    const CurrentIcon = Icon[icon];
+
     const handlePress = () => {
         if (!isActive) {
             if (href) router.push(href as any);
@@ -76,7 +78,7 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
             )}
             <View style={[BASE.column, BASE.tab, { height: 60, justifyContent: 'center' }]}>
                 <View>
-                    <Icon name={icon} />
+                    {CurrentIcon && <CurrentIcon />}
                     {badge != null && badge > 0 && (
                         <View
                             style={{

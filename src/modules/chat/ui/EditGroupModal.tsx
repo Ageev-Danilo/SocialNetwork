@@ -9,15 +9,15 @@ import { Button } from '@/shared/ui';
 import { SearchIcon, TrashIcon, MediaIcon } from './ChatIcons';
 import { CHAT_COLORS } from './chat-theme';
 import { useGetFriendsQuery } from '@/modules/friends';
-import { useCreateChatMutation } from '@/modules/chat/api';
-
+import { useGetChatsQuery, useUpdateChatMutation } from '@/modules/chat/api';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    chatId: number;
 }
 
-const { height: SCREEN_H }  = Dimensions.get('window');
+const { height: SCREEN_H } = Dimensions.get('window');
 const MAX_MODAL_HEIGHT = SCREEN_H * 0.9;
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
 const COLOR_OVERLAY = 'rgba(0,0,0,0.5)';
@@ -51,19 +51,37 @@ function PlusIcon() {
     );
 }
 
-export function CreateGroupModal({ visible, onClose }: Props) {
-    const [step, setStep] = useState<1 | 2>(1);
-    const [search, setSearch] = useState('');
+export function EditGroupModal({ visible, onClose, chatId }: Props) {
+    const [view, setView] = useState<'edit' | 'addParticipant'>('edit');
     const [groupName, setGroupName] = useState('');
     const [groupImageUri, setGroupImageUri] = useState<string | null>(null);
-    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [search, setSearch] = useState('');
+    const [newParticipantIds, setNewParticipantIds] = useState<Set<number>>(new Set());
 
-    const { data: friends = [], isLoading } = useGetFriendsQuery();
-    const [createChat, { isLoading: isCreating }] = useCreateChatMutation();
+    const { data: chats = [] } = useGetChatsQuery();
+    const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
+    const [updateChat] = useUpdateChatMutation();
 
+    const chat = chats.find(c => c.id === chatId);
+
+    const existingUserIds = useMemo(() => {
+        return new Set(chat?.users.map(u => u.id) ?? []);
+    }, [chat]);
+
+    const existingParticipants = useMemo(() => {
+        return (chat?.users ?? []).map(u => ({
+            id: u.id,
+            name: u.username || u.email || 'Користувач',
+            avatarUri: u.profileImage ? buildAvatarUri(u.profileImage) : '',
+        }));
+    }, [chat]);
+
+    const displayName = groupName !== '' ? groupName : (chat?.name ?? '');
+    const displayAvatar = groupImageUri || (chat?.avatar ? buildAvatarUri(chat.avatar) : null);
+    const avatarInitials = displayName.trim() ? getInitials(displayName.trim()) : 'NG';
     const searchQuery = search.trim().toLowerCase();
 
-    const contacts = useMemo(() => {
+    const friendsForAdd = useMemo(() => {
         const mapped = friends.map(f => ({
             id: f.contactProfile.id,
             userId: f.contactProfile.userId,
@@ -74,63 +92,35 @@ export function CreateGroupModal({ visible, onClose }: Props) {
         return mapped.filter(c => c.name.toLowerCase().includes(searchQuery));
     }, [friends, searchQuery]);
 
-    const groupedContacts = useMemo(() => {
-        const groups: Record<string, typeof contacts> = {};
-        contacts.forEach(c => {
+    const groupedFriends = useMemo(() => {
+        const groups: Record<string, typeof friendsForAdd> = {};
+        friendsForAdd.forEach(c => {
             const letter = c.name.charAt(0).toUpperCase();
             if (!groups[letter]) groups[letter] = [];
             groups[letter].push(c);
         });
         return Object.keys(groups).sort().map(key => ({ title: key, data: groups[key] }));
-    }, [contacts]);
+    }, [friendsForAdd]);
 
-    const selectedContacts = useMemo(() => {
-        return friends
-            .filter(f => selectedIds.has(f.contactProfile.id))
-            .map(f => ({
-                id: f.contactProfile.id,
-                userId: f.contactProfile.userId,
-                name: f.contactProfile.pseudonym || 'Користувач',
-                avatarUri: buildAvatarUri(f.contactProfile.profileImage),
-            }));
-    }, [friends, selectedIds]);
+    const totalSelected = existingUserIds.size + newParticipantIds.size;
 
-    const avatarInitials = groupName.trim()
-        ? getInitials(groupName.trim())
-        : 'NG';
-
-    function toggleMember(id: number) {
-        setSelectedIds(prev => {
+    function toggleNewParticipant(userId: number | undefined) {
+        if (!userId || existingUserIds.has(userId)) return;
+        setNewParticipantIds(prev => {
             const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
-    }
-
-    function removeMember(id: number) {
-        setSelectedIds(prev => {
-            const next = new Set(prev);
-            next.delete(id);
+            if (next.has(userId)) next.delete(userId);
+            else next.add(userId);
             return next;
         });
     }
 
     function handleClose() {
-        setStep(1);
-        setSearch('');
+        setView('edit');
         setGroupName('');
         setGroupImageUri(null);
-        setSelectedIds(new Set());
+        setSearch('');
+        setNewParticipantIds(new Set());
         onClose();
-    }
-
-    function goToStep2() {
-        if (selectedIds.size < 2) {
-            Alert.alert('Помилка', 'Оберіть мінімум двох учасників');
-            return;
-        }
-        setStep(2);
     }
 
     async function pickFromGallery() {
@@ -146,7 +136,7 @@ export function CreateGroupModal({ visible, onClose }: Props) {
     async function pickFromCamera() {
         const permission = await ImagePicker.requestCameraPermissionsAsync();
         if (!permission.granted) {
-            Alert.alert('Доступ заборонено', 'Дозвольте доступ до камери в налаштуваннях');
+            Alert.alert('Доступ заборонено', 'Дозвольте доступ до камери');
             return;
         }
         const result = await ImagePicker.launchCameraAsync({
@@ -157,24 +147,36 @@ export function CreateGroupModal({ visible, onClose }: Props) {
         if (!result.canceled) setGroupImageUri(result.assets[0].uri);
     }
 
-    async function handleCreate() {
-        if (!groupName.trim()) {
-            Alert.alert('Помилка', 'Введіть назву групи');
-            return;
-        }
-        const memberIds = selectedContacts
-            .map(c => c.userId)
-            .filter((id): id is number => id != null);
-        if (memberIds.length < 2) {
-            Alert.alert('Помилка', 'Не вдалося визначити учасників');
-            return;
-        }
+    async function handleSaveEdit() {
         try {
-            await createChat({ memberIds, isGroup: true, name: groupName.trim() }).unwrap();
-            Alert.alert('Групу створено');
+            const payload: { name?: string; avatar?: string } = {};
+            if (groupName) payload.name = groupName;
+            if (groupImageUri) payload.avatar = groupImageUri;
+            await updateChat({ chatId, payload }).unwrap();
             handleClose();
-        } catch {
-            Alert.alert('Помилка', 'Не вдалося створити групу');
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося оновити групу');
+        }
+    }
+
+    async function handleRemoveParticipant(userId: number) {
+        try {
+            const memberIds = [...existingUserIds].filter(id => id !== userId);
+            await updateChat({ chatId, payload: { memberIds } }).unwrap();
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося видалити учасника');
+        }
+    }
+
+    async function handleSaveParticipants() {
+        try {
+            const memberIds = [...existingUserIds, ...newParticipantIds];
+            await updateChat({ chatId, payload: { memberIds } }).unwrap();
+            setSearch('');
+            setNewParticipantIds(new Set());
+            setView('edit');
+        } catch (e) {
+            Alert.alert('Помилка', 'Не вдалося додати учасників');
         }
     }
 
@@ -191,72 +193,11 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                         <Text style={styles.closeText}>✕</Text>
                     </TouchableOpacity>
 
-                    <View style={styles.header}>
-                        <Text style={styles.title}>Нова група</Text>
-                    </View>
-
-                    {step === 1 ? (
+                    {view === 'edit' ? (
                         <>
-                            <View style={styles.searchWrap}>
-                                <SearchIcon />
-                                <TextInput
-                                    style={styles.searchInput}
-                                    placeholder="Пошук"
-                                    placeholderTextColor={CHAT_COLORS.textLight}
-                                    value={search}
-                                    onChangeText={setSearch}
-                                />
+                            <View style={styles.header}>
+                                <Text style={styles.title}>Редагування групи</Text>
                             </View>
-                            <Text style={styles.selectedCount}>Вибрано: {selectedIds.size}</Text>
-                            <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
-                                {isLoading ? (
-                                    <ActivityIndicator color={CHAT_COLORS.primary} style={styles.loader} />
-                                ) : contacts.length === 0 ? (
-                                    <Text style={styles.emptyText}>Список контактів порожній</Text>
-                                ) : (
-                                    <View>
-                                        {groupedContacts.map(group => (
-                                            <View key={group.title}>
-                                                <Text style={styles.groupTitle}>{group.title}</Text>
-                                                {group.data.map((contact, index) => {
-                                                    const isSelected = selectedIds.has(contact.id);
-                                                    const isLast     = index === group.data.length - 1;
-                                                    const initials   = getInitials(contact.name);
-                                                    return (
-                                                        <TouchableOpacity
-                                                            key={contact.id}
-                                                            style={[styles.memberRow, isLast && styles.memberRowLast]}
-                                                            onPress={() => toggleMember(contact.id)}
-                                                            activeOpacity={0.7}
-                                                        >
-                                                            {contact.avatarUri ? (
-                                                                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
-                                                            ) : (
-                                                                <View style={[styles.avatar, styles.avatarFallback]}>
-                                                                    <Text style={styles.avatarInitials}>{initials}</Text>
-                                                                </View>
-                                                            )}
-                                                            <View style={styles.nameBlock}>
-                                                                <Text style={styles.memberName}>{contact.name}</Text>
-                                                            </View>
-                                                            <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                                                                {isSelected && <Text style={styles.checkmark}>✓</Text>}
-                                                            </View>
-                                                        </TouchableOpacity>
-                                                    );
-                                                })}
-                                            </View>
-                                        ))}
-                                    </View>
-                                )}
-                            </ScrollView>
-                            <View style={styles.footer}>
-                                <Button type="outline" text="Скасувати" onPress={handleClose} />
-                                <Button type="fill" text="Далі" onPress={goToStep2} />
-                            </View>
-                        </>
-                    ) : (
-                        <>
                             <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
                                 <View style={styles.nameSection}>
                                     <Text style={styles.fieldLabel}>Назва</Text>
@@ -264,15 +205,13 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                         style={styles.nameInput}
                                         placeholder="Введіть назву"
                                         placeholderTextColor={CHAT_COLORS.textLight}
-                                        value={groupName}
+                                        value={displayName}
                                         onChangeText={setGroupName}
-                                        autoFocus
                                     />
                                 </View>
-
                                 <View style={styles.avatarSection}>
-                                    {groupImageUri ? (
-                                        <Image source={{ uri: groupImageUri }} style={styles.groupAvatar} />
+                                    {displayAvatar ? (
+                                        <Image source={{ uri: displayAvatar }} style={styles.groupAvatar} />
                                     ) : (
                                         <View style={styles.groupAvatarFallback}>
                                             <Text style={styles.groupAvatarInitials}>{avatarInitials}</Text>
@@ -289,34 +228,116 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-
-                                <Text style={styles.participantsLabel}>Учасники</Text>
-                                {selectedContacts.map(contact => {
-                                    const initials = getInitials(contact.name);
-                                    return (
-                                        <View key={contact.id} style={styles.participantRow}>
-                                            {contact.avatarUri ? (
-                                                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
-                                            ) : (
-                                                <View style={[styles.avatar, styles.avatarFallback]}>
-                                                    <Text style={styles.avatarInitials}>{initials}</Text>
-                                                </View>
-                                            )}
-                                            <Text style={styles.participantName}>{contact.name}</Text>
-                                            <TouchableOpacity onPress={() => removeMember(contact.id)} style={styles.removeBtn}>
-                                                <TrashIcon size={18} color={COLOR_DARK} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    );
-                                })}
+                                <View style={styles.participantsContainer}>
+                                    <View style={styles.participantsHeader}>
+                                        <Text style={styles.participantsLabel}>Учасники</Text>
+                                        <TouchableOpacity
+                                            style={styles.addParticipantBtn}
+                                            onPress={() => setView('addParticipant')}
+                                        >
+                                            <PlusIcon />
+                                            <Text style={styles.addParticipantText}>Додайте учасника</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    {existingParticipants.map(participant => {
+                                        const initials = getInitials(participant.name);
+                                        return (
+                                            <View key={participant.id} style={styles.participantRow}>
+                                                {participant.avatarUri ? (
+                                                    <Image source={{ uri: participant.avatarUri }} style={styles.avatar} />
+                                                ) : (
+                                                    <View style={[styles.avatar, styles.avatarFallback]}>
+                                                        <Text style={styles.avatarInitials}>{initials}</Text>
+                                                    </View>
+                                                )}
+                                                <Text style={styles.participantName}>{participant.name}</Text>
+                                                <TouchableOpacity
+                                                    style={styles.removeBtn}
+                                                    onPress={() => handleRemoveParticipant(participant.id)}
+                                                >
+                                                    <TrashIcon size={18} color={COLOR_DARK} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        );
+                                    })}
+                                </View>
                             </ScrollView>
                             <View style={styles.footer}>
-                                <Button type="outline" text="Назад" onPress={() => setStep(1)} />
-                                <Button
-                                    type="fill"
-                                    text={isCreating ? 'Створення...' : 'Створити групу'}
-                                    onPress={handleCreate}
+                                <Button type="outline" text="Назад" onPress={handleClose} />
+                                <Button type="fill" text="Зберегти зміни" onPress={handleSaveEdit} />
+                            </View>
+                        </>
+                    ) : (
+                        <>
+                            <View style={styles.header}>
+                                <Text style={styles.title}>Додати учасника</Text>
+                            </View>
+                            <View style={styles.searchWrap}>
+                                <SearchIcon />
+                                <TextInput
+                                    style={styles.searchInput}
+                                    placeholder="Пошук"
+                                    placeholderTextColor={CHAT_COLORS.textLight}
+                                    value={search}
+                                    onChangeText={setSearch}
                                 />
+                            </View>
+                            <Text style={styles.selectedCount}>Вибрано: {totalSelected}</Text>
+                            <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                                {isFriendsLoading ? (
+                                    <ActivityIndicator color={CHAT_COLORS.primary} style={styles.loader} />
+                                ) : friendsForAdd.length === 0 ? (
+                                    <Text style={styles.emptyText}>Список контактів порожній</Text>
+                                ) : (
+                                    <View>
+                                        {groupedFriends.map(group => (
+                                            <View key={group.title}>
+                                                <Text style={styles.groupTitle}>{group.title}</Text>
+                                                {group.data.map((contact, index) => {
+                                                    const isExisting = existingUserIds.has(contact.userId ?? -1);
+                                                    const isNewlySelected = newParticipantIds.has(contact.userId ?? -1);
+                                                    const isChecked = isExisting || isNewlySelected;
+                                                    const isLast = index === group.data.length - 1;
+                                                    const initials = getInitials(contact.name);
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={contact.id}
+                                                            style={[styles.memberRow, isLast && styles.memberRowLast]}
+                                                            onPress={() => toggleNewParticipant(contact.userId)}
+                                                            activeOpacity={isExisting ? 1 : 0.7}
+                                                        >
+                                                            {contact.avatarUri ? (
+                                                                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
+                                                            ) : (
+                                                                <View style={[styles.avatar, styles.avatarFallback]}>
+                                                                    <Text style={styles.avatarInitials}>{initials}</Text>
+                                                                </View>
+                                                            )}
+                                                            <View style={styles.nameBlock}>
+                                                                <Text style={styles.memberName}>{contact.name}</Text>
+                                                            </View>
+                                                            <View style={[styles.checkbox, isChecked && styles.checkboxSelected]}>
+                                                                {isChecked && <Text style={styles.checkmark}>✓</Text>}
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+                                            </View>
+                                        ))}
+                                    </View>
+                                )}
+                            </ScrollView>
+                            <View style={styles.footer}>
+                                <Button
+                                    type="outline"
+                                    text="Скасувати"
+                                    onPress={() => {
+                                        setSearch('');
+                                        setNewParticipantIds(new Set());
+                                        setView('edit');
+                                    }}
+                                />
+                                <Button type="fill" text="Зберегти" onPress={handleSaveParticipants} />
                             </View>
                         </>
                     )}
@@ -354,7 +375,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     closeText: { fontSize: 20, color: COLOR_BLACK, fontWeight: '600' },
-    header: { alignItems: 'center', paddingBottom: 20, paddingTop: 12 },
+    header: { alignItems: 'center', paddingBottom: 16, paddingTop: 12 },
     title: {
         fontSize: 24,
         fontWeight: '500',
@@ -433,20 +454,24 @@ const styles = StyleSheet.create({
     },
     groupAvatarInitials: { fontSize: 18, fontWeight: '700', color: COLOR_WHITE },
     photoRow: { flexDirection: 'row', gap: 16 },
-    photoBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingVertical: 0,
-    },
+    photoBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     photoBtnText: { fontSize: 13, fontWeight: '500', color: COLOR_PRIMARY },
-    participantsLabel: {
-        fontSize: 14,
-        fontWeight: '400',
-        color: COLOR_DARK,
-        marginBottom: 8,
-        marginTop:  4,
+    participantsContainer: {
+        borderWidth: 1,
+        borderColor: COLOR_BORDER,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
     },
+    participantsHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    participantsLabel: { fontSize: 14, fontWeight: '400', color: COLOR_DARK },
+    addParticipantBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    addParticipantText: { fontSize: 13, fontWeight: '500', color: COLOR_PRIMARY },
     participantRow: {
         flexDirection: 'row',
         alignItems: 'center',
