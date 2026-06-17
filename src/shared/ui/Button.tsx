@@ -34,10 +34,12 @@ export function Button({
         style,
     ]);
 
+    const CurrentIcon = icon ? Icon[icon] : null;
+
     return (
         <Ripple onPress={onPress} style={finalStyles}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                {icon && <Icon name={icon} size={iconSize} />}
+                {CurrentIcon && <CurrentIcon size={iconSize} />}
 
                 {children ? (
                     children

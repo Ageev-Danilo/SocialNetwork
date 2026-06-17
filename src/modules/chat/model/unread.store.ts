@@ -35,3 +35,44 @@ export function useUnreadFlags(): Map<number, boolean> {
     }, []);
     return unreadFlags;
 }
+
+let pendingRequests = 0;
+
+export function setFriendRequests(count: number): void {
+    pendingRequests = count;
+    notify();
+}
+
+export function incrementFriendRequest(): void {
+    pendingRequests += 1;
+    notify();
+}
+
+export function decrementFriendRequest(): void {
+    pendingRequests = Math.max(0, pendingRequests - 1);
+    notify();
+}
+
+export function clearFriendRequests(): void {
+    pendingRequests = 0;
+    notify();
+}
+
+export function getFriendRequestsCount(): number {
+    return pendingRequests;
+}
+
+export function useFriendRequestsCount(): number {
+    const [, forceUpdate] = useState(0);
+
+    useEffect(() => {
+        const listener = () => forceUpdate(n => n + 1);
+        listeners.add(listener);
+
+        return () => {
+            listeners.delete(listener);
+        };
+    }, []);
+
+    return pendingRequests;
+}

@@ -10,12 +10,17 @@ import { store } from '@/shared/store';
 import { UserContextProvider } from '@/modules/auth';
 import { AuthGate } from '@/modules/auth/ui/auth-gate';
 import { ClientSocket } from '@/shared/api';
-import { markUnread, markRead } from '@/modules/chat/model/unread.store';
+import {
+    markUnread,
+    markRead,
+    setFriendRequests,
+    incrementFriendRequest,
+    decrementFriendRequest,
+} from '@/modules/chat/model/unread.store';
 import { setLastMessage } from '@/modules/chat/model/lastMessages.store';
 import { getActiveChatId } from '@/modules/chat/model/activeChat.store';
 import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
 import { initLastMessages } from '@/modules/chat/model/lastMessages.store';
-
 
 const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
 
@@ -50,7 +55,7 @@ function AppContent() {
         async function init() {
             await initLastMessages();
             const token = await AsyncStorage.getItem('token');
-            
+
             if (!token) return;
 
             const payload = decodeJwtPayload(token);
@@ -76,6 +81,7 @@ function AppContent() {
             console.log('Socket connected');
             if (myUserIdRef.current) {
                 ClientSocket.emit('user:online', myUserIdRef.current);
+                ClientSocket.emit('friends:get-sent-requests-count');
             }
         }
 
@@ -96,18 +102,50 @@ function AppContent() {
             }
         }
 
-        function onDisconnect() { console.log('Socket disconnected'); }
-        function onConnectError(error: Error) { console.error('Socket error:', error); }
+        function onFriendRequestsCount(count: number) {
+            console.log('[onFriendRequestsCount]', count);
+            setFriendRequests(count);
+        }
+
+        function onFriendRequestSent() {
+            console.log('[onFriendRequestSent]');
+            incrementFriendRequest();
+        }
+
+        function onFriendRequestAccepted() {
+            console.log('[onFriendRequestAccepted]');
+            decrementFriendRequest();
+        }
+
+        function onFriendRequestDeclined() {
+            console.log('[onFriendRequestDeclined]');
+            decrementFriendRequest();
+        }
+
+        function onDisconnect() {
+            console.log('Socket disconnected');
+        }
+        function onConnectError(error: Error) {
+            console.error('Socket error:', error);
+        }
 
         init();
         ClientSocket.on('connect', onConnection);
         ClientSocket.on('chat:new-message', onNewMessage);
+        ClientSocket.on('friends:sent-requests-count', onFriendRequestsCount);
+        ClientSocket.on('friends:request-sent', onFriendRequestSent);
+        ClientSocket.on('friends:request-accepted', onFriendRequestAccepted);
+        ClientSocket.on('friends:request-declined', onFriendRequestDeclined);
         ClientSocket.on('disconnect', onDisconnect);
         ClientSocket.on('connect_error', onConnectError);
 
         return () => {
             ClientSocket.off('connect', onConnection);
             ClientSocket.off('chat:new-message', onNewMessage);
+            ClientSocket.off('friends:sent-requests-count', onFriendRequestsCount);
+            ClientSocket.off('friends:request-sent', onFriendRequestSent);
+            ClientSocket.off('friends:request-accepted', onFriendRequestAccepted);
+            ClientSocket.off('friends:request-declined', onFriendRequestDeclined);
             ClientSocket.off('disconnect', onDisconnect);
             ClientSocket.off('connect_error', onConnectError);
         };

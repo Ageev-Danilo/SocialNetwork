@@ -1,16 +1,16 @@
-export type JoinChatCallback    = (response: { joined: boolean }) => void;
-export type LeaveChatCallback   = (response: { left: boolean }) => void;
+export type JoinChatCallback = (response: { joined: boolean }) => void;
+export type LeaveChatCallback = (response: { left: boolean }) => void;
 export type SendMessageCallback = (response: { delivered: boolean }) => void;
 
 export interface SendMessagePayload {
-    chatId:  string;
+    chatId: string;
     message: string;
 }
 
 export interface NewMessageData {
-    userId:  string;
+    userId: string;
     message: string;
-    chatId:  string;
+    chatId: string;
     sender?: {
         firstName?: string;
         lastName?: string;
@@ -20,15 +20,20 @@ export interface NewMessageData {
 }
 
 export interface ServerEvents {
-    'chat:new-message':  (data: NewMessageData) => void;
-    'user:connected':    (userId: string) => void;
+    'chat:new-message': (data: NewMessageData) => void;
+    'user:connected': (userId: string) => void;
     'user:disconnected': (userId: string) => void;
+    'friends:sent-requests-count': (count: number) => void;
+    'friends:request-sent': () => void;
+    'friends:request-accepted': () => void;
+    'friends:request-declined': () => void;
 }
 
 export interface ClientEvents {
-    'chat:join':    (chatId: string, ack?: JoinChatCallback) => void;
-    'chat:leave':   (chatId: string, ack?: LeaveChatCallback) => void;
+    'chat:join': (chatId: string, ack?: JoinChatCallback) => void;
+    'chat:leave': (chatId: string, ack?: LeaveChatCallback) => void;
     'chat:message': (payload: SendMessagePayload, ack?: SendMessageCallback) => void;
-    'user:online':  (userId: string, ack?: (response: { success: boolean }) => void) => void;
+    'user:online': (userId: string, ack?: (response: { success: boolean }) => void) => void;
     'user:offline': (userId: string, ack?: (response: { success: boolean }) => void) => void;
+    'friends:get-sent-requests-count': (ack?: (count: number) => void) => void;
 }
