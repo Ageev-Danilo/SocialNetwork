@@ -1,3 +1,4 @@
+import { Button } from '@/shared/ui';
 import { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, Pressable } from 'react-native';
 
@@ -41,12 +42,8 @@ export function FriendCard({ data, mode, onConfirm, onRemove }: Props) {
                 <Text style={styles.name}>{data.name}</Text>
                 <Text style={styles.username}>@{data.username}</Text>
                 <View style={styles.actions}>
-                    <TouchableOpacity style={styles.btnPrimary} onPress={onConfirm}>
-                        <Text style={styles.btnPrimaryText}>{confirmLabel}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnOutline} onPress={handleRemovePress}>
-                        <Text style={styles.btnOutlineText}>Видалити</Text>
-                    </TouchableOpacity>
+                    <Button text={confirmLabel} onPress={onConfirm} />
+                    <Button type="outline" text="Видалити" onPress={handleRemovePress} />
                 </View>
             </View>
 

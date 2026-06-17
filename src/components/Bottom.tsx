@@ -2,14 +2,22 @@ import { TabBtn } from '../shared/ui/Button';
 import { useUnreadFlags, useFriendRequestsCount } from '@/modules/chat/model/unread.store';
 import { BASE } from '@/shared/consts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useGetFriendRequestsQuery } from '@/modules/friends';
 
 
 export function Bottom() {
     const flags = useUnreadFlags();
-    const friendRequests = useFriendRequestsCount();
+    const { data: requests = [] } = useGetFriendRequestsQuery();
 
-    const friendsBadge = friendRequests > 0 ? friendRequests : undefined;
-    const chatBadge = [...flags.values()].some(Boolean) ? 1 : undefined;
+    const friendsBadge = requests.length > 99 ? '99+' : requests.length || undefined;
+    const unreadChatsCount = [...flags.values()]
+        .filter(Boolean)
+        .length;
+
+    const chatBadge =
+        unreadChatsCount > 1000
+            ? '1000+'
+            : unreadChatsCount || undefined;
 
     return (
         <SafeAreaView style={[BASE.center, BASE.bottomBar, { backgroundColor: '#fff' }]} edges={['bottom']}>

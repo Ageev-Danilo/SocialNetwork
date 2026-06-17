@@ -227,15 +227,13 @@ export function PostsForm({ onSuccess, onClose }: Props) {
 
             <View style={styles.footer}>
                 <View style={{ flex: 1 }} />
-                <Button type='outline' onPress={pickImage}><Icon name='img' /></Button>
-                <Button type='outline'><Icon name='smile' /></Button>
-                <Button
-                    onPress={handleSubmit(onSubmit)}
-                >
+                <Button type='outline' style={styles.btn} icon={'img'} onPress={pickImage}></Button>
+                <Button type='outline' style={styles.btn} icon={'smile'} />
+                <Button onPress={handleSubmit(onSubmit)}>
                     <Text style={styles.publishText}>
                         {isLoading ? 'Зачекайте' : 'Публікація'}
                     </Text>
-                    <Icon name='send' />
+                    <Icon.send />
                 </Button>
             </View>
         </View>
@@ -271,4 +269,7 @@ const styles = StyleSheet.create({
     publishBtn:  { flexDirection: 'row', backgroundColor: '#5A4975', paddingHorizontal: 20, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', gap: 10, minWidth: 140 },
     publishText: { color: '#fff', fontWeight: '700', fontSize: 15 },
     circle:      { width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: '#E8E8E8', justifyContent: 'center', alignItems: 'center' },
+    btn: {
+        width: 46
+    }
 });

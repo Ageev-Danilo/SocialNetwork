@@ -7,9 +7,10 @@ import { CHAT_COLORS } from './chat-theme';
 import { BackIcon, CheckDoubleIcon, CheckSingleIcon, MenuDotsIcon } from './ChatIcons';
 import type { ChatTabId } from './ChatTabs';
 import { ChatTabs } from './ChatTabs';
+import { Button, Input } from '@/shared/ui';
 
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
 const IMAGE_REGEX = /\.(jpg|jpeg|png|webp|gif)/;
 
 export interface MenuAction {
@@ -249,12 +250,8 @@ export function ChatThreadScreen({
                         onChangeText={setInputText}
                         multiline
                     />
-                    <Pressable style={styles.attachBtn} onPress={onAttachPress}>
-                        <AttachIcon />
-                    </Pressable>
-                    <Pressable style={styles.sendBtn} onPress={handleSend}>
-                        <SendButton />
-                    </Pressable>
+                    <Button type='outline' style={styles.keyboardBtn} icon={'img'} onPress={onAttachPress} />
+                    <Button style={styles.keyboardBtn} icon={'send'} onPress={handleSend} />
                 </View>
             </View>
         </View>
@@ -374,7 +371,7 @@ const styles = StyleSheet.create({
         flex:              1,
         borderWidth:       1,
         borderColor:       CHAT_COLORS.border,
-        borderRadius:      24,
+        borderRadius:      12,
         paddingHorizontal: 16,
         paddingVertical:   12,
         backgroundColor:   CHAT_COLORS.cardBg,
@@ -382,6 +379,7 @@ const styles = StyleSheet.create({
         color:             CHAT_COLORS.text,
         maxHeight:         100,
     },
-    attachBtn:            { justifyContent: 'center', alignItems: 'center' },
-    sendBtn:              { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+    keyboardBtn: {
+        width:          46,
+    }
 });

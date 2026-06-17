@@ -19,7 +19,7 @@ interface Props {
 
 const { height: SCREEN_H }  = Dimensions.get('window');
 const MAX_MODAL_HEIGHT = SCREEN_H * 0.9;
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
 const COLOR_OVERLAY = 'rgba(0,0,0,0.5)';
 const COLOR_WHITE = '#ffffff';
 const COLOR_BLACK = '#000000';

@@ -25,7 +25,7 @@ import type { NewMessageData } from '@/shared/api/socket/socket.contracts';
 
 
 const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3000';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
 
 function buildAvatarUri(path: string | null | undefined): string {
     if (!path) return '';
