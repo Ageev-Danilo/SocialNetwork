@@ -1,7 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-
 import { CHAT_COLORS } from './chat-theme';
-
 
 interface Props {
     title: string;
@@ -10,7 +8,7 @@ interface Props {
     avatarUri?: string;
     highlighted?: boolean;
     isOnline?: boolean;
-    hasUnread?: boolean;
+    unreadCount?: number;
     isGroup?: boolean;
     onPress: () => void;
 }
@@ -25,20 +23,14 @@ function getInitials(text: string): string {
 }
 
 export function ChatListItem({
-    title,
-    subtitle,
-    time,
-    avatarUri,
-    highlighted,
-    isOnline,
-    hasUnread,
-    isGroup,
-    onPress,
+    title, subtitle, time, avatarUri, highlighted,
+    isOnline, unreadCount, isGroup, onPress,
 }: Props) {
     const displayTitle = title || 'Користувач';
     const initials = getInitials(displayTitle);
     const rowStyles = [styles.row, highlighted && styles.rowHighlighted];
     const fallbackStyles = [styles.avatar, styles.avatarFallback];
+    const hasUnread = (unreadCount ?? 0) > 0;
 
     return (
         <Pressable style={rowStyles} onPress={onPress}>
@@ -59,7 +51,13 @@ export function ChatListItem({
                     </Text>
                     <View style={styles.rightMeta}>
                         {time ? <Text style={styles.time}>{time}</Text> : null}
-                        {hasUnread && <View style={styles.unreadDot} />}
+                        {hasUnread && (
+                            <View style={styles.unreadBadge}>
+                                <Text style={styles.unreadBadgeText}>
+                                    {unreadCount! > 99 ? '99+' : unreadCount}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
                 {subtitle ? (
@@ -103,10 +101,14 @@ const styles = StyleSheet.create({
     title: { flex: 1, fontSize: 16, fontWeight: '700', color: CHAT_COLORS.text },
     subtitle: { fontSize: 14, color: '#070A1C' },
     time: { fontSize: 13, color: CHAT_COLORS.textMuted },
-    unreadDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+    unreadBadge: {
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
         backgroundColor: '#E53935',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 5,
     },
+    unreadBadgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
 });

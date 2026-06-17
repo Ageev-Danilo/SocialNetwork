@@ -1,12 +1,12 @@
 import { TabBtn } from '../shared/ui/Button';
-import { useUnreadFlags } from '@/modules/chat/model/unread.store';
+import { useUnreadCount } from '@/modules/chat/model/unread.store';
 import { BASE } from '@/shared/consts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export function Bottom() {
-    const flags = useUnreadFlags();
-    const chatBadge = [...flags.values()].some(Boolean) ? 1 : undefined;
+    const totalUnread = useUnreadCount();
+    const chatBadge = totalUnread > 0 ? totalUnread : undefined;
 
     return (
         <SafeAreaView style={[BASE.center, BASE.bottomBar, { backgroundColor: '#fff' }]} edges={['bottom']}>

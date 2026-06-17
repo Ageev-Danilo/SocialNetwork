@@ -15,7 +15,7 @@ import type { ChatTabId } from '@/modules/chat';
 import { useCreateChatMutation, useGetChatsQuery } from '@/modules/chat/api';
 import type { ChatDto } from '@/modules/chat/api';
 import { initLastMessages, useLastMessages } from '@/modules/chat/model/lastMessages.store';
-import { useUnreadFlags } from '@/modules/chat/model/unread.store';
+import { useUnreadCounts } from '@/modules/chat/model/unread.store';
 import { setActiveChatId, useActiveChatId } from '@/modules/chat/model/activeChat.store';
 import { CHAT_COLORS } from '@/modules/chat/ui/chat-theme';
 import { ContactsTabIcon } from '@/modules/chat/ui/ChatIcons';
@@ -47,7 +47,7 @@ export default function ChatScreen() {
     const { data: friends = [], isLoading: isFriendsLoading } = useGetFriendsQuery();
     const [createChat] = useCreateChatMutation();
     const lastMessages = useLastMessages();
-    const unreadFlags = useUnreadFlags();
+    const unreadCounts = useUnreadCounts();
     const activeChatId = useActiveChatId();
 
     useEffect(() => {
@@ -204,7 +204,7 @@ export default function ChatScreen() {
                 const chatAvatar = myUserId !== null ? getChatAvatar(chat, myUserId) : undefined;
                 const lastMsg = getChatLastMessage(chat);
                 const lastTime = getChatLastTime(chat);
-                const unread = unreadFlags.get(chat.id) ?? false;
+                const unreadCount = unreadCounts.get(chat.id) ?? 0;
                 return (
                     <ChatListItem
                         key={chat.id}
@@ -212,7 +212,7 @@ export default function ChatScreen() {
                         avatarUri={chatAvatar || undefined}
                         subtitle={lastMsg}
                         time={lastMsg ? lastTime : undefined}
-                        hasUnread={unread}
+                        unreadCount={unreadCount}
                         highlighted={chat.id === activeChatId}
                         onPress={() => openConversation(chat.id, chatTitle, chatAvatar)}
                     />
@@ -236,7 +236,7 @@ export default function ChatScreen() {
                 const chatAvatar = chat.avatar ? buildAvatarUri(chat.avatar) : undefined;
                 const lastMsg = getChatLastMessage(chat);
                 const lastTime = getChatLastTime(chat);
-                const unread = unreadFlags.get(chat.id) ?? false;
+                const unreadCount = unreadCounts.get(chat.id) ?? 0;
                 return (
                     <ChatListItem
                         key={chat.id}
@@ -244,7 +244,7 @@ export default function ChatScreen() {
                         avatarUri={chatAvatar}
                         subtitle={lastMsg}
                         time={lastMsg ? lastTime : undefined}
-                        hasUnread={unread}
+                        unreadCount={unreadCount}
                         highlighted={chat.id === activeChatId}
                         isGroup
                         onPress={() => openConversation(chat.id, chatTitle, chatAvatar)}
@@ -272,10 +272,10 @@ export default function ChatScreen() {
         ));
     }
 
-    const anyDmUnread = chats.filter(c => !c.isGroup).some(c => unreadFlags.get(c.id));
-    const anyGroupUnread = chats.filter(c => c.isGroup).some(c => unreadFlags.get(c.id));
-    const messageBadge = anyDmUnread ? 1 : undefined;
-    const groupBadge = anyGroupUnread ? 1 : undefined;
+    const dmUnreadCount = chats.filter(c => !c.isGroup).reduce((sum, c) => sum + (unreadCounts.get(c.id) ?? 0), 0);
+    const groupUnreadCount = chats.filter(c => c.isGroup).reduce((sum, c) => sum + (unreadCounts.get(c.id) ?? 0), 0);
+    const messageBadge = dmUnreadCount > 0 ? dmUnreadCount : undefined;
+    const groupBadge = groupUnreadCount > 0 ? groupUnreadCount : undefined;
 
     return (
         <View style={styles.screen}>
