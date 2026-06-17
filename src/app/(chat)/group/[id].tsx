@@ -84,7 +84,8 @@ export default function GroupChatScreen() {
     async function handleDeleteChat() {
         try {
             await deleteChat(chatId).unwrap();
-            router.back();
+            setActiveChatId(null);
+            router.replace('/chat');
         } catch (e) {
             Alert.alert('Помилка', 'Не вдалося видалити чат');
         }

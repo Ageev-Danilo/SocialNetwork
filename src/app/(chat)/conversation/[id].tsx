@@ -116,7 +116,7 @@ export default function ConversationScreen() {
     const chatSubtitle = (() => {
         if (!chat?.isGroup) return undefined;
         const count = chat.users?.length ?? 0;
-        return count > 0 ? `${count} учасників, 0 в мережі` : undefined;
+        return count > 0 ? `${count} учасників` : undefined;
     })();
 
     const isGroupAdmin = chat?.isGroup ? chat.adminId === myUserId : false;

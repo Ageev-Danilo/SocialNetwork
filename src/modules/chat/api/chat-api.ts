@@ -22,7 +22,7 @@ const chatApi = baseApi.injectEndpoints({
         }),
         deleteChat: builder.mutation<{ message: string }, number>({
             query: (chatId) => ({ url: `/chats/${chatId}`, method: 'DELETE' }),
-            invalidatesTags: ['Chats'],
+            invalidatesTags: ['Chats', 'Messages'],
         }),
         getChatMessages: builder.query<MessageDto[], number>({
             query: (chatId) => ({ url: `/chats/${chatId}/messages` }),
