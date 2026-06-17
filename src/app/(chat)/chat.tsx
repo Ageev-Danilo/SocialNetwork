@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
@@ -9,7 +9,6 @@ import {
     ChatSectionHeader,
     ChatTabs,
     ContactListItem,
-    MessagesTabIcon,
 } from '@/modules/chat';
 import type { ChatTabId } from '@/modules/chat';
 import { useCreateChatMutation, useGetChatsQuery } from '@/modules/chat/api';

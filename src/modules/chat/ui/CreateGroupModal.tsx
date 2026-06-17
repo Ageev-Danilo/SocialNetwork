@@ -171,7 +171,6 @@ export function CreateGroupModal({ visible, onClose }: Props) {
         }
         try {
             await createChat({ memberIds, isGroup: true, name: groupName.trim() }).unwrap();
-            Alert.alert('Групу створено');
             handleClose();
         } catch {
             Alert.alert('Помилка', 'Не вдалося створити групу');

@@ -9,7 +9,7 @@ export function Bottom() {
     const flags = useUnreadFlags();
     const { data: requests = [] } = useGetFriendRequestsQuery();
 
-    const friendsBadge = requests.length > 99 ? '99+' : requests.length || undefined;
+    const friendsBadge = requests.length > 99 ? '99+' : requests.length;
     const unreadChatsCount = [...flags.values()]
         .filter(Boolean)
         .length;
@@ -17,7 +17,7 @@ export function Bottom() {
     const chatBadge =
         unreadChatsCount > 1000
             ? '1000+'
-            : unreadChatsCount || undefined;
+            : unreadChatsCount;
 
     return (
         <SafeAreaView style={[BASE.center, BASE.bottomBar, { backgroundColor: '#fff' }]} edges={['bottom']}>

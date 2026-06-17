@@ -81,7 +81,7 @@ export function TabBtn({ icon, label, href, onPress, badge }: TabBtnProps) {
             <View style={[BASE.column, BASE.tab, { height: 60, justifyContent: 'center' }]}>
                 <View>
                     {CurrentIcon && <CurrentIcon />}
-                    {badge != null && badge > 0 && (
+                    {badge != null && (
                         <View
                             style={{
                                 position: 'absolute',
