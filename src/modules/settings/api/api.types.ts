@@ -23,3 +23,11 @@ export interface UpdateSettingsPayload {
     isTextSignature: boolean;
     profileImage?: string;
 }
+
+export interface UpdateEmailPayload {
+    email: string;
+}
+
+export interface UpdatePasswordPayload {
+    password: string;
+}
