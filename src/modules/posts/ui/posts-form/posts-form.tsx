@@ -163,9 +163,7 @@ export function PostsForm({ onSuccess, onClose }: Props) {
                             </TouchableOpacity>
                         );
                     })}
-                    <TouchableOpacity style={styles.addTag}>
-                        <Text style={styles.addTagText}>+</Text>
-                    </TouchableOpacity>
+                    <Button type='outline' style={styles.plus1} icon={'add'} />
                 </View>
 
                 <Controller control={control} name="content"
@@ -203,9 +201,7 @@ export function PostsForm({ onSuccess, onClose }: Props) {
                                 </View>
                             )}
                         />
-                        <TouchableOpacity style={styles.linkAddBtn}>
-                            <Text style={styles.linkAddText}>+</Text>
-                        </TouchableOpacity>
+                        <Button type='outline' style={styles.plus2} icon={'add'} />
                     </View>
                 </View>
 
@@ -271,5 +267,13 @@ const styles = StyleSheet.create({
     circle:      { width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: '#E8E8E8', justifyContent: 'center', alignItems: 'center' },
     btn: {
         width: 46
+    },
+    plus1: {
+        width: 30,
+        height: 30,
+    },
+    plus2: {
+        width: 40,
+        height: 40
     }
 });

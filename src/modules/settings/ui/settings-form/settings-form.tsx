@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import {
-    View, Text, ScrollView, Alert,
-    ActivityIndicator, Image, TouchableOpacity, StyleSheet, TextInput,
+    View,
+    Text,
+    ScrollView,
+    Alert,
+    ActivityIndicator,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
+    TextInput,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,7 +21,8 @@ import type { SettingsSchema, PasswordSchema } from '../../model';
 import { Card } from '@/components/Settings/Card';
 import { SettingField } from './field';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
+const BASE_IP = '10.0.2.2';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${BASE_IP}:3000`;
 
 function buildAvatarUri(path: string | null | undefined): string | null {
     if (!path) return null;
@@ -41,11 +49,15 @@ export function SettingsForm() {
         resolver: yupResolver(settingsSchema),
     });
 
-    const { control: pwdControl, handleSubmit: handlePwdSubmit, reset: resetPwd, formState: pwdFormState } =
-        useForm<PasswordSchema>({
-            defaultValues: { password: '' },
-            resolver: yupResolver(passwordSchema),
-        });
+    const {
+        control: pwdControl,
+        handleSubmit: handlePwdSubmit,
+        reset: resetPwd,
+        formState: pwdFormState,
+    } = useForm<PasswordSchema>({
+        defaultValues: { password: '' },
+        resolver: yupResolver(passwordSchema),
+    });
 
     const firstName = watch('firstName');
     const lastName = watch('lastName');
@@ -127,7 +139,9 @@ export function SettingsForm() {
 
                 <View style={{ alignItems: 'center', gap: 5 }}>
                     <Text style={styles.displayName}>{displayName || 'Не вказано'}</Text>
-                    <Text style={styles.usernameText}>{pseudonym ? `@${pseudonym}` : '@pseudonym'}</Text>
+                    <Text style={styles.usernameText}>
+                        {pseudonym ? `@${pseudonym}` : '@pseudonym'}
+                    </Text>
                 </View>
             </Card>
 
@@ -147,11 +161,10 @@ export function SettingsForm() {
                             holder={holder}
                             type={type}
                         />
-                    ))
-                }
+                    ))}
 
                 <View style={styles.readonlyField}>
-                    <Input type='pwd' label='Електронна пошта' holder='example@gmail.com' />
+                    <Input type="pwd" label="Електронна пошта" holder="example@gmail.com" />
                 </View>
                 <View style={{ marginTop: 8, gap: 4 }}>
                     <View style={styles.passwordHeader}>
@@ -184,11 +197,19 @@ export function SettingsForm() {
                                         onChangeText={field.onChange}
                                         editable={editingPassword}
                                         secureTextEntry={!showPassword}
-                                        placeholder={editingPassword ? "Введіть новий пароль" : "Пароль"}
+                                        placeholder={
+                                            editingPassword ? 'Введіть новий пароль' : 'Пароль'
+                                        }
                                         placeholderTextColor="#aaa"
                                     />
                                     {editingPassword && fieldState.error && (
-                                        <Text style={{ fontSize: 12, color: COLORS.error, marginBottom: 4 }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 12,
+                                                color: COLORS.error,
+                                                marginBottom: 4,
+                                            }}
+                                        >
                                             {fieldState.error.message}
                                         </Text>
                                     )}
@@ -221,8 +242,7 @@ export function SettingsForm() {
                             holder={holder}
                             type={type}
                         />
-                    ))
-                }
+                    ))}
             </Card>
         </ScrollView>
     );

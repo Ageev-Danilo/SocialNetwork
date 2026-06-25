@@ -22,7 +22,8 @@ const SCREEN_WIDTH  = Dimensions.get('window').width;
 const PHOTO_SIZE    = Math.floor((SCREEN_WIDTH - 32 - 10) / 2);
 const MY_PHOTO_SIZE = 200;
 
-const BASE_URL = 'http://192.168.0.152:3000';
+const BASE_IP = '10.0.2.2';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${BASE_IP}:3000`;
 
 function getImageUrl(path: string | null | undefined): string {
     if (!path) return '';

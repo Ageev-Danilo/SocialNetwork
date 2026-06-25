@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { queryBaseHeaders } from './headers';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
+const BASE_IP = '10.0.2.2';
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${BASE_IP}:3000`;
 
 export const baseApi = createApi({
     reducerPath: 'api',

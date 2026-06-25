@@ -10,7 +10,9 @@ import { ChatTabs } from './ChatTabs';
 import { Button, Input } from '@/shared/ui';
 
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
+const BASE_IP = '10.0.2.2';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${BASE_IP}:3000`;
+
 const IMAGE_REGEX = /\.(jpg|jpeg|png|webp|gif)/;
 
 export interface MenuAction {

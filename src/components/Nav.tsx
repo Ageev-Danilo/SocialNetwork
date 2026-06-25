@@ -30,17 +30,13 @@ export function Navigations({ style }: NavsProps) {
 
     return (
         <View style={style}>
-            <Button type="outline">
-                <Icon.add />
-            </Button>
+            <Button type="outline" icon={'add'} />
             {isVisible && (
                 <Button type="outline">
                     <Icon.settings />
                 </Button>
             )}
-            <Button type="outline" onPress={handleLogout}>
-                <Icon.logout />
-            </Button>
+            <Button type="outline" icon={'logout'} onPress={handleLogout} />
         </View>
     );
 }

@@ -1,7 +1,16 @@
 import { useState, useMemo } from 'react';
 import {
-    Modal, View, TouchableOpacity, Text, StyleSheet,
-    Dimensions, ScrollView, Alert, Image, TextInput, ActivityIndicator,
+    Modal,
+    View,
+    TouchableOpacity,
+    Text,
+    StyleSheet,
+    Dimensions,
+    ScrollView,
+    Alert,
+    Image,
+    TextInput,
+    ActivityIndicator,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,15 +20,15 @@ import { CHAT_COLORS } from './chat-theme';
 import { useGetFriendsQuery } from '@/modules/friends';
 import { useCreateChatMutation } from '@/modules/chat/api';
 
-
 interface Props {
     visible: boolean;
     onClose: () => void;
 }
 
-const { height: SCREEN_H }  = Dimensions.get('window');
+const { height: SCREEN_H } = Dimensions.get('window');
 const MAX_MODAL_HEIGHT = SCREEN_H * 0.9;
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.0.152:3000';
+const BASE_IP = '10.0.2.2';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${BASE_IP}:3000`;
 const COLOR_OVERLAY = 'rgba(0,0,0,0.5)';
 const COLOR_WHITE = '#ffffff';
 const COLOR_BLACK = '#000000';
@@ -81,7 +90,9 @@ export function CreateGroupModal({ visible, onClose }: Props) {
             if (!groups[letter]) groups[letter] = [];
             groups[letter].push(c);
         });
-        return Object.keys(groups).sort().map(key => ({ title: key, data: groups[key] }));
+        return Object.keys(groups)
+            .sort()
+            .map(key => ({ title: key, data: groups[key] }));
     }, [contacts]);
 
     const selectedContacts = useMemo(() => {
@@ -95,9 +106,7 @@ export function CreateGroupModal({ visible, onClose }: Props) {
             }));
     }, [friends, selectedIds]);
 
-    const avatarInitials = groupName.trim()
-        ? getInitials(groupName.trim())
-        : 'NG';
+    const avatarInitials = groupName.trim() ? getInitials(groupName.trim()) : 'NG';
 
     function toggleMember(id: number) {
         setSelectedIds(prev => {
@@ -178,12 +187,7 @@ export function CreateGroupModal({ visible, onClose }: Props) {
     }
 
     return (
-        <Modal
-            visible={visible}
-            animationType="fade"
-            transparent
-            onRequestClose={handleClose}
-        >
+        <Modal visible={visible} animationType="fade" transparent onRequestClose={handleClose}>
             <View style={styles.overlay}>
                 <View style={styles.modalCard}>
                     <TouchableOpacity onPress={handleClose} style={styles.closeBtn}>
@@ -207,9 +211,15 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                 />
                             </View>
                             <Text style={styles.selectedCount}>Вибрано: {selectedIds.size}</Text>
-                            <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                            <ScrollView
+                                style={styles.scrollContent}
+                                keyboardShouldPersistTaps="handled"
+                            >
                                 {isLoading ? (
-                                    <ActivityIndicator color={CHAT_COLORS.primary} style={styles.loader} />
+                                    <ActivityIndicator
+                                        color={CHAT_COLORS.primary}
+                                        style={styles.loader}
+                                    />
                                 ) : contacts.length === 0 ? (
                                     <Text style={styles.emptyText}>Список контактів порожній</Text>
                                 ) : (
@@ -219,27 +229,58 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                                 <Text style={styles.groupTitle}>{group.title}</Text>
                                                 {group.data.map((contact, index) => {
                                                     const isSelected = selectedIds.has(contact.id);
-                                                    const isLast     = index === group.data.length - 1;
-                                                    const initials   = getInitials(contact.name);
+                                                    const isLast = index === group.data.length - 1;
+                                                    const initials = getInitials(contact.name);
                                                     return (
                                                         <TouchableOpacity
                                                             key={contact.id}
-                                                            style={[styles.memberRow, isLast && styles.memberRowLast]}
+                                                            style={[
+                                                                styles.memberRow,
+                                                                isLast && styles.memberRowLast,
+                                                            ]}
                                                             onPress={() => toggleMember(contact.id)}
                                                             activeOpacity={0.7}
                                                         >
                                                             {contact.avatarUri ? (
-                                                                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
+                                                                <Image
+                                                                    source={{
+                                                                        uri: contact.avatarUri,
+                                                                    }}
+                                                                    style={styles.avatar}
+                                                                />
                                                             ) : (
-                                                                <View style={[styles.avatar, styles.avatarFallback]}>
-                                                                    <Text style={styles.avatarInitials}>{initials}</Text>
+                                                                <View
+                                                                    style={[
+                                                                        styles.avatar,
+                                                                        styles.avatarFallback,
+                                                                    ]}
+                                                                >
+                                                                    <Text
+                                                                        style={
+                                                                            styles.avatarInitials
+                                                                        }
+                                                                    >
+                                                                        {initials}
+                                                                    </Text>
                                                                 </View>
                                                             )}
                                                             <View style={styles.nameBlock}>
-                                                                <Text style={styles.memberName}>{contact.name}</Text>
+                                                                <Text style={styles.memberName}>
+                                                                    {contact.name}
+                                                                </Text>
                                                             </View>
-                                                            <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                                                                {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                                                            <View
+                                                                style={[
+                                                                    styles.checkbox,
+                                                                    isSelected &&
+                                                                        styles.checkboxSelected,
+                                                                ]}
+                                                            >
+                                                                {isSelected && (
+                                                                    <Text style={styles.checkmark}>
+                                                                        ✓
+                                                                    </Text>
+                                                                )}
                                                             </View>
                                                         </TouchableOpacity>
                                                     );
@@ -256,7 +297,10 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                         </>
                     ) : (
                         <>
-                            <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                            <ScrollView
+                                style={styles.scrollContent}
+                                keyboardShouldPersistTaps="handled"
+                            >
                                 <View style={styles.nameSection}>
                                     <Text style={styles.fieldLabel}>Назва</Text>
                                     <TextInput
@@ -271,18 +315,29 @@ export function CreateGroupModal({ visible, onClose }: Props) {
 
                                 <View style={styles.avatarSection}>
                                     {groupImageUri ? (
-                                        <Image source={{ uri: groupImageUri }} style={styles.groupAvatar} />
+                                        <Image
+                                            source={{ uri: groupImageUri }}
+                                            style={styles.groupAvatar}
+                                        />
                                     ) : (
                                         <View style={styles.groupAvatarFallback}>
-                                            <Text style={styles.groupAvatarInitials}>{avatarInitials}</Text>
+                                            <Text style={styles.groupAvatarInitials}>
+                                                {avatarInitials}
+                                            </Text>
                                         </View>
                                     )}
                                     <View style={styles.photoRow}>
-                                        <TouchableOpacity style={styles.photoBtn} onPress={pickFromCamera}>
+                                        <TouchableOpacity
+                                            style={styles.photoBtn}
+                                            onPress={pickFromCamera}
+                                        >
                                             <PlusIcon />
                                             <Text style={styles.photoBtnText}>Додайте фото</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.photoBtn} onPress={pickFromGallery}>
+                                        <TouchableOpacity
+                                            style={styles.photoBtn}
+                                            onPress={pickFromGallery}
+                                        >
                                             <MediaIcon size={16} color={COLOR_PRIMARY} />
                                             <Text style={styles.photoBtnText}>Оберіть фото</Text>
                                         </TouchableOpacity>
@@ -295,14 +350,26 @@ export function CreateGroupModal({ visible, onClose }: Props) {
                                     return (
                                         <View key={contact.id} style={styles.participantRow}>
                                             {contact.avatarUri ? (
-                                                <Image source={{ uri: contact.avatarUri }} style={styles.avatar} />
+                                                <Image
+                                                    source={{ uri: contact.avatarUri }}
+                                                    style={styles.avatar}
+                                                />
                                             ) : (
-                                                <View style={[styles.avatar, styles.avatarFallback]}>
-                                                    <Text style={styles.avatarInitials}>{initials}</Text>
+                                                <View
+                                                    style={[styles.avatar, styles.avatarFallback]}
+                                                >
+                                                    <Text style={styles.avatarInitials}>
+                                                        {initials}
+                                                    </Text>
                                                 </View>
                                             )}
-                                            <Text style={styles.participantName}>{contact.name}</Text>
-                                            <TouchableOpacity onPress={() => removeMember(contact.id)} style={styles.removeBtn}>
+                                            <Text style={styles.participantName}>
+                                                {contact.name}
+                                            </Text>
+                                            <TouchableOpacity
+                                                onPress={() => removeMember(contact.id)}
+                                                style={styles.removeBtn}
+                                            >
                                                 <TrashIcon size={18} color={COLOR_DARK} />
                                             </TouchableOpacity>
                                         </View>
@@ -376,8 +443,19 @@ const styles = StyleSheet.create({
     selectedCount: { fontSize: 14, color: COLOR_DARK, paddingHorizontal: 20, marginBottom: 8 },
     scrollContent: { paddingHorizontal: 20 },
     loader: { paddingVertical: 40 },
-    emptyText: { textAlign: 'center', color: CHAT_COLORS.textMuted, fontSize: 14, paddingVertical: 30 },
-    groupTitle: { fontSize: 12, fontWeight: '700', color: COLOR_DARK, marginTop: 12, marginBottom: 4 },
+    emptyText: {
+        textAlign: 'center',
+        color: CHAT_COLORS.textMuted,
+        fontSize: 14,
+        paddingVertical: 30,
+    },
+    groupTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: COLOR_DARK,
+        marginTop: 12,
+        marginBottom: 4,
+    },
     memberRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -388,7 +466,11 @@ const styles = StyleSheet.create({
     },
     memberRowLast: { borderBottomWidth: 0 },
     avatar: { width: 44, height: 44, borderRadius: 22 },
-    avatarFallback: { backgroundColor: COLOR_PRIMARY, justifyContent: 'center', alignItems: 'center' },
+    avatarFallback: {
+        backgroundColor: COLOR_PRIMARY,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     avatarInitials: { fontSize: 14, fontWeight: '700', color: COLOR_WHITE },
     nameBlock: { flex: 1 },
     memberName: { fontSize: 16, fontWeight: '600', color: COLOR_DARK },
@@ -444,7 +526,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         color: COLOR_DARK,
         marginBottom: 8,
-        marginTop:  4,
+        marginTop: 4,
     },
     participantRow: {
         flexDirection: 'row',

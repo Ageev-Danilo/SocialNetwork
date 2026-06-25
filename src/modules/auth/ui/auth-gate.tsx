@@ -9,40 +9,56 @@ import type { AppDispatch } from '@/shared/store';
 
 export function AuthGate() {
     const { token, setToken, setUser } = useUserContext();
-    const [isReady, setIsReady] = useState(false);
+    const [initialized, setInitialized] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>();
-
-    const { data: meData } = useMeQuery(undefined, { skip: !token });
-    const router   = useRouter();
+    const router = useRouter();
     const segments = useSegments();
 
     useEffect(() => {
         async function bootstrap() {
-            const saved = await AsyncStorage.getItem('token');
-            if (saved) setToken(saved);
-            setIsReady(true);
+            const savedToken = await AsyncStorage.getItem('token');
+
+            if (savedToken) {
+                setToken(savedToken);
+            }
+
+            setInitialized(true);
         }
+
         bootstrap();
     }, []);
 
+    const { data: meData } = useMeQuery(undefined, {
+        skip: !initialized || !token,
+    });
+
     useEffect(() => {
-        if (meData) setUser(meData);
+        if (meData) {
+            setUser(meData);
+        }
     }, [meData]);
 
     useEffect(() => {
-        if (!isReady) return;
+        if (!initialized) return;
 
-        const inAuth  = segments[0] === '(auth)';
+        const inAuth = segments[0] === '(auth)';
         const inModal = segments[0] === '(modal)';
 
         if (!token && !inAuth && !inModal) {
             router.replace('/(auth)/login');
-        } else if (token && inAuth) {
+            return;
+        }
+
+        if (token && inAuth) {
             router.replace('/home');
             router.push('/(modal)/about');
         }
-    }, [isReady, token, segments]);
+    }, [initialized, token, segments]);
+
+    if (!initialized) {
+        return null;
+    }
 
     return (
         <Stack screenOptions={{ headerShown: false }}>
@@ -53,6 +69,7 @@ export function AuthGate() {
             <Stack.Screen name="(friends)" />
             <Stack.Screen name="(posts)" />
             <Stack.Screen name="(modal)" />
+            <Stack.Screen name="(settings)" />
         </Stack>
     );
 }

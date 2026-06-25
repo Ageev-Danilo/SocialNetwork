@@ -64,7 +64,7 @@ export function Header() {
                         {showSettingsButton && (
                             <Button
                                 type="outline"
-                                onPress={() => router.push('/settings')}
+                                onPress={() => router.push('/settingsTabs')}
                                 style={isSettingsActive && styles.activeBtn}
                             >
                                 <Icon.settings />
